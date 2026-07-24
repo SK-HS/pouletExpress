@@ -2,100 +2,147 @@
 @section('content')
 
 
-  <main class="main">
+  <main class="flex-grow container mx-auto px-margin-mobile md:px-margin-desktop py-8">
+                <!-- Breadcrumbs -->
+                <nav class="flex items-center space-x-2 text-on-surface-variant mb-8 font-body-md">
+                        <a class="hover:text-primary" href="{{route('index')}}">Accueil</a>
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                        <a class="hover:text-primary" href="{{route('Services')}}">Produits</a>
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                        <span id="breadcrumb-product" class="text-primary font-body-md-bold">{{ $produit->produit?->nom }}</span>
+                </nav>
 
-    <!-- Page Title -->
-    <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
-      <div class="container position-relative">
-        <h1>Details Produits</h1>
-        <p></p>
-        <nav class="breadcrumbs">
-          <ol>
-            <li><a href="{{route('index')}}">Accueil</a></li>
-            <li class="current"> Details Produits</li>
-          </ol>
-        </nav>
-      </div>
-    </div><!-- End Page Title -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <!-- Left: Image Section -->
+                       <div class="lg:col-span-7 space-y-4">
+                          <div class="relative rounded-2xl overflow-hidden shadow-md group aspect-[4/3] md:aspect-video lg:aspect-auto lg:h-[500px]">
+                              <img id="main-image" class="w-full h-full object-cover"
+                                  src="/storage/{{ $produit->produit?->image }}"
+                                  alt="{{ $produit->produit?->designation }}">
+                          </div>
+                          <div id="thumbnails-container" class="flex gap-4">
+                              @if($produit->images)
+                              @foreach ($produit->images as $index => $image)
+                              <div class="thumbnail w-24 h-24 rounded-xl border-2 {{ $index === 0 ? 'border-primary' : 'border-outline-variant' }} overflow-hidden cursor-pointer hover:border-primary transition-colors"
+                                  data-src="/storage/{{ $image }}">
+                                  <img class="w-full h-full object-cover"
+                                      src="/storage/{{ $image }}"
+                                      alt="Volaille bio">
+                              </div>
+                              @endforeach
+                              @endif
+                          </div>
+                      </div>
 
-    <!-- Service Details Section -->
-    <section id="service-details" class="service-details section">
+                        <!-- Right: Product Info -->
+                        <div class="lg:col-span-5 flex flex-col gap-6">
+                                <div class="space-y-2">
+                                        <div class="flex items-center gap-2">
+                                                <span id="product-category"
+                                                        class="bg-primary-fixed text-on-primary-fixed px-3 py-1 rounded-full font-label-caps text-label-caps">PRODUIT
+                                                        BIO</span>
+                                                <span
+                                                        class="text-status-success font-body-md-bold flex items-center gap-1">
+                                                        <span
+                                                                class="material-symbols-outlined text-[18px]">verified</span>
+                                                        Certifié
+                                                </span>
+                                        </div>
+                                        <h2 id="product-title" class="font-headline-lg text-headline-lg text-primary">
+                                               {{ $produit->produit?->nom }}</h2>
+                                        <div class="flex items-center gap-3">
+                                                <span id="product-price"
+                                                        class="font-headline-lg text-secondary text-headline-lg">
+                                                        {{ $produit->prix }}
+                                                        FCFA</span>
+                                                <span id="product-original-price"
+                                                        class="text-on-surface-variant line-through font-body-md">
+                                                        {{ $produit->prix }}
+                                                        FCFA</span>
+                                        </div>
+                                </div>
 
-      <div class="container">
+                                <!-- Vendor Mini Card -->
+                                <div class="bg-surface-container rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-surface-container-high transition-colors"
+                                        onclick="window.location.href='detail-fournisseur.html'">
+                                        <div class="flex items-center gap-3">
+                                                <div
+                                                        class="w-12 h-12 rounded-full overflow-hidden bg-white border border-outline-variant">
+                                                        <img id="vendor-image" class="w-full h-full object-cover"
+                                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-dlDXy_qhayaWi-a-i7sD2HLCC2iUCN-QIxNEavigy6WjSNpPLTzNF_18gDKe55FXXD42dUMvHmtmf94o6Q0LjFWOVxtlWY7MSDDEC7ur1O67BRqcBpRfOUK-HJa3p6ZZSbMH5gnddJ_uEwKiNME5DpxKfi9TQIK35cNFcJIE_ObpvzpGHRcehLNqr7_bSgmIqfzh6RYapLatd6-_z1KaT1H1ULoedruKYO1PxTuJcmZfeK3SXWVQhg4y-aggEQRs1igMXFEumrM"
+                                                                alt="Ferme Avicole Saliou">
+                                                </div>
+                                                <div>
+                                                        <p id="vendor-name" class="font-body-md-bold text-primary">
+                                                          {{ $produit->fournisseur?->nom }}
+                                                        </p>
+                                                        <div class="flex items-center gap-1">
+                                                                <span
+                                                                        class="material-symbols-outlined text-secondary text-[16px]">star</span>
+                                                                <span id="vendor-rating"
+                                                                        class="text-on-surface-variant font-body-md">4.9/5
+                                                                        (Éleveur Certifié)</span>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                        <span
+                                                class="bg-status-success/10 text-status-success px-2 py-1 rounded-lg text-label-sm font-label-sm uppercase tracking-wider"
+                                                 onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">Voir
+                                                profil</span>
+                                </div>
 
-        <div class="row gy-4">
-           {{-- <div class="col-lg-4 col-md-3" data-aos="fade-up" data-aos-delay="100">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Passer Votre commande<h5>
-                  
+                                <div class="space-y-1">
+                                        <p id="product-description" class="text-on-surface-variant font-body-md">Poulet
+                                                élevé en plein air, 100% naturel. Une viande ferme et savoureuse, idéale
+                                                pour les grillades et les plats traditionnels ivoiriens.</p>
+                                        <p class="text-on-surface font-body-md-bold mt-4 flex items-center gap-2">
+                                                <span
+                                                        class="material-symbols-outlined text-status-success">inventory_2</span>
+                                                En stock : <span id="product-stock" class="text-primary">{{ $produit->quantite }}</span>
+                                        </p>
+                                        <p class="text-on-surface font-body-md-bold mt-4 flex items-center gap-2">
+                                                <span
+                                                        class="material-symbols-outlined text-status-success">balance</span>
+                                                Poids : <span id="product-stock" class="text-primary">{{ $produit->taille?->taille }}</span>
+                                        </p>
+                                        <p class="text-on-surface font-body-md-bold mt-4 flex items-center gap-2">
+                                                <span
+                                                        class="material-symbols-outlined text-status-success">category</span>
+                                                Categorie : <span id="product-stock" class="text-primary">{{ $produit->categorie?->nom }}</span>
+                                        </p>
+                                </div>
+                                <!-- Purchase Section -->
+                                <div class="pt-4 border-t border-outline-variant space-y-4">
+                                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                                                <div class="flex items-center justify-between border-2 border-outline rounded-xl h-12 w-full sm:w-auto">
+                                                        <button class="px-4 h-full hover:bg-surface-container transition-colors"
+                                                                onclick="const i = this.nextElementSibling; i.value = Math.max(1, parseInt(i.value)-1)">-</button>
+                                                        <input class="w-12 text-center bg-transparent border-none focus:ring-0 font-body-md-bold"
+                                                                readonly="" type="number" value="1">
+                                                        <button class="px-4 h-full hover:bg-surface-container transition-colors"
+                                                                onclick="const i = this.previousElementSibling; i.value = parseInt(i.value)+1">+</button>
+                                                </div>
+                                                <a href="panier.html"
+                                                        class="flex-grow bg-primary text-on-primary h-12 rounded-xl font-body-md-bold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-container transition-colors">
+                                                        <span class="material-symbols-outlined">shopping_cart</span>
+                                                        Ajouter au panier
+                                                </a>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <a href="finaliser-commande.html"
+                                                        class="border-2 border-primary text-primary h-12 rounded-xl font-body-md-bold hover:bg-primary/5 transition-colors flex items-center justify-center">
+                                                        Acheter maintenant
+                                                </a>
+                                                <a href="finaliser-commande.html"
+                                                        class="bg-orange-money text-white h-12 rounded-xl font-body-md-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                                                        Payer via Mobile Money
+                                                </a>
+                                        </div>
+                                </div>
+                        </div>
 
-              </div>
-              </div>
-              </div> --}}
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="services-list">
-                <h3>PRODUITS</h3>
-              <a href="#" class="active">{{$produit->produit->nom}}</a>
-              <a href="#" class="active">Type: {{$produit->produit->categorie->nom}}</a>
-              <a href="#" class="active">Poids: {{$produit->produit->taille->taille}}</a>
-              <a href="#" class="active">Quantité Disponible: {{$produit->quantite}}</a>
-              <a href="#" class="active">Prix Unitaire: {{$produit->prix}} XOF</a>
-            </div>
-            <div class="services-list">
-                <h3>FORNISSEUR</h3>
-              <a href="#" >Nom: {{$produit->fournisseur->nom}}</a>
-              <a href="#" >Type: {{$produit->fournisseur->type}}</a>
-              <a href="#" >Téléphone: {{$produit->fournisseur->telephone}}</a>
-              <a href="#">Quartier: {{$produit->fournisseur->quartier->nom_quartier}}</a>
-              <a href="#">Adresse: {{$produit->fournisseur->adresse}}</a>
-              <a class="btn btn-primary" style="color:white" href="{{route('Paiement-Commande', $produit->id)}}">Passer Votre Commande</a>
-              
-            </div>
-
-            {{-- <h4>Enim qui eos rerum in delectus</h4>
-            <p>Nam voluptatem quasi numquam quas fugiat ex temporibus quo est. Quia aut quam quod facere ut non occaecati ut aut. Nesciunt mollitia illum tempore corrupti sed eum reiciendis. Maxime modi rerum.</p> --}}
-          </div>
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <img src="/storage/{{$produit->produit->image}}" alt="" class="img-fluid services-img">
-            {{-- <h3>Temporibus et in vero dicta aut eius lidero plastis trand lined voluptas dolorem ut voluptas</h3> --}}
-            <p>
-             {{$produit->description}}
-            </p>
-            {{-- <ul>
-              <li><i class="bi bi-check-circle"></i> <span>Aut eum totam accusantium voluptatem.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Assumenda et porro nisi nihil nesciunt voluptatibus.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea</span></li>
-            </ul>
-            <p>
-              Est reprehenderit voluptatem necessitatibus asperiores neque sed ea illo. Deleniti quam sequi optio iste veniam repellat odit. Aut pariatur itaque nesciunt fuga.
-            </p>
-            <p>
-              Sunt rem odit accusantium omnis perspiciatis officia. Laboriosam aut consequuntur recusandae mollitia doloremque est architecto cupiditate ullam. Quia est ut occaecati fuga. Distinctio ex repellendus eveniet velit sint quia sapiente cumque. Et ipsa perferendis ut nihil. Laboriosam vel voluptates tenetur nostrum. Eaque iusto cupiditate et totam et quia dolorum in. Sunt molestiae ipsum at consequatur vero. Architecto ut pariatur autem ad non cumque nesciunt qui maxime. Sunt eum quia impedit dolore alias explicabo ea.
-            </p> --}}
-            <div class="row">
-              @if($produit->images)
-              @foreach ($produit->images as $image)
-                <div class="col-lg-4">
-                  <a href="/storage/{{ $image }}" target="_blank">
-                    <img src="/storage/{{ $image }}" alt="" class="img-fluid services-img">
-                  </a>
                 </div>
-              @endforeach
-              @endif
-              
-            </div>
-          </div>
-        
-
-        </div>
-
-      </div>
-
-    </section><!-- /Service Details Section -->
-
-  </main>
+                </div>
+        </main>
 
 @endsection

@@ -1,603 +1,329 @@
 @extends('layouts.master')
 @section('content')
 
-  <main class="main">
+<main class="min-h-screen pb-20">
+<!-- Hero Section Carousel -->
+<section class="carousel-container mb-12">
+<div class="carousel-track" id="carouselTrack" style="transform: translateX(-100%);">
+<!-- Slide 1 -->
+<div class="carousel-slide">
+<img alt="Modern poultry farm at sunrise" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKMP2aLGzxhvqeeERGDrXQd4XM5bY19AMQvultRfFs96tXbHhp6lChohTnctZfAv64OuEZc_q1MecmCW04TtJe7vWmgrSl6QOX6RpVXvExQt06CpHPjEW5ZkrtkFKS5bSgCa8XPQWnHsgYkF6onzKVe9CbYGAQzJXCHIYQy6krrxxMhxVE3Csy8YIgTdCltGXzhZbrGAs0VNTdEgfQDFfz21i02Z96nBxqqUVcR26FB_Z86Dg4V11Nh76P9diUAIJ44P25KYmPWwg">
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 flex items-center px-margin-desktop">
+<div class="max-w-2xl text-on-primary">
+<h1 class="font-headline-lg text-headline-lg mb-4">La fraîcheur de la ferme, livrée à votre porte.</h1>
+<p class="font-body-lg text-body-lg mb-8 opacity-90">Connectez-vous directement avec les meilleurs éleveurs locaux. Des produits de qualité supérieure, tracés et garantis.</p>
+<div class="bg-surface-container-lowest p-2 rounded-2xl flex items-center gap-2 shadow-xl max-w-xl">
+<div class="flex-1 flex items-center px-4 gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
+</div>
+<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="">Explorer</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Slide 2 -->
+<div class="carousel-slide">
+<img alt="Fresh organic eggs" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfCtoqvkUHoQ390NDhwHQNxOxiNcmot_DdgYhhu6UjuQjLleFOpFriAdhIke5SEZ26uLFgffqC9o48P4UgAVweoHczl5HttONRpa9kfGiPr7HuiRTDiPS62gx6lwVH0G3-KZmoXNtgcwiicX18vNIsWS75EtB5hD3s04b-8GysYHhkunCnqFSSERuCtZhfkTviijgTqAsJkeju3OnfAatzFiqNytT2dk8I54Y27b7b7gpHVxs51pueGA7dPaElcFAl7E7lOC7Dgq4">
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 flex items-center px-margin-desktop">
+<div class="max-w-2xl text-on-primary">
+<h1 class="font-headline-lg text-headline-lg mb-4">Œufs frais et volailles locales certifiées.</h1>
+<p class="font-body-lg text-body-lg mb-8 opacity-90">Découvrez nos produits 100% bio en provenance directe des éleveurs de la région.</p>
+<div class="bg-surface-container-lowest p-2 rounded-2xl flex items-center gap-2 shadow-xl max-w-xl">
+<div class="flex-1 flex items-center px-4 gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
+</div>
+<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="">Explorer</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Slide 3 -->
+<div class="carousel-slide">
+<img alt="Friendly local farmer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvZJHXyjmcoMAptDdeCQj0Vh70-5MlEbbnMlkzNhbwbNelJ1ZwOuhFphFx3xIb6u1mxWh3TssmP_5mdOi_llqPlLEdOIuIhgGIDWvZWmrLaAOfKXvXgNOVI2w-bE63hE4C1Un8F1rnj8emnhKwh5kQ_7_WJsQHf2Yow6fXG-8DVC5P43X-NoUjQNtgdTdhovTq_wOr2r6Bxo0zIWXRQm77mNvU0Gxkgrz9LHkKmJsyxzcPdbtTEds9Ca_XyuPZcxPGnxiu2eyL6Eo">
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 flex items-center px-margin-desktop">
+<div class="max-w-2xl text-on-primary">
+<h1 class="font-headline-lg text-headline-lg mb-4">Soutenez les fermiers et éleveurs locaux.</h1>
+<p class="font-body-lg text-body-lg mb-8 opacity-90">Un circuit court transparent avec paiement sécurisé par Mobile Money.</p>
+<div class="bg-surface-container-lowest p-2 rounded-2xl flex items-center gap-2 shadow-xl max-w-xl">
+<div class="flex-1 flex items-center px-4 gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
+</div>
+<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<span class="">Explorer</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Carousel Controls -->
+<button class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full transition-all" id="prevSlide">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full transition-all" id="nextSlide">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+<!-- Dots -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3" id="carouselDots">
+<button class="w-3 h-3 rounded-full bg-white/50 transition-all hover:bg-white" data-slide="0"></button>
+<button class="w-3 h-3 rounded-full bg-white transition-all scale-125" data-slide="1"></button>
+<button class="w-3 h-3 rounded-full bg-white/50 transition-all hover:bg-white" data-slide="2"></button>
+</div>
+</section>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero section dark-background">
+<!-- Categories Grid -->
+<section class="px-margin-desktop mb-16">
+<div class="bg-surface-container-low rounded-3xl p-8 md:p-12">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+<div class="flex flex-col items-center text-center group">
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">agriculture</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">500+</span>
+<span class="font-body-md text-on-surface-variant">Éleveurs Partenaires</span>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">local_shipping</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">150+</span>
+<span class="font-body-md text-on-surface-variant">Livreurs Actifs</span>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">map</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">12</span>
+<span class="font-body-md text-on-surface-variant">Zones de Couverture</span>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-surface">5000+</span>
+<span class="font-body-md text-on-surface-variant">Produits Frais</span>
+</div>
+</div>
+</div>
+</section>
 
-      <img src="assets/assets/img/world-dotted-map.png" alt="" class="hero-bg" data-aos="fade-in">
+<!-- Banner Promo -->
+<section class="px-margin-desktop mb-16">
+<div class="relative group overflow-hidden rounded-3xl">
+<div class="flex transition-transform duration-700 ease-in-out" id="promoSlider">
+<div class="min-w-full relative h-64 md:h-80">
+<img alt="Promo Aliment" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk1ZOLaGeZxho8LnJGV2feCkWYDW2Mo5QDMN03UO5mLeTk7KvtsjYRk5kaCvUHp6JcGwp9wUI5W9CJcFIsoJaRPuBzC-lbhsAtfawDnSfPCPF6pCtYY1sQKlEY4rOex90AFriz0HoQ-T5i3oKALyk0Jh2MyzLbCoxIGgePHejrHaOJ_vpsxtzI-jdKN5XkRVqvw1TefDnj1Ddz-dnK5PpfDe17QQHlViTZMSAS_yNRJo6sRs2mYZRMaYkJ9dgBFaQWz11o1uldHgk">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center px-12">
+<div class="max-w-md text-white">
+<span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold mb-4 inline-block">OFFRE LIMITÉE</span>
+<h2 class="text-headline-md font-headline-md mb-2">Promo -15% sur l'aliment volaille</h2>
+<p class="text-body-md mb-6 opacity-90">Optimisez la croissance de vos sujets avec notre gamme premium AgriNutrition.</p>
+<a href="produits.html" class="inline-block bg-white text-primary px-6 py-2 rounded-lg font-body-md-bold hover:bg-primary-fixed transition-colors">En profiter</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
 
-      <div class="container">
-        <div class="row gy-4 d-flex justify-content-between">
-          <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-            <h2 data-aos="fade-up">Votre partenaire de fourniture en poulets ultra-rapide</h2>
-            <p data-aos="fade-up" data-aos-delay="100">Facere distinctio molestiae nisi fugit tenetur repellat non praesentium nesciunt optio quis sit odio nemo quisquam. eius quos reiciendis eum vel eum voluptatem eum maiores eaque id optio ullam occaecati odio est possimus vel reprehenderit</p>
+<!-- Categories Browsing -->
+<section class="px-margin-desktop mb-16">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Parcourir par catégories</h2>
+<p class="text-on-surface-variant font-body-md">Trouvez exactement ce dont vous avez besoin</p>
+</div>
+<a href="produits.html" class="text-primary font-body-md-bold flex items-center gap-1 hover:underline">
+Voir tout <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-gutter">
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">pets</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Poulets</span>
+</a>
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">egg</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Œufs</span>
+</a>
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">featured_seasonal_and_gifts</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Pintades</span>
+</a>
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">cruelty_free</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Dindes</span>
+</a>
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">grass</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Aliments</span>
+</a>
+<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-primary text-4xl">construction</span>
+</div>
+<span class="font-body-md-bold text-on-surface">Matériel</span>
+</a>
+</div>
+</section>
 
-            <form action="#" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
-              <input type="text" class="form-control" placeholder="Your ZIP code or City. e.g. New York">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-
-            <div class="row gy-4" data-aos="fade-up" data-aos-delay="300">
-
-              <div class="col-lg-3 col-6">
-                <div class="stats-item text-center w-100 h-100">
-                  <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="0" class="purecounter">232</span>
-                  <p>Clients</p>
-                </div>
-              </div><!-- End Stats Item -->
-
-              <div class="col-lg-3 col-6">
-                <div class="stats-item text-center w-100 h-100">
-                  <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="0" class="purecounter">521</span>
-                  <p>Fournisseurs</p>
-                </div>
-              </div><!-- End Stats Item -->
-
-              <div class="col-lg-3 col-6">
-                <div class="stats-item text-center w-100 h-100">
-                  <span data-purecounter-start="0" data-purecounter-end="1453" data-purecounter-duration="0" class="purecounter">100</span>
-                  <p>Livreurs</p>
-                </div>
-              </div><!-- End Stats Item -->
-
-              <div class="col-lg-3 col-6">
-                <div class="stats-item text-center w-100 h-100">
-                  <span data-purecounter-start="0" data-purecounter-end="32" data-purecounter-duration="0" class="purecounter">32</span>
-                  <p>Points de vente</p>
-                </div>
-              </div><!-- End Stats Item -->
-
-            </div>
-
-          </div>
-
-          <div class="col-lg-5 order-1 order-lg-2 hero-img" data-aos="zoom-out">
-            <img src="assets/assets/img/hero-img.svg" class="img-fluid mb-3 mb-lg-0" alt="">
-          </div>
-
+<!-- Featured Products Slider -->
+<section class="px-margin-desktop mb-16 relative">
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary text-3xl">star</span>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Produits en vedette</h2>
         </div>
-      </div>
-
-    </section><!-- /Hero Section -->
-
-    <!-- Featured Services Section -->
-    <section id="featured-services" class="featured-services section">
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="100">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-cart-flatbed"></i></div>
-            <div>
-              <h4 class="title">Lorem Ipsum</h4>
-              <p class="description">Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-          <!-- End Service Item -->
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="200">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-truck"></i></div>
-            <div>
-              <h4 class="title">Dolor Sitema</h4>
-              <p class="description">Minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat tarad limino ata</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div><!-- End Service Item -->
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="300">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-truck-ramp-box"></i></div>
-            <div>
-              <h4 class="title">Sed ut perspiciatis</h4>
-              <p class="description">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div><!-- End Service Item -->
-
+        <div class="flex gap-2">
+            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all" id="prodPrev">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all" id="prodNext">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
         </div>
+    </div>
 
-      </div>
-
-    </section><!-- /Featured Services Section -->
-
-    <!-- About Section -->
-    <section id="about" class="about section">
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-6 position-relative align-self-start order-lg-last order-first" data-aos="fade-up" data-aos-delay="200">
-            <img src="assets/assets/img/about.jpg" class="img-fluid" alt="">
-            <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn"></a>
-          </div>
-
-          <div class="col-lg-6 content order-last  order-lg-first" data-aos="fade-up" data-aos-delay="100">
-            <h3>About Us</h3>
-            <p>
-              Dolor iure expedita id fuga asperiores qui sunt consequatur minima. Quidem voluptas deleniti. Sit quia molestiae quia quas qui magnam itaque veritatis dolores. Corrupti totam ut eius incidunt reiciendis veritatis asperiores placeat.
-            </p>
-            <ul>
-              <li>
-                <i class="bi bi-diagram-3"></i>
-                <div>
-                  <h5>Ullamco laboris nisi ut aliquip consequat</h5>
-                  <p>Magni facilis facilis repellendus cum excepturi quaerat praesentium libre trade</p>
-                </div>
-              </li>
-              <li>
-                <i class="bi bi-fullscreen-exit"></i>
-                <div>
-                  <h5>Magnam soluta odio exercitationem reprehenderi</h5>
-                  <p>Quo totam dolorum at pariatur aut distinctio dolorum laudantium illo direna pasata redi</p>
-                </div>
-              </li>
-              <li>
-                <i class="bi bi-broadcast"></i>
-                <div>
-                  <h5>Voluptatem et qui exercitationem</h5>
-                  <p>Et velit et eos maiores est tempora et quos dolorem autem tempora incidunt maxime veniam</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section><!-- /About Section -->
-
-    <!-- Services Section -->
-    <section id="services" class="services section">
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <span>Nos Produits<br></span>
-        <h2>Nos Produits</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-            @foreach ( $produits as  $produit)
-                
-          
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="card">
-              <div class="card-img">
-                <img src="/storage/{{$produit->produit->image}}" alt="" class="img-fluid">
-              </div>
-              <h3> <span style="color:black">{{$produit->produit->nom}}</span></h3>
-              <h3> Type:  <span style="color:black"> {{$produit->produit->categorie->nom}}</span></h3>
-              <h3>Poids: <span style="color:black">  {{$produit->produit->taille->taille}}</span></h3>
-              <h3>Quantité:  <span style="color:black"> {{$produit->quantite}}</span></h3>
-              <h3>Prix: <span style="color:black">  {{$produit->prix}}</span></h3>
-              <h3>Fournisseur: <span style="color:black">  {{$produit->fournisseur->nom}}</span></h3>
-              <h3>Lieu: <span style="color:black"> {{$produit->fournisseur->quartier->nom_quartier}} <=> {{$produit->fournisseur->adresse}}</span> </h3>
-             
-              <a class="btn btn-primary" style="color:white" href="{{ route('Detail-Produit', $produit->produit->id) }}">Voir plus</a>
-             
+    <div class="flex overflow-x-auto snap-x snap-mandatory gap-gutter no-scrollbar pb-6" id="productSlider">
+        @foreach ($produits as $produit)
+        <div class="product-card min-w-[280px] md:min-w-[320px] snap-start bg-surface-container-lowest rounded-3xl overflow-hidden card-shadow group flex flex-col h-full border border-outline-variant/30 transition-transform hover:translate-y-[-4px]">
+            <div class="relative h-48 overflow-hidden cursor-pointer" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+                <img alt="{{ $produit->produit?->nom }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="/storage/{{ $produit->produit?->image }}">
+                <div class="absolute top-4 left-4 bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold">BIO</div>
             </div>
-          </div>
-            @endforeach
-            <!-- End Card Item -->
-
-          {{-- <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="card">
-              <div class="card-img">
-                <img src="assets/assets/img/service-2.jpg" alt="" class="img-fluid">
-              </div>
-              <h3><a href="#" class="stretched-link">Logistics</a></h3>
-              <p>Asperiores provident dolor accusamus pariatur dolore nam id audantium ut et iure incidunt molestiae dolor ipsam ducimus occaecati nisi</p>
-            </div>
-          </div><!-- End Card Item -->
-
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="card">
-              <div class="card-img">
-                <img src="assets/assets/img/service-3.jpg" alt="" class="img-fluid">
-              </div>
-              <h3><a href="#" class="stretched-link">Cargo</a></h3>
-              <p>Dicta quam similique quia architecto eos nisi aut ratione aut ipsum reiciendis sit doloremque oluptatem aut et molestiae ut et nihil</p>
-            </div>
-          </div><!-- End Card Item -->
-
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="card">
-              <div class="card-img">
-                <img src="assets/assets/img/service-4.jpg" alt="" class="img-fluid">
-              </div>
-              <h3><a href="#" class="stretched-link">Trucking</a></h3>
-              <p>Dicta quam similique quia architecto eos nisi aut ratione aut ipsum reiciendis sit doloremque oluptatem aut et molestiae ut et nihil</p>
-            </div>
-          </div><!-- End Card Item -->
-
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
-            <div class="card">
-              <div class="card-img">
-                <img src="assets/assets/img/service-5.jpg" alt="" class="img-fluid">
-              </div>
-              <h3>Packaging</h3>
-              <p>Illo consequuntur quisquam delectus praesentium modi dignissimos facere vel cum onsequuntur maiores beatae consequatur magni voluptates</p>
-            </div>
-          </div><!-- End Card Item -->
-
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
-            <div class="card">
-              <div class="card-img">
-                <img src="assets/assets/img/service-6.jpg" alt="" class="img-fluid">
-              </div>
-              <h3><a href="#" class="stretched-link">Warehousing</a></h3>
-              <p>Quas assumenda non occaecati molestiae. In aut earum sed natus eatae in vero. Ab modi quisquam aut nostrum unde et qui est non quo nulla</p>
-            </div>
-          </div><!-- End Card Item --> --}}
-
-        </div>
-
-      </div>
-
-    </section><!-- /Services Section -->
-
-    <!-- Call To Action Section -->
-    <section id="call-to-action" class="call-to-action section dark-background">
-
-      <img src="assets/assets/img/cta-bg.jpg" alt="">
-
-      <div class="container">
-        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
-          <div class="col-xl-10">
-            <div class="text-center">
-              <h3>Call To Action</h3>
-              <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-              <a class="cta-btn" href="#">Call To Action</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </section><!-- /Call To Action Section -->
-
-    <!-- Features Section -->
-    <section id="features" class="features section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <span>Features</span>
-        <h2>Features</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="100">
-            <img src="assets/assets/img/features-1.jpg" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7" data-aos="fade-up" data-aos-delay="100">
-            <h3>Voluptatem dignissimos provident quasi corporis voluptates sit assumenda.</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <ul>
-              <li><i class="bi bi-check"></i><span> Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check"></i> <span>Ullam est qui quos consequatur eos accusamus.</span></li>
-            </ul>
-          </div>
-        </div><!-- Features Item -->
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 order-1 order-md-2 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="200">
-            <img src="assets/assets/img/features-2.jpg" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7 order-2 order-md-1" data-aos="fade-up" data-aos-delay="200">
-            <h3>Corporis temporibus maiores provident</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum
-            </p>
-          </div>
-        </div><!-- Features Item -->
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 d-flex align-items-center" data-aos="zoom-out">
-            <img src="assets/assets/img/features-3.jpg" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7" data-aos="fade-up">
-            <h3>Sunt consequatur ad ut est nulla consectetur reiciendis animi voluptas</h3>
-            <p>Cupiditate placeat cupiditate placeat est ipsam culpa. Delectus quia minima quod. Sunt saepe odit aut quia voluptatem hic voluptas dolor doloremque.</p>
-            <ul>
-              <li><i class="bi bi-check"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check"></i><span> Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check"></i> <span>Facilis ut et voluptatem aperiam. Autem soluta ad fugiat</span>.</li>
-            </ul>
-          </div>
-        </div><!-- Features Item -->
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 order-1 order-md-2 d-flex align-items-center" data-aos="zoom-out">
-            <img src="assets/assets/img/features-4.jpg" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7 order-2 order-md-1" data-aos="fade-up">
-            <h3>Quas et necessitatibus eaque impedit ipsum animi consequatur incidunt in</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum
-            </p>
-          </div>
-        </div><!-- Features Item -->
-
-      </div>
-
-    </section><!-- /Features Section -->
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <span>Pricing</span>
-        <h2>Pricing</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
-            <div class="pricing-item">
-              <h3>Free Plan</h3>
-              <h4><sup>$</sup>0<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li class="na"><i class="bi bi-x"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li class="na"><i class="bi bi-x"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
-            <div class="pricing-item featured">
-              <h3>Business Plan</h3>
-              <h4><sup>$</sup>29<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="300">
-            <div class="pricing-item">
-              <h3>Developer Plan</h3>
-              <h4><sup>$</sup>49<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
-
-        </div>
-
-      </div>
-
-    </section><!-- /Pricing Section -->
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials section dark-background">
-
-      <img src="assets/assets/img/testimonials-bg.jpg" class="testimonials-bg" alt="">
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="swiper init-swiper">
-          <script type="application/json" class="swiper-config">
-            {
-              "loop": true,
-              "speed": 600,
-              "autoplay": {
-                "delay": 5000
-              },
-              "slidesPerView": "auto",
-              "pagination": {
-                "el": ".swiper-pagination",
-                "type": "bullets",
-                "clickable": true
-              }
-            }
-          </script>
-          <div class="swiper-wrapper">
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-                <h3>Saul Goodman</h3>
-                <h4>Ceo &amp; Founder</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
+            <div class="p-card-padding flex flex-col flex-1">
+                <h3 class="font-body-md-bold text-on-surface mb-1 cursor-pointer hover:text-primary" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+                    {{ $produit->produit?->nom }}
+                </h3>
+                <p class="text-on-surface-variant text-sm mb-4 cursor-pointer hover:underline" onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
+                    {{ $produit->fournisseur?->nom }}
                 </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-                <h3>Sara Wilsson</h3>
-                <h4>Designer</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                <div class="mt-auto flex items-center justify-between">
+                    <div>
+                        <span class="text-primary font-headline-md">{{ $produit->prix }} FCFA</span>
+                    </div>
+                    <div>
+                        <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ $produit->quantite }} Disponible</span>
+                    </div>
+                    <a href="{{ route('Ajouter-Panier', $produit->id) }}" class="bg-primary text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center">
+                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                    </a>
                 </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-                <h3>Jena Karlis</h3>
-                <h4>Store Owner</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/assets/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
-                <h3>Matt Brandon</h3>
-                <h4>Freelancer</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/assets/img/testimonials/testimonials-5.jpg" class="testimonial-img" alt="">
-                <h3>John Larson</h3>
-                <h4>Entrepreneur</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-
-      </div>
-
-    </section><!-- /Testimonials Section -->
-
-    <!-- Faq Section -->
-    <section id="faq" class="faq section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <span>Frequently Asked Questions</span>
-        <h2>Frequently Asked Questions</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row justify-content-center">
-
-          <div class="col-lg-10">
-
-            <div class="faq-container">
-
-              <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="200">
-                <i class="faq-icon bi bi-question-circle"></i>
-                <h3>Non consectetur a erat nam at lectus urna duis?</h3>
-                <div class="faq-content">
-                  <p>Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.</p>
-                </div>
-                <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
-
-              <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
-                <i class="faq-icon bi bi-question-circle"></i>
-                <h3>Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque?</h3>
-                <div class="faq-content">
-                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>
-                </div>
-                <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
-
-              <div class="faq-item" data-aos="fade-up" data-aos-delay="400">
-                <i class="faq-icon bi bi-question-circle"></i>
-                <h3>Dolor sit amet consectetur adipiscing elit pellentesque?</h3>
-                <div class="faq-content">
-                  <p>Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis</p>
-                </div>
-                <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
-
-              <div class="faq-item" data-aos="fade-up" data-aos-delay="500">
-                <i class="faq-icon bi bi-question-circle"></i>
-                <h3>Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?</h3>
-                <div class="faq-content">
-                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>
-                </div>
-                <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
-
-              <div class="faq-item" data-aos="fade-up" data-aos-delay="600">
-                <i class="faq-icon bi bi-question-circle"></i>
-                <h3>Tempus quam pellentesque nec nam aliquam sem et tortor consequat?</h3>
-                <div class="faq-content">
-                  <p>Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in</p>
-                </div>
-                <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
-
             </div>
-
-          </div>
-
         </div>
+        @endforeach
+        <!-- Product Card 2 -->
+{{-- <div class="min-w-[280px] md:min-w-[320px] snap-start bg-surface-container-lowest rounded-3xl overflow-hidden card-shadow group flex flex-col h-full border border-outline-variant/30 transition-transform hover:translate-y-[-4px]">
+<div class="relative h-48 overflow-hidden cursor-pointer" onclick="window.location.href='detail-produit.html?id=oeufs'">
+<img alt="Œufs Frais" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuPbLSkf3X5sQ9M5aJN2YVEr_-65gAKQj27vjhXt6NXL7ecXcxs4iZ5ed32j3FfHEOUq87lssVbUEVyxlmZuOSBpKJ_lH7qIzpdOUoIO5CHypKo311M8VEmc7nU9Yt_pzVto6Fx6QV7SUOIEeDvPYbnEyAaeES71IbiE-TrylLmGsYXl5CvXToszP04TlgcB2NyO6diEFkVbBJCdu_YrJA__paqTXC3nXRaAa9b0jSfa1hnhuSRSN9yAigLrFLvENAVV5qAqcNfMo">
+<div class="absolute top-4 left-4 bg-status-success text-on-primary px-3 py-1 rounded-full text-label-sm font-bold">FRAIS</div>
+</div>
+<div class="p-card-padding flex flex-col flex-1">
+<h3 class="font-body-md-bold text-on-surface mb-1 cursor-pointer hover:text-primary" onclick="window.location.href='detail-produit.html?id=oeufs'">Plateau de 30 Œufs Frais</h3>
+<p class="text-on-surface-variant text-sm mb-4 cursor-pointer hover:underline" onclick="window.location.href='detail-fournisseur.html'">Les Œufs d'Or - Grand Bassam</p>
+<div class="mt-auto flex items-center justify-between">
+<div>
+<span class="text-primary font-headline-md">2.500 FCFA</span>
+</div>
+<a href="panier.html" class="bg-primary text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</a>
+</div>
+</div>
+</div> --}}
 
-      </div>
+    </div>
 
-    </section><!-- /Faq Section -->
+    <div class="flex justify-center gap-2 mt-4" id="prodDots">
+        @foreach ($produits as $index => $produit)
+        <button class="w-2 h-2 rounded-full {{ $index === 0 ? 'bg-primary' : 'bg-outline-variant' }} transition-all duration-300" data-index="{{ $index }}"></button>
+        @endforeach
+    </div>
+</section>
 
-  </main>
+<!-- Nearby Farmers Bento -->
+<section class="px-margin-desktop mb-20">
+<div class="mb-8">
+<h2 class="font-headline-md text-headline-md text-on-surface">Éleveurs certifiés à proximité</h2>
+<p class="text-on-surface-variant font-body-md">Soutenez l'économie locale et achetez en toute confiance</p>
+</div>
+<div class="relative group">
+<button class="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg text-primary p-3 rounded-full transition-all hover:scale-110 opacity-0 group-hover:opacity-100" id="farmerPrev">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg text-primary p-3 rounded-full transition-all hover:scale-110 opacity-0 group-hover:opacity-100" id="farmerNext">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+
+<div class="flex overflow-x-auto snap-x snap-mandatory gap-gutter no-scrollbar pb-8" id="farmerSlider">
+<!-- Farmer 1 -->
+<div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
+<img alt="Ferme Avicole Saliou" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClt--Dt17U9-iSO3qB4klbwJ3e0NZv4ekRoO7ybgf7eTlc-Umi63UFl6grNbwhx4hTVW2PRc0xAXhT59-qBnfzBGVspN06Jgu6Gwms0RCSnG08olhH4jNP6ZI7eY30ZeRwMpB_jlPOhdPgY0jvTJN3WA_LEgx_3dPkfCvTi-2HB8LZx7hEULGQPOJuDem1ixNregZoEV2aDl1TzlZZ-1Uy0EmojDuNqFgbbjGO8sz8p6E5cpxvF7JUD5G70jr4xM0V9awR-fqrzSQ">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-14 h-14 rounded-2xl border-2 border-primary-fixed overflow-hidden">
+<img alt="Farmer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7tisvdeNuOrGpG5FFJCrix7h3s2yP6lB28m4gGZwC0ZD1k_JtfA7FRuciIWnF46j22ki7UFHzBVSOMHOukPGqltLKKu1h_ILDLOTkn1wg38W3jeNMmYsldaDmLaGTN_oCbRorGtnGZGz0pVAdRCvmsWkj8wr0QTsb0x1-Yhz6LJ7HPe-YLYkKkzPw0m_TkFTUuyr5X7koc2xLX6h3WUJcU5u5gN0AdB3fAE-aNWcS6RlKvT0eTJkdg4W1q5a-L2Qr6n6mz7nk-Hk">
+</div>
+<div>
+<h3 class="font-headline-md">Ferme Avicole Saliou</h3>
+<div class="flex items-center gap-1 text-secondary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-body-md-bold">4.9</span>
+</div>
+</div>
+</div>
+<p class="text-sm opacity-90 mb-6 line-clamp-2">Spécialiste du poulet bicyclette bio depuis 15 ans. Alimentation 100% naturelle.</p>
+<a href="detail-fournisseur.html" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
+</div>
+</div>
+
+<!-- Farmer 2 -->
+<div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
+<img alt="Les Œufs d'Or" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO1YPXrZ-rbsH0SH04mCcBYyuD1zjTxz1Yr1tuXevlnQ4CagGgRUSP89O1SiBxLcINSx24a4W6wfqQfTVyvXE-xxHor4VNdPUivQEpQTKfaI-bTG88XGNh_zgfWH3rkOalKHfSgeM-mQ8m2g0m8NaEoLLa3IevFmHG0VJ3D-1IpEqzmS7IbatJjf5a53zI8-Iez8KZ4CQoVr8Fv_6CxnxAJgqrkHxQa82hOskRbnqopQ4_bspeyg9Guh4IT3ZirB2wTeMYlbZfacs">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-14 h-14 rounded-2xl border-2 border-primary-fixed overflow-hidden bg-white">
+<span class="material-symbols-outlined text-primary text-3xl flex items-center justify-center h-full">egg</span>
+</div>
+<div>
+<h3 class="font-headline-md">Les Œufs d'Or</h3>
+<div class="flex items-center gap-1 text-secondary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-body-md-bold">4.7</span>
+</div>
+</div>
+</div>
+<p class="text-sm opacity-90 mb-6 line-clamp-2">Production d'œufs frais de qualité supérieure à Grand Bassam. Livraison rapide.</p>
+<a href="detail-fournisseur.html" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+
 
 @endsection

@@ -1,63 +1,30 @@
-  <footer id="footer" class="footer dark-background">
-
-    <div class="container footer-top">
-      <div class="row gy-4">
-        <div class="col-lg-5 col-md-12 footer-about">
-          <a href="index.html" class="logo d-flex align-items-center">
-            <span class="sitename">Logis</span>
-          </a>
-          <p>Cras fermentum odio eu feugiat lide par naso tierra. Justo eget nada terra videa magna derita valies darta donna mare fermentum iaculis eu non diam phasellus.</p>
-          <div class="social-links d-flex mt-4">
-            <a href=""><i class="bi bi-twitter-x"></i></a>
-            <a href=""><i class="bi bi-facebook"></i></a>
-            <a href=""><i class="bi bi-instagram"></i></a>
-            <a href=""><i class="bi bi-linkedin"></i></a>
-          </div>
-        </div>
-
-        <div class="col-lg-2 col-6 footer-links">
-          <h4>Useful Links</h4>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Terms of service</a></li>
-            <li><a href="#">Privacy policy</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-6 footer-links">
-          <h4>Our Services</h4>
-          <ul>
-            <li><a href="#">Web Design</a></li>
-            <li><a href="#">Web Development</a></li>
-            <li><a href="#">Product Management</a></li>
-            <li><a href="#">Marketing</a></li>
-            <li><a href="#">Graphic Design</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
-          <h4>Contact Us</h4>
-          <p>A108 Adam Street</p>
-          <p>New York, NY 535022</p>
-          <p>United States</p>
-          <p class="mt-4"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-          <p><strong>Email:</strong> <span>info@example.com</span></p>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="container copyright text-center mt-4">
-      <p>© <span>Copyright</span> <strong class="px-1 sitename">Logis</strong> <span>All Rights Reserved</span></p>
-      <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you've purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> | <a href="https://bootstrapmade.com/tools/">DevTools</a>
-      </div>
-    </div>
-
-  </footer>
+<footer class="bg-inverse-surface text-inverse-on-surface py-6 px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-2 mb-2">
+<img src="https://lh3.googleusercontent.com/aida/AP1WRLttKA77ABGaQ_h945A0tu1wuK_db0agLA7ebq40A9Z5k_zktRzrk9Gz4Fs9VWJuIPV5lY5Ci1iavfeAe6wBhxNKUda0BvE97y3HKbV-IJ7QuMx3A8Fvn71OdnlwPvjDIUbjzy4f2LUB7jD0tm6qAzwiqYs5c70dkhiZJMJfUsd2q74zOJvG_XYBR7eNUgiDgi2n_XKWHahbPoiJTQq8NoQ4RtiCdV2IlrY1nk5l4z9Y6DlJq60uEFonFRo" alt="AgriManager Logo" class="h-6 w-auto object-contain">
+<span class="font-bold text-lg text-primary-fixed">AgriManager</span>
+</div>
+<p class="max-w-md opacity-70 mb-4 text-sm">La plateforme de référence pour la gestion et le commerce avicole en Afrique. Nous connectons les acteurs de la filière pour une croissance durable.</p>
+</div>
+<div>
+<h5 class="font-bold text-sm mb-2 text-primary-fixed">Navigation</h5>
+<ul class="space-y-1.5 opacity-70 text-sm">
+<li><a class="hover:text-primary-fixed transition-colors" href="index.html">Accueil</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="produits.html">Nos Produits</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="apropos.html">À propos de nous</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="contact.html">Nous Contacter</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="panier.html">Mon Panier</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-sm mb-2 text-primary-fixed">Newsletter</h5>
+<p class="text-xs opacity-75 mb-2">Recevez les meilleures offres de nos éleveurs.</p>
+<div class="flex gap-2">
+<input class="bg-surface-variant/10 border-none rounded-lg focus:ring-1 focus:ring-primary-fixed text-xs w-full px-3 py-1.5" placeholder="Email" type="email">
+<button class="bg-primary-fixed text-on-primary-fixed px-3 py-1.5 rounded-lg text-xs font-bold">OK</button>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-surface-variant/10 text-center opacity-50 text-xs">© 2026 AgriManager - PouletExpress. Tous droits réservés.</div>
+</footer>
