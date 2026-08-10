@@ -23,7 +23,7 @@
     @include('layouts._script')
     @stack('scripts')
     @include('layouts._menu')
-    {{-- @include('layouts._script_additionnel') --}}
+    @include('layouts._script_additionnel')
   <!--script end-->
 </body>
 

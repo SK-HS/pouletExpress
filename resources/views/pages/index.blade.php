@@ -121,7 +121,7 @@
 </section>
 
 <!-- Banner Promo -->
-<section class="px-margin-desktop mb-16">
+{{-- <section class="px-margin-desktop mb-16">
 <div class="relative group overflow-hidden rounded-3xl">
 <div class="flex transition-transform duration-700 ease-in-out" id="promoSlider">
 <div class="min-w-full relative h-64 md:h-80">
@@ -137,7 +137,94 @@
 </div>
 </div>
 </div>
+</section> --}}
+
+<section class="px-margin-desktop mb-16">
+    <div class="relative group rounded-3xl overflow-hidden shadow-sm">
+        
+        <!-- Boutons de navigation (cachés par défaut, visibles au survol) -->
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="promoPrev" class="w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur shadow-md text-primary rounded-full transition-transform hover:scale-110">
+                <span class="material-symbols-outlined text-xl">chevron_left</span>
+            </button>
+        </div>
+        
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="promoNext" class="w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur shadow-md text-primary rounded-full transition-transform hover:scale-110">
+                <span class="material-symbols-outlined text-xl">chevron_right</span>
+            </button>
+        </div>
+
+        <!-- Le Slider -->
+        <div class="flex overflow-x-auto overflow-y-hidden touch-pan-y snap-x snap-mandatory no-scrollbar" id="promoSlider">
+
+            @forelse ($publicites as $pub)
+                <!-- AJOUT DE shrink-0 ICI POUR FIXER L'IMAGE ET EMPÊCHER LE CHEVAUCHEMENT -->
+               <div class="min-w-full shrink-0 snap-start relative min-h-[20rem] md:h-80 promo-card">
+                    <img alt="{{ $pub->titre ?? 'Publicité' }}" class="w-full h-full object-cover select-none" draggable="false" src="/storage/{{ $pub->image }}">
+
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-transparent flex items-center px-8 md:px-12">
+                        <div class="max-w-md text-white">
+                            
+                            {{-- Badge --}}
+                            @if(!empty($pub->badge))
+                            <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold mb-3 inline-block shadow-sm">
+                                {{ $pub->badge }}
+                            </span>
+                            @endif
+                            
+                            <h2 class="text-2xl md:text-headline-md font-headline-md mb-2">{{ $pub->titre }}</h2>
+                            
+                            {{--Affichage des Dates --}}
+                            @if(!empty($pub->date_debut) || !empty($pub->date_fin))
+                            <div class="flex items-center gap-1.5 text-white/90 text-xs md:text-sm font-medium mb-3">
+                                <span class="material-symbols-outlined text-sm">schedule</span>
+                                <span>
+                                    @if(!empty($pub->date_debut) && !empty($pub->date_fin))
+                                        Du {{ $pub->date_debut->format('d/m/Y') }} au {{ $pub->date_fin->format('d/m/Y') }}
+                                    @elseif(!empty($pub->date_debut))
+                                        À partir du {{ $pub->date_debut->format('d/m/Y') }}
+                                    @else
+                                        Jusqu'au {{ $pub->date_fin->format('d/m/Y') }}
+                                    @endif
+                                </span>
+                            </div>
+                            @endif
+                            
+                            {{-- Description --}}
+                            <p class="text-sm md:text-body-md mb-6 opacity-90 line-clamp-3">{{ $pub->description }}</p>
+                            
+                            {{-- Bouton --}}
+                            @if(!empty($pub->lien))
+                            <a href="{{ $pub->lien }}" class="inline-block bg-white text-primary px-6 py-2.5 rounded-xl font-body-md-bold hover:bg-primary-fixed hover:text-primary transition-colors shadow-md hover:shadow-lg">
+                                {{ $pub->bouton_texte ?? 'En profiter' }}
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <!-- Fallback au cas où il n'y a pas de pub en base de données -->
+                <div class="min-w-full shrink-0 snap-start relative h-64 md:h-80 promo-card bg-surface-container flex items-center justify-center">
+                    <p class="text-on-surface-variant font-bold text-lg">Bientôt de nouvelles offres exclusives...</p>
+                </div>
+            @endforelse
+            
+        </div>
+        
+        <!-- Petits Ronds de progression (Dots) -->
+        @if(isset($publicites) && $publicites->count() > 1)
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20" id="promoDots">
+            @foreach ($publicites as $index => $pub)
+            <button class="w-2 h-2 rounded-full {{ $index === 0 ? 'bg-white w-4' : 'bg-white/50' }} transition-all duration-300 shadow-sm"></button>
+            @endforeach
+        </div>
+        @endif
+        
+    </div>
 </section>
+
+
 
 <!-- Categories Browsing -->
 <section class="px-margin-desktop mb-16">
@@ -228,9 +315,9 @@ Voir tout <span class="material-symbols-outlined text-sm">chevron_right</span>
                     <div>
                         <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ $produit->quantite }} Disponible</span>
                     </div>
-                    <a href="{{ route('Ajouter-Panier', $produit->id) }}" class="bg-primary text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center">
+                    <button class="bg-primary add-to-cart-btn text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center" data-produit-id="{{ $produit->id }}">
                         <span class="material-symbols-outlined">add_shopping_cart</span>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -271,35 +358,43 @@ Voir tout <span class="material-symbols-outlined text-sm">chevron_right</span>
 <p class="text-on-surface-variant font-body-md">Soutenez l'économie locale et achetez en toute confiance</p>
 </div>
 <div class="relative group">
-<button class="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg text-primary p-3 rounded-full transition-all hover:scale-110 opacity-0 group-hover:opacity-100" id="farmerPrev">
-<span class="material-symbols-outlined">chevron_left</span>
-</button>
-<button class="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-lg text-primary p-3 rounded-full transition-all hover:scale-110 opacity-0 group-hover:opacity-100" id="farmerNext">
-<span class="material-symbols-outlined">chevron_right</span>
-</button>
+  <div class="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <button type="button" id="farmerPrev" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110">
+            <span class="material-symbols-outlined text-2xl">chevron_left</span>
+        </button>
+    </div>
+ <div class="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <button type="button" id="farmerNext" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110">
+            <span class="material-symbols-outlined text-2xl">chevron_right</span>
+        </button>
+    </div>
 
 <div class="flex overflow-x-auto snap-x snap-mandatory gap-gutter no-scrollbar pb-8" id="farmerSlider">
 <!-- Farmer 1 -->
+
+@foreach ($fournisseurs as $fournisseur)
+  
+
 <div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
-<img alt="Ferme Avicole Saliou" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClt--Dt17U9-iSO3qB4klbwJ3e0NZv4ekRoO7ybgf7eTlc-Umi63UFl6grNbwhx4hTVW2PRc0xAXhT59-qBnfzBGVspN06Jgu6Gwms0RCSnG08olhH4jNP6ZI7eY30ZeRwMpB_jlPOhdPgY0jvTJN3WA_LEgx_3dPkfCvTi-2HB8LZx7hEULGQPOJuDem1ixNregZoEV2aDl1TzlZZ-1Uy0EmojDuNqFgbbjGO8sz8p6E5cpxvF7JUD5G70jr4xM0V9awR-fqrzSQ">
+<img alt="{{ $fournisseur->nom }}" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="/storage/{{ $fournisseur->image }}">
 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
 <div class="flex items-center gap-4 mb-4">
 <div class="w-14 h-14 rounded-2xl border-2 border-primary-fixed overflow-hidden">
 <img alt="Farmer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7tisvdeNuOrGpG5FFJCrix7h3s2yP6lB28m4gGZwC0ZD1k_JtfA7FRuciIWnF46j22ki7UFHzBVSOMHOukPGqltLKKu1h_ILDLOTkn1wg38W3jeNMmYsldaDmLaGTN_oCbRorGtnGZGz0pVAdRCvmsWkj8wr0QTsb0x1-Yhz6LJ7HPe-YLYkKkzPw0m_TkFTUuyr5X7koc2xLX6h3WUJcU5u5gN0AdB3fAE-aNWcS6RlKvT0eTJkdg4W1q5a-L2Qr6n6mz7nk-Hk">
 </div>
 <div>
-<h3 class="font-headline-md">Ferme Avicole Saliou</h3>
+<h3 class="font-headline-md">{{ $fournisseur->nom_ferme }} {{ $fournisseur->nom }}</h3>
 <div class="flex items-center gap-1 text-secondary-container">
 <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
 <span class="font-body-md-bold">4.9</span>
 </div>
 </div>
 </div>
-<p class="text-sm opacity-90 mb-6 line-clamp-2">Spécialiste du poulet bicyclette bio depuis 15 ans. Alimentation 100% naturelle.</p>
-<a href="detail-fournisseur.html" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
+<p class="text-sm opacity-90 mb-6 line-clamp-2">{{ $fournisseur->type }}</p>
+<a href="{{route('Detail-Fournisseurs',$fournisseur->id)}}" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
 </div>
 </div>
-
+@endforeach
 <!-- Farmer 2 -->
 <div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
 <img alt="Les Œufs d'Or" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO1YPXrZ-rbsH0SH04mCcBYyuD1zjTxz1Yr1tuXevlnQ4CagGgRUSP89O1SiBxLcINSx24a4W6wfqQfTVyvXE-xxHor4VNdPUivQEpQTKfaI-bTG88XGNh_zgfWH3rkOalKHfSgeM-mQ8m2g0m8NaEoLLa3IevFmHG0VJ3D-1IpEqzmS7IbatJjf5a53zI8-Iez8KZ4CQoVr8Fv_6CxnxAJgqrkHxQa82hOskRbnqopQ4_bspeyg9Guh4IT3ZirB2wTeMYlbZfacs">

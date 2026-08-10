@@ -21,7 +21,7 @@ class CommandeLivreur extends Model
 
       public function quartier()
     {
-        return $this->belongsTo(Quartier::class);
+        return $this->belongsTo(Quartier::class, 'quartier_id');
     }
         public function user()
     {

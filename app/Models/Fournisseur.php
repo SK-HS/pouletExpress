@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Notifications\Notifiable; 
 
-class Fournisseur extends Model
+
+class Fournisseur extends Authenticatable
 {
+      use HasFactory, Notifiable; // Laissez vos traits actuels s'il y en a
+
     protected $casts = [
     'type_produit' => 'array',
+     'password' => 'hashed',
+     'disponible' => 'boolean',
 ];
         
     protected $fillable = [
@@ -26,7 +34,24 @@ class Fournisseur extends Model
         'nom_ferme',
         'nom_gerant',
         'capacite_ferme',
+        'etat',
+        'description',
+        'image_ferme',
+         'disponible',
+        'password',
+        'remember_token',
+        'longitude',
+        'latitude',
+        'certification_sanitaire',
+        'piece_fournisseur',
     ];
+
+      protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+  
     public function user()
     {
         return $this->belongsTo(User::class);

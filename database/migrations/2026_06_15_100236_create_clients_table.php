@@ -17,15 +17,16 @@ return new class extends Migration
             $table->string('nom');
             $table->string('type')->nullable();
             $table->string('adresse')->nullable();
-            $table->string('telephone')->nullable();
+            $table->string('telephone');
             $table->string('email')->nullable();
             $table->string('contact')->nullable();
-            // $table->string('ville')->nullable();
+            $table->boolean('etat')->default(1);
+            $table->string('password')->nullable();
             $table->string('longitude');
             $table->string('latitude');
             $table->text('image')->nullable();
             $table->foreignId('quartier_id')->constrained('quartiers')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

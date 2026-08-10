@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('images')->nullable();
             $table->boolean('etat')->default(1);
             $table->string('commande_min')->nullable();
+            $table->string('temps_preparation')->nullable();
+            $table->string('nom_produit')->nullable();
             $table->foreignId('categorie_id')->nullable()->constrained('categories')->onDelete('cascade');
             $table->foreignId('taille_id')->nullable()->constrained('tailles')->onDelete('cascade');
             $table->foreignId('fournisseur_id')->constrained('fournisseurs')->onDelete('cascade');

@@ -77,7 +77,8 @@ class LivreurResource extends Resource
                     ->enableDownload()
                     ->enableOpen()
                     ->openable()
-                    ->previewable(),
+                    ->previewable()
+                    ->maxSize(10240),
                 TextInput::make('compte')
                     ->numeric()
                     ->default(0),

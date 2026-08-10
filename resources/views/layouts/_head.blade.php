@@ -6,7 +6,8 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -62,6 +63,11 @@
                     "surface-container-highest": "#e1e3e1",
                     "outline": "#717a6d",
                     "primary": "#00450d",
+                    'primaryb':"#007bff",
+                    'success':"#28a745",
+                    'info':"#17a2b8",
+                    'danger':"#dc3545",
+                    'warning':"#ffc107",
                     "on-error-container": "#93000a",
                     "orange-money": "#FF8200",
                     "tertiary": "#4d352b",
@@ -139,5 +145,23 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        .ts-wrapper.single .ts-control{
+    min-height:48px;
+    border-radius:0.75rem;
+    border:2px solid #d1d5db;
+    padding:0 16px;
+    box-shadow:none;
+}
+
+.ts-wrapper.focus .ts-control{
+    border-color:#3b82f6;
+}
+
+.ts-dropdown{
+    border-radius:0.75rem;
+}
+
+
     </style>
 </head>

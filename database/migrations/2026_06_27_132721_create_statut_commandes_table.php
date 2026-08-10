@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('statut_commandes', function (Blueprint $table) {
             $table->id();
             $table->string('statut');
+            $table->string('type')->nullable();
+            $table->unsignedBigInteger('typeId')->nullable();
             $table->foreignId('commande_client_id')->constrained('commande_clients')->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            // $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

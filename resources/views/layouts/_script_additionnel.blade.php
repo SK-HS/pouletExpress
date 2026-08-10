@@ -1,77 +1,144 @@
 <script>
 
-    document.addEventListener('DOMContentLoaded', function () {
-    const prixUnitaire = {{ (float) $produit->prix }};
+// Attache les boutons avec délégation (fonctionne même si les boutons
+// sont chargés après le script, ou générés dynamiquement)
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.add-to-cart-btn');
+    if (!btn) return;
 
-    const qteInput        = document.getElementById('qte_commande');
-    const checkboxLivraison = document.getElementById('souhaite_livraison');
-    const blocLivraison    = document.getElementById('bloc_livraison');
-    const zoneSelect       = document.getElementById('zone_livraison');
-    const adresseInput     = document.getElementById('adresse_livraison');
+    e.preventDefault();
 
-    const recapQte       = document.getElementById('recap_qte');
-    const recapSoustotal = document.getElementById('recap_soustotal');
-    const recapFraisLigne= document.getElementById('recap_frais_ligne');
-    const recapFrais     = document.getElementById('recap_frais');
-    const recapTotal     = document.getElementById('recap_total');
-
-    function formatFCFA(montant) {
-        return new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA';
+    const produitId = btn.getAttribute('data-produit-id');
+    if (!produitId) {
+        console.error('data-produit-id manquant sur le bouton');
+        return;
     }
 
-    function calculerTotal() {
-        const qte = parseInt(qteInput.value) || 0;
-        const soustotal = qte * prixUnitaire;
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfMeta) {
+        console.error('meta[name="csrf-token"] introuvable dans le <head>');
+        return;
+    }
 
-        let frais = 0;
-        if (checkboxLivraison.checked && zoneSelect.value) {
-            const option = zoneSelect.options[zoneSelect.selectedIndex];
-            frais = parseFloat(option.dataset.frais) || 0;
+    btn.disabled = true;
+    btn.classList.add('opacity-60');
+
+    fetch('/panier/ajouter', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfMeta.getAttribute('content'),
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ produit_id: produitId, quantite: 1 }),
+    })
+    .then(function (res) {
+        // Log brut pour voir exactement ce que le serveur renvoie
+        console.log('Status HTTP :', res.status);
+        return res.json();
+    })
+    .then(function (data) {
+        console.log('Data reçue :', data);
+
+        btn.disabled = false;
+        btn.classList.remove('opacity-60');
+
+        if (!data.success) {
+            console.error('success = false :', data);
+            return;
         }
 
-        recapQte.textContent = qte;
-        recapSoustotal.textContent = formatFCFA(soustotal);
+        // Cherche le badge
+        const badge = document.getElementById('cartCountBadge');
+        console.log('Badge trouvé :', badge);
+        document.getElementById("cart-link").addEventListener("click", function(e) {
+            const count = parseInt(document.getElementById("cartCountBadge")?.textContent || 0);
 
-        if (checkboxLivraison.checked) {
-            recapFraisLigne.style.display = 'flex';
-            recapFrais.textContent = formatFCFA(frais);
+            if (count === 0) {
+                e.preventDefault();
+            }
+        });
+        if (badge) {
+            badge.textContent = data.count;
+            badge.classList.remove('hidden');
+            badge.classList.add('scale-150');
+            setTimeout(() => badge.classList.remove('scale-150'), 200);
         } else {
-            recapFraisLigne.style.setProperty('display', 'none', 'important');
-             recapFrais.textContent = formatFCFA(0);
+            console.warn('Badge #cartCountBadge introuvable — regarde si l\'ID est bien dans le HTML rendu');
         }
 
-        recapTotal.textContent = formatFCFA(soustotal + frais);
-    }
-
-    // Affiche/masque le bloc livraison et rend les champs obligatoires seulement si visible
-    document.getElementById('souhaite_livraison').addEventListener('change', function () {
-        console.log('checkbox change déclenché, checked =', this.checked);
-        const actif = this.checked;
-        blocLivraison.style.display = actif ? 'flex' : 'none';
-        zoneSelect.required = actif;
-        adresseInput.required = actif;
-
-        if (!actif) {
-            zoneSelect.value = '';
-            adresseInput.value = '';
-        }
-        
-        calculerTotal();
+        // Feedback bouton
+        btn.classList.add('bg-emerald-600', 'scale-110');
+        btn.innerHTML = '<span class="material-symbols-outlined">check</span>';
+        setTimeout(function () {
+            btn.classList.remove('bg-emerald-600', 'scale-110');
+            btn.innerHTML = '<span class="material-symbols-outlined">add_shopping_cart</span>';
+        }, 1500);
+    })
+    .catch(function (err) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60');
+        console.error('Erreur fetch :', err);
     });
-
-    qteInput.addEventListener('input', calculerTotal);
-    zoneSelect.addEventListener('change', calculerTotal);
-
-    // Empêche la soumission si la quantité dépasse le stock disponible
-    document.getElementById('quoteForm').addEventListener('submit', function (e) {
-        const qte = parseInt(qteInput.value);
-        const max = parseInt(qteInput.getAttribute('max'));
-        if (qte > max) {
-            e.preventDefault();
-            alert('La quantité demandée dépasse le stock disponible (' + max + ').');
-        }
-    });
-
-    calculerTotal(); // calcul initial
 });
+
 </script>
+<script>
+const menuButton = document.getElementById("user-menu");
+const menu = document.getElementById("user-dropdown");
+const chevron = document.getElementById("user-chevron");
+
+if (menuButton && menu && chevron) {
+
+    menuButton.addEventListener("click", function (e) {
+        e.stopPropagation();
+
+        menu.classList.toggle("hidden");
+
+        chevron.style.transform = menu.classList.contains("hidden")
+            ? "rotate(0deg)"
+            : "rotate(180deg)";
+    });
+
+    document.addEventListener("click", function () {
+        menu.classList.add("hidden");
+        chevron.style.transform = "rotate(0deg)";
+    });
+
+}
+
+const menuButtond = document.getElementById("user-menud");
+const menud = document.getElementById("user-dropdownd");
+const chevrond = document.getElementById("user-chevrond");
+
+if (menuButtond && menud && chevrond) {
+
+    menuButtond.addEventListener("click", function (e) {
+        e.stopPropagation();
+
+        menud.classList.toggle("hidden");
+
+        chevrond.style.transform = menud.classList.contains("hidden")
+            ? "rotate(0deg)"
+            : "rotate(180deg)";
+    });
+
+    document.addEventListener("click", function () {
+        menud.classList.add("hidden");
+        chevrond.style.transform = "rotate(0deg)";
+    });
+
+
+}
+
+    // new TomSelect("#zone_livraison", {
+    //     create: false,
+    //     sortField: {
+    //         field: "text",
+    //         direction: "asc"
+    //     },
+    //     placeholder: "Rechercher une zone...",
+    // });
+
+    
+    </script>

@@ -16,6 +16,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -97,7 +98,7 @@ class FournisseurResource extends Resource
                 FileUpload::make('image')
                     ->label('Image')
                     ->disk('public')
-                    ->directory('Client')
+                    ->directory('Fournisseur')
                     ->visibility('public')
                     ->image()
                     ->imagePreviewHeight('150')
@@ -105,6 +106,19 @@ class FournisseurResource extends Resource
                     ->enableOpen()
                     ->openable()
                     ->previewable(),
+                FileUpload::make('image_ferme')
+                    ->label('Image')
+                    ->disk('public')
+                    ->directory('Fournisseur')
+                    ->visibility('public')
+                    ->image()
+                    ->imagePreviewHeight('150')
+                    ->enableDownload()
+                    ->enableOpen()
+                    ->openable()
+                    ->previewable(),
+                Textarea::make('description')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -134,8 +148,19 @@ class FournisseurResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('capacite_ferme')
                     ->placeholder('-'),
+                TextEntry::make('etat')
+                    ->placeholder('-'),
+                TextEntry::make('description')
+                    ->placeholder('-'),
                     
                 ImageEntry::make('image')
+                    ->disk('public')
+                    ->imageWidth(200)
+                    ->imageHeight(200)
+                    ->square()
+                    ->url(fn ($state) => asset('storage/' . $state))
+                    ->openUrlInNewTab(),
+                ImageEntry::make('image_ferme')
                     ->disk('public')
                     ->imageWidth(200)
                     ->imageHeight(200)
@@ -171,6 +196,9 @@ class FournisseurResource extends Resource
                     ->searchable(),
                 TextColumn::make('contact')
                     ->searchable(),
+                TextColumn::make('etat')
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('compte')
                     ->numeric()
                     ->sortable(),

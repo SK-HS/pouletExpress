@@ -71,9 +71,9 @@ class Versement extends Model
                     $vente->solde -= $model->montant;
                     $vente->avance += $model->montant;
 
-                    $vente->statut = $vente->solde <= 0
-                        ? 'Paiement validé'
-                        : 'Pas Soldée';
+                    // $vente->statut = $vente->solde <= 0
+                    //     ? 'Paiement validé'
+                    //     : 'Pas Soldée';
 
                     $vente->save();
 

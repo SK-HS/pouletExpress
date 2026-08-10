@@ -42,6 +42,22 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        
+ // Nouveau guard dédié aux clients
+         'client' => [
+            'driver' => 'session',
+            'provider' => 'clients',
+        ],
+ // Nouveau guard dédié aux livreurs
+         'livreur' => [
+            'driver' => 'session',
+            'provider' => 'livreurs',
+        ],
+ // Nouveau guard dédié aux fournisseurs
+         'fournisseur' => [
+            'driver' => 'session',
+            'provider' => 'fournisseurs',
+        ],
     ],
 
     /*
@@ -71,6 +87,18 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+        'clients' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Client::class,
+    ],
+        'livreurs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Livreur::class,
+    ],
+        'fournisseurs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Fournisseur::class,
+    ],
     ],
 
     /*
@@ -99,6 +127,24 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        'clients' => [
+            'provider' => 'clients',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+    ],
+        'livreurs' => [
+            'provider' => 'livreurs',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+    ],
+        'fournisseurs' => [
+            'provider' => 'fournisseurs',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+    ],
     ],
 
     /*

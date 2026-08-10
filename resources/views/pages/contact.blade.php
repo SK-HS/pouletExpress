@@ -1,8 +1,28 @@
 @extends('layouts.master')
 @section('content')
 
-<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-20 relative">
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-1 md:py-5 relative">
 <div class="absolute inset-0 agro-grid-pattern opacity-20 pointer-events-none"></div>
+ @if ($message = Session::get('success'))
+              <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <strong class="font-bold">SUCCESS!</strong>
+              <span class="block sm:inline">{{ $message }}.</span>
+              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              </span>
+            </div>
+                    @endif
+            @if ($message = Session::get('danger'))
+                       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong class="font-bold">Erreur!</strong>
+              <span class="block sm:inline">{{ $message }}.</span>
+              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              </span>
+            </div>
+
+                        
+                    @endif
 <!-- Hero Title -->
 <div class="mb-16 text-center md:text-left relative z-10">
 <span class="inline-block bg-primary-fixed text-on-primary-fixed px-4 py-1 rounded-full font-label-caps text-label-caps mb-4 uppercase tracking-widest">Nous sommes à votre écoute</span>
@@ -14,16 +34,21 @@
 <!-- Form Section -->
 <div class="lg:col-span-7 bg-white p-card-padding rounded-2xl shadow-sm border border-outline-variant/20">
 <h2 class="font-headline-md text-headline-md text-primary mb-8">Envoyez un message</h2>
-<form class="space-y-6" id="contactForm">
+
+<form class="space-y-6"  enctype="multipart/form-data" id="contactForm" method="POST" action="{{ route('Soumetre-Message') }}">
+  {!! csrf_field() !!}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
 <div class="space-y-2">
 <label class="font-body-md-bold text-on-surface-variant ml-1" for="name">Nom complet</label>
-<input class="w-full h-12 px-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="name" name="name" placeholder="Ex: Koffi Bakayoko" required type="text">
+<input class="w-full h-12 px-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="name" name="nom" placeholder="Ex: Koffi Bakayoko" required type="text">
+</div>
+<div class="space-y-2">
+<label class="font-body-md-bold text-on-surface-variant ml-1" for="contact">Contact</label>
+<input class="w-full h-12 px-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="contact" name="contact" placeholder="22501020304" required type="text">
 </div>
 <div class="space-y-2">
 <label class="font-body-md-bold text-on-surface-variant ml-1" for="email">Email</label>
-<input class="w-full h-12 px-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="email" name="email" placeholder="koffi@email.com" required type="email">
-</div>
+<input class="w-full h-12 px-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="email" name="email" placeholder="koffi@email.com"  type="email">
 </div>
 <div class="space-y-2">
 <label class="font-body-md-bold text-on-surface-variant ml-1" for="subject">Sujet de votre demande</label>
@@ -35,9 +60,10 @@
 <option value="other">Autre demande</option>
 </select>
 </div>
+</div>
 <div class="space-y-2">
 <label class="font-body-md-bold text-on-surface-variant ml-1" for="message">Votre message</label>
-<textarea class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="message" name="message" placeholder="Comment pouvons-nous vous aider ?" required rows="5"></textarea>
+<textarea class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-0 transition-all font-body-md placeholder:text-outline" id="message" name="message" placeholder="Comment pouvons-nous vous aider ?" required rows="3"></textarea>
 </div>
 <button class="w-full md:w-auto px-10 h-14 bg-primary text-on-primary font-body-md-bold rounded-xl shadow-lg hover:bg-primary-container transition-all flex items-center justify-center gap-3 active:scale-95" type="submit">
 Envoyer le message

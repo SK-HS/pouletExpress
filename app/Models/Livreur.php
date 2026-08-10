@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Livreur extends Model
+class Livreur extends Authenticatable
 {
     protected $fillable = [
         'reference',
@@ -18,8 +19,22 @@ class Livreur extends Model
         'user_id',
         'image',
         'compte',
+        'disponible',
+        'password',
+        'remember_token',
+        'latitude',
+        'longitude',
     ];
     
+       protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'password' => 'hashed',
+        'disponible' => 'boolean',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -28,6 +43,11 @@ class Livreur extends Model
       public function quartier()
     {
         return $this->belongsTo(Quartier::class);
+    }
+
+     public function commandesLivrees()
+    {
+        return $this->hasMany(CommandeLivreur::class, 'livreur_id');
     }
 
     protected static function booted()

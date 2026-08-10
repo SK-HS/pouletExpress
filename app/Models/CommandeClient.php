@@ -22,12 +22,31 @@ class CommandeClient extends Model
         'user_id',
         'livreur_id',
         'type_commande',
-        'fournisseur_id'
+        'fournisseur_id',
+        'creneau',
+        'telephone_livraison',
+        'quartier_id',
+        'latitude',
+        'longitude',
+        'commande_recuperee',
+        'commande_livree',
+        'lieu_livraison',
+        'commande_en_route',
+        'date_commande',
+        'commande_recu',
+        'date_commane_recu',
+        'cmmd_livre_fournisseur',
+        'date_cmmd_livre_fournisseur',
+        'groupe_commande_id',
     ];
 
         public function user()
     {
         return $this->belongsTo(User::class);
+    }
+        public function quartier()
+    {
+        return $this->belongsTo(Quartier::class, 'quartier_id');
     }
         public function fournisseur()
     {
@@ -46,9 +65,13 @@ class CommandeClient extends Model
     {
         return $this->hasMany(Versement::class);
     }
-    public function commandeLivreur()
+    // public function commandeLivreur()
+    // {
+    //     return $this->hasMany(commandeLivreur::class);
+    // }
+     public function livraison()
     {
-        return $this->hasMany(commandeLivreur::class);
+        return $this->hasOne(CommandeLivreur::class, 'commande_client_id');
     }
     public function client()
     {
@@ -74,19 +97,21 @@ class CommandeClient extends Model
                     $numero = "C{$prefix}{$suffix}";
                 } while (self::where('reference', $numero)->exists());
 
-                $model->update(['reference' => $numero,'statut'=>'Commande créée']);
+                $model->update(['reference' => $numero,'statut'=>'NOUVEAU']);
 
-                $statut = StatutCommande::create([
-                            'statut' => "Commande créée",
-                            'commande_client_id'=>$model->id,
-                            'user_id'=>Auth::id(),]);
+                // $statut = StatutCommande::create([
+                //             'statut' => "Commande créée",
+                //             'commande_client_id'=>$model->id,
+                //             'type'=>$model->type,
+                //             'typeId'=>Auth::id(),]);
 
                             if($model->type_commande == "Avec Livraison")
                                 {
 
                             CommandeLivreur::create([
-                                        'statut' => "Recherche d'un livreur",
-                                        'commande_id'=>$model->id,
+                                        'statut' => "EN_ATTENTE",
+                                        'commande_client_id'=>$model->id,
+                                        'quartier_id'=>$model->quartier_id,
                                         'user_id'=>Auth::id(),]);
                                 }
 

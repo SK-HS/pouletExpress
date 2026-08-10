@@ -2,77 +2,10 @@
 @section('content')
 
 <div class="flex min-h-screen">
-<aside class="hidden md:flex flex-col gap-base py-gutter h-[calc(100vh-76px)] w-72 sticky top-[76px] bg-surface-container-low border-r border-outline-variant overflow-y-auto custom-scrollbar">
-
-<form id="filterForm" method="GET" action="{{ route("Services") }}">
-
-    <div class="px-6 py-4">
-        <h2 class="font-headline-md text-headline-md text-primary">Filtres du Marché</h2>
-        <p class="text-on-surface-variant text-sm">Affinez votre recherche</p>
-    </div>
-
-    {{-- Catégories --}}
-    <nav class="flex flex-col gap-1 px-4">
-        <span class="text-xs font-bold text-outline-variant uppercase px-2 mb-2 tracking-widest">Catégories</span>
-
-        @foreach ($categories as $categorie)
-        <label class="filter-link {{ in_array($categorie->id, request('categories', [])) ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface' }} font-body-md-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
-            <input type="checkbox" name="categories[]" value="{{ $categorie->id }}" class="hidden filter-checkbox"
-                   {{ in_array($categorie->id, request('categories', [])) ? 'checked' : '' }}>
-            <span class="material-symbols-outlined">agriculture</span>
-            {{ $categorie->type }} : {{ $categorie->nom }}
-        </label>
-        @endforeach
-    </nav>
-
-    {{-- Fournisseurs --}}
-    <div class="px-6 py-6 border-t border-outline-variant/30 mt-4">
-        <span class="text-xs font-bold text-outline-variant uppercase mb-4 block tracking-widest">Éleveurs Certifiés</span>
-
-        <div class="mb-4 relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
-            <input type="text" id="fournisseurSearch" placeholder="Rechercher un éleveur..."
-                   class="w-full bg-surface border border-outline-variant rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-        </div>
-
-        <div class="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-2" id="fournisseursList">
-            @foreach ($fournisseurs as $fournisseur)
-            <label class="flex items-center gap-3 cursor-pointer group fournisseur-item">
-                <input type="checkbox" name="fournisseurs[]" value="{{ $fournisseur->id }}"
-                       class="rounded border-outline text-primary focus:ring-primary w-5 h-5 filter-checkbox"
-                       {{ in_array($fournisseur->id, request('fournisseurs', [])) ? 'checked' : '' }}>
-                <span class="text-body-md group-hover:text-primary transition-colors fournisseur-name">{{ $fournisseur->nom }}</span>
-            </label>
-            @endforeach
-        </div>
-    </div>
-
-    {{-- Localisation --}}
-    <div class="px-6 py-6 border-t border-outline-variant/30">
-        <span class="text-xs font-bold text-outline-variant uppercase mb-4 block tracking-widest">Localisation</span>
-        <select name="quartier" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-body-md focus:ring-2 focus:ring-primary filter-select">
-            <option value="">Abidjan (Toutes zones)</option>
-            @foreach ($quartiers as $quartier)
-            <option value="{{ $quartier->id }}" {{ request('quartier') == $quartier->id ? 'selected' : '' }}>
-                {{ $quartier->commune?->ville?->nom_ville }}-{{ $quartier->commune?->nom_commune }}-{{ $quartier->nom_quartier }}
-            </option>
-            @endforeach
-        </select>
-    </div>
-
-    {{-- Prix --}}
-    <div class="px-6 py-6 border-t border-outline-variant/30">
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-xs font-bold text-outline-variant uppercase tracking-widest">Prix (FCFA)</span>
-            <span class="text-sm font-bold text-primary" id="priceValue">{{ request('prix_max', 1000000) / 40 }}k max</span>
-        </div>
-        <input class="w-full h-2 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary"
-               max="1000000" min="25000" step="5000" type="range"
-               name="prix_max" id="priceRange" value="{{ request('prix_max', 25000) }}">
-    </div>
-
-</form>
-</aside>
+     {{-- Sidebar desktop (visible normalement) --}}
+    <aside class="hidden md:flex flex-col gap-base py-gutter h-[calc(100vh-76px)] w-72 sticky top-[76px] bg-surface-container-low border-r border-outline-variant overflow-y-auto custom-scrollbar">
+        @include('pages.filter_page')
+    </aside>
 
 <!-- Main Content -->
 <main class="flex-1 p-margin-mobile md:p-8">
@@ -84,13 +17,21 @@
             </div>
             <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Marché Avicole Local</h2>
         </div>
-        <div class="flex gap-2">
-            <select name="tri" form="filterForm" class="filter-select flex items-center gap-2 px-4 py-2 bg-surface border border-outline-variant rounded-full text-body-md hover:bg-surface-container-high transition-colors">
-                <option value="prix_asc" {{ request('tri') == 'prix_asc' ? 'selected' : '' }}>Trier par: Prix croissant</option>
-                <option value="prix_desc" {{ request('tri') == 'prix_desc' ? 'selected' : '' }}>Trier par: Prix décroissant</option>
-                <option value="recent" {{ request('tri') == 'recent' ? 'selected' : '' }}>Trier par: Plus récent</option>
-            </select>
-        </div>
+      <div class="flex gap-2">
+                <button type="button" class="md:hidden flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl text-body-md shadow-sm active:scale-95 transition-all" onclick="toggleMobileFilters(true)">
+                    <span class="material-symbols-outlined text-lg">filter_list</span> Filtres
+                </button>
+                <div  class="relative flex-1 md:flex-none min-w-0 overflow-hidden">
+                   {{-- <span class="material-symbols-outlined text-lg absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">sort</span> --}}
+                <select name="tri" form="filterForm"
+                        onchange="document.getElementById('filterForm').submit()"
+                        class="appearance-none flex items-center gap-2 pl-4 pr-8 py-2 bg-surface border border-outline-variant rounded-xl text-body-md hover:bg-surface-container-high transition-colors cursor-pointer">
+                    <option value="prix_asc" {{ request('tri', 'prix_asc') == 'prix_asc' ? 'selected' : '' }}>Prix croissant</option>
+                    <option value="prix_desc" {{ request('tri') == 'prix_desc' ? 'selected' : '' }}>Prix décroissant</option>
+                </select>
+               
+            </div>
+            </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productGrid">
@@ -123,9 +64,12 @@
                 </p>
                 <div class="flex items-center justify-between mt-auto">
                     <span class="font-headline-md text-primary">{{ $produit->prix }} FCFA</span>
-                    <a href="panier.html" class="bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-2 rounded-xl transition-all flex items-center justify-center">
+                    {{-- <a href="#" data-produit-id="{{ $produit->id }}" class="bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-2 rounded-xl transition-all flex items-center justify-center">
                         <span class="material-symbols-outlined">add_shopping_cart</span>
-                    </a>
+                    </a> --}}
+                    <button type="button" class="add-to-cart-btn bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-1.5 md:p-2 rounded-lg md:rounded-xl transition-all active:scale-90" data-produit-id="{{ $produit->id }}">
+                    <span class="material-symbols-outlined text-sm md:text-base">add_shopping_cart</span>
+                </button>
                 </div>
             </div>
         </div>
@@ -135,38 +79,100 @@
     </div>
 </main>
 </div>
+
+{{-- Drawer mobile : réutilise le MÊME formulaire, juste déplacé visuellement --}}
+<div class="fixed inset-0 z-[60] bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300" id="mobile-filter-drawer">
+    <div class="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-surface translate-x-full transition-transform duration-300 flex flex-col shadow-2xl" id="drawer-panel">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface">
+            <h2 class="font-headline-md text-primary">Filtres du Marché</h2>
+            <button type="button" class="p-2 rounded-full hover:bg-surface-container-high transition-colors" onclick="toggleMobileFilters(false)">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-6" id="filters-container-mobile">
+            {{-- Contenu injecté par JS depuis la sidebar desktop, voir script plus bas --}}
+        </div>
+        <div class="p-4 border-t border-outline-variant bg-surface-container-lowest grid grid-cols-2 gap-3">
+            <button type="button" class="py-3 text-primary font-body-md-bold border border-outline-variant rounded-xl hover:bg-surface-container-high" onclick="document.getElementById('filterForm').reset(); document.getElementById('filterForm').submit();">Réinitialiser</button>
+            <button type="button" class="py-3 bg-primary text-on-primary font-body-md-bold rounded-xl shadow-md" onclick="document.getElementById('filterForm').submit();">Appliquer</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('filterForm');
+// document.addEventListener('DOMContentLoaded', function () {
+//     const form = document.getElementById('filterForm');
 
-    // Soumission auto au changement de checkbox/select
-    document.querySelectorAll('.filter-checkbox, .filter-select').forEach(el => {
-        el.addEventListener('change', () => form.submit());
-    });
+//     // Soumission auto au changement de checkbox/select
+//     document.querySelectorAll('.filter-checkbox, .filter-select').forEach(el => {
+//         el.addEventListener('change', () => form.submit());
+//     });
 
-    // Slider de prix : soumission avec debounce (évite de spammer le serveur à chaque pixel de déplacement)
-    const priceRange = document.getElementById('priceRange');
-    const priceValue = document.getElementById('priceValue');
-    let debounce;
+//     // Slider de prix : soumission avec debounce (évite de spammer le serveur à chaque pixel de déplacement)
+//     const priceRange = document.getElementById('priceRange');
+//     const priceValue = document.getElementById('priceValue');
+//     let debounce;
 
-    priceRange.addEventListener('input', function () {
-        priceValue.textContent = (this.value / 1000) + 'k max';
-        clearTimeout(debounce);
-        debounce = setTimeout(() => form.submit(), 500);
-    });
+//     priceRange.addEventListener('input', function () {
+//         priceValue.textContent = (this.value / 1000) + 'k max';
+//         clearTimeout(debounce);
+//         debounce = setTimeout(() => form.submit(), 500);
+//     });
 
-    // Recherche live dans la liste des fournisseurs (filtre côté client, pas besoin de soumettre)
-    const fournisseurSearch = document.getElementById('fournisseurSearch');
-    fournisseurSearch.addEventListener('input', function () {
-        const query = this.value.toLowerCase();
-        document.querySelectorAll('.fournisseur-item').forEach(item => {
-            const name = item.querySelector('.fournisseur-name').textContent.toLowerCase();
-            item.style.display = name.includes(query) ? 'flex' : 'none';
-        });
-    });
+//     // Recherche live dans la liste des fournisseurs (filtre côté client, pas besoin de soumettre)
+//     const fournisseurSearch = document.getElementById('fournisseurSearch');
+//     fournisseurSearch.addEventListener('input', function () {
+//         const query = this.value.toLowerCase();
+//         document.querySelectorAll('.fournisseur-item').forEach(item => {
+//             const name = item.querySelector('.fournisseur-name').textContent.toLowerCase();
+//             item.style.display = name.includes(query) ? 'flex' : 'none';
+//         });
+//     });
+// });
+
+</script>
+
+<script>
+   function moveFormToMobile() {
+    const mobileContainer = document.getElementById('filters-container-mobile');
+    const desktopForm = document.getElementById('filterForm');
+    if (mobileContainer && desktopForm && !mobileContainer.contains(desktopForm)) {
+        mobileContainer.appendChild(desktopForm);
+    }
+}
+
+function moveFormToDesktop() {
+    const desktopAside = document.querySelector('aside.hidden.md\\:flex');
+    const desktopForm = document.getElementById('filterForm');
+    if (desktopAside && desktopForm && !desktopAside.contains(desktopForm)) {
+        desktopAside.appendChild(desktopForm);
+    }
+}
+
+function toggleMobileFilters(show) {
+    const drawer = document.getElementById('mobile-filter-drawer');
+    const panel = document.getElementById('drawer-panel');
+
+    if (show) {
+        moveFormToMobile(); // ✅ on déplace le formulaire AVANT d'ouvrir le drawer
+        drawer.classList.remove('opacity-0', 'pointer-events-none');
+        panel.classList.remove('translate-x-full');
+        document.body.style.overflow = 'hidden';
+    } else {
+        drawer.classList.add('opacity-0', 'pointer-events-none');
+        panel.classList.add('translate-x-full');
+        document.body.style.overflow = '';
+    }
+}
+
+// Remet le formulaire dans la sidebar desktop si on repasse en grand écran
+window.addEventListener('resize', function () {
+    if (window.innerWidth >= 768) {
+        moveFormToDesktop();
+    }
 });
 </script>
 @endpush
+

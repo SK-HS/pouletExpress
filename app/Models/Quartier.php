@@ -10,6 +10,8 @@ class Quartier extends Model
         'nom_quartier',
         'commune_id',
         'user_id',
+        'latitude',
+        'longitude',
     ];
 
         public function user()

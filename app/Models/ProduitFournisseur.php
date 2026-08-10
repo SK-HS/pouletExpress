@@ -18,7 +18,9 @@ class ProduitFournisseur extends Model
         'categorie_id',
         'taille_id',
         'commande_min',
-        'etat'
+        'etat',
+        'temps_preparation',
+        'nom_produit',
     ];
     protected $casts = [
         'images' => 'array',

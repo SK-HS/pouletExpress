@@ -41,8 +41,6 @@ class CategorieResource extends Resource
         return $schema
             ->components([
 
-                TextInput::make('type')
-                    ->required(),
                 TextInput::make('nom')
                     ->required(),
                 Hidden::make('user_id')
@@ -54,7 +52,6 @@ class CategorieResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('type'),
                 TextEntry::make('nom'),
                 // TextEntry::make('agence.nom')
                 //     ->label('Agence'),
@@ -74,8 +71,6 @@ class CategorieResource extends Resource
         return $table
             ->recordTitleAttribute('nom')
             ->columns([
-                TextColumn::make('type')
-                    ->searchable(),
                 TextColumn::make('nom')
                     ->searchable(),
                 TextColumn::make('user.name')

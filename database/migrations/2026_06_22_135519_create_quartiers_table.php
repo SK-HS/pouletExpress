@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('nom_quartier');
             $table->foreignId('commune_id')->constrained('communes')->onDelete('set null');
             $table->foreignId('user_id')->constrained('users')->onDelete('set null');
+             $table->decimal('latitude', 10, 7)->nullable()->after('nom_quartier');
+            $table->decimal('longitude', 10, 7)->nullable()->after('latitude');
             $table->timestamps();
         });
     }

@@ -26,8 +26,22 @@ return new class extends Migration
             $table->float('solde')->nullable()->default(0);
             $table->string('statut')->nullable();
             $table->string('type_commande')->nullable();
+            $table->string('creneau')->nullable();
+            $table->string('telephone_livraison')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->text('lieu_livraison')->nullable();
+            $table->boolean('commande_recuperee')->default(0);
+            $table->boolean('commande_livree')->default(0);
+            $table->boolean('commande_en_route')->default(0);
+            $table->boolean('commande_recu')->default(0);
+            $table->boolean('cmmd_livre_fournisseur')->default(0);
             $table->dateTime('date_commande');
+            $table->dateTime('date_commane_recu')->nullable();
+            $table->string('groupe_commande_id')->nullable();
+            $table->dateTime('date_cmmd_livre_fournisseur')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('quartier_id')->constrained('quartiers')->onDelete('cascade');
             $table->timestamps();
         });
     }

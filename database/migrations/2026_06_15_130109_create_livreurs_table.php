@@ -20,11 +20,15 @@ return new class extends Migration
             $table->string('telephone')->nullable();
             $table->string('email')->nullable();
             $table->string('contact')->nullable();
-            // $table->string('ville')->nullable();
+            $table->string('remember_token')->nullable();
+            $table->boolean('disponible')->default(0);
+            $table->string('password')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->text('image')->nullable();
             $table->float('compte')->default(0);
             $table->foreignId('quartier_id')->constrained('quartiers')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
