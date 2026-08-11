@@ -72,7 +72,8 @@ class CartService
      */
     public function count(): int
     {
-        return array_sum($this->getRawItems());
+        // return array_sum($this->getRawItems());
+          return count($this->getRawItems());
     }
 
     /**

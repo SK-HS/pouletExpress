@@ -110,11 +110,11 @@ class LivreursController extends Controller
 
     $livreur = Auth::guard('livreur')->user();
 
-    $commandes = CommandeClient::with(['client', 'quartier'])
-        // ->whereHas('commandeLivreur', function ($q) use ($livreur) {
-        //     $q->where('livreur_id', $livreur->id)
-        //       ->whereIn('statut', ['AFFECTEE', 'EN_ROUTE']);
-        // })
+    $commandes = CommandeClient::with(['client', 'quartier','livraison'])
+        ->whereHas('livraison', function ($q) use ($livreur) {
+            $q->where('livreur_id', $livreur->id)
+              ->whereIn('statut', ['AFFECTEE','RECUPEREE', 'EN_ROUTE']);
+        })
         ->get();
 
     $destinations = [];

@@ -125,7 +125,7 @@
 <span class="font-bold">Espèces,Wave, Orange, MTN, Moov</span>
 </li>
 </ul>
-<a href="contact.html" class="mt-6 w-full bg-primary text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 block text-center">
+<a href="{{route('Contact')}}" class="mt-6 w-full bg-primary text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 block text-center">
 Envoyer un message
 </a>
 </div>

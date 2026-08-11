@@ -139,19 +139,19 @@
 </div>
 </section> --}}
 
-<section class="px-margin-desktop mb-16">
-    <div class="relative group rounded-3xl overflow-hidden shadow-sm">
+<section class="px-4 md:px-margin-desktop mb-12 md:mb-16">
+    <div class="relative group rounded-2xl md:rounded-3xl overflow-hidden shadow-md">
         
-        <!-- Boutons de navigation (cachés par défaut, visibles au survol) -->
-        <div class="absolute left-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button type="button" id="promoPrev" class="w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur shadow-md text-primary rounded-full transition-transform hover:scale-110">
-                <span class="material-symbols-outlined text-xl">chevron_left</span>
+        <!-- Boutons de navigation (cachés sur mobile, visibles au survol sur PC) -->
+        <div class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="promoPrev" class="w-12 h-12 flex items-center justify-center bg-white/90 backdrop-blur shadow-lg text-primary rounded-full transition-transform hover:scale-110 active:scale-95">
+                <span class="material-symbols-outlined text-2xl">chevron_left</span>
             </button>
         </div>
         
-        <div class="absolute right-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button type="button" id="promoNext" class="w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur shadow-md text-primary rounded-full transition-transform hover:scale-110">
-                <span class="material-symbols-outlined text-xl">chevron_right</span>
+        <div class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="promoNext" class="w-12 h-12 flex items-center justify-center bg-white/90 backdrop-blur shadow-lg text-primary rounded-full transition-transform hover:scale-110 active:scale-95">
+                <span class="material-symbols-outlined text-2xl">chevron_right</span>
             </button>
         </div>
 
@@ -159,31 +159,34 @@
         <div class="flex overflow-x-auto overflow-y-hidden touch-pan-y snap-x snap-mandatory no-scrollbar" id="promoSlider">
 
             @forelse ($publicites as $pub)
-                <!-- AJOUT DE shrink-0 ICI POUR FIXER L'IMAGE ET EMPÊCHER LE CHEVAUCHEMENT -->
-               <div class="min-w-full shrink-0 snap-start relative min-h-[20rem] md:h-80 promo-card">
+               <!-- Hauteur fluide selon l'écran -->
+               <div class="min-w-full shrink-0 snap-start relative h-[300px] sm:h-[350px] md:h-[400px] promo-card">
                     <img alt="{{ $pub->titre ?? 'Publicité' }}" class="w-full h-full object-cover select-none" draggable="false" src="/storage/{{ $pub->image }}">
 
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-transparent flex items-center px-8 md:px-12">
-                        <div class="max-w-md text-white">
+                    <!-- Dégradé et conteneur du texte -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/95 sm:from-primary/90 via-primary/70 sm:via-primary/50 to-transparent flex items-center px-5 sm:px-8 md:px-12">
+                        <!-- max-w-[85%] sur mobile pour ne pas que le texte aille jusqu'au bord droit -->
+                        <div class="max-w-[85%] sm:max-w-md text-white">
                             
                             {{-- Badge --}}
                             @if(!empty($pub->badge))
-                            <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold mb-3 inline-block shadow-sm">
-                                {{ $pub->badge }}
+                            <span class="bg-secondary text-on-secondary px-2.5 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-2 md:mb-4 inline-block shadow-sm tracking-wide">
+                                {{ mb_strtoupper($pub->badge) }}
                             </span>
                             @endif
                             
-                            <h2 class="text-2xl md:text-headline-md font-headline-md mb-2">{{ $pub->titre }}</h2>
+                            {{-- Titre --}}
+                            <h2 class="text-xl sm:text-2xl md:text-4xl font-black mb-2 leading-tight md:mb-3 drop-shadow-sm">{{ $pub->titre }}</h2>
                             
-                            {{--Affichage des Dates --}}
+                            {{-- Affichage des Dates --}}
                             @if(!empty($pub->date_debut) || !empty($pub->date_fin))
-                            <div class="flex items-center gap-1.5 text-white/90 text-xs md:text-sm font-medium mb-3">
-                                <span class="material-symbols-outlined text-sm">schedule</span>
+                            <div class="flex items-center gap-1 md:gap-1.5 text-white/95 text-[10px] md:text-sm font-medium mb-2 md:mb-4 bg-black/20 w-fit px-2 py-1 rounded-md backdrop-blur-sm">
+                                <span class="material-symbols-outlined text-sm md:text-base">schedule</span>
                                 <span>
                                     @if(!empty($pub->date_debut) && !empty($pub->date_fin))
                                         Du {{ $pub->date_debut->format('d/m/Y') }} au {{ $pub->date_fin->format('d/m/Y') }}
                                     @elseif(!empty($pub->date_debut))
-                                        À partir du {{ $pub->date_debut->format('d/m/Y') }}
+                                        Dès le {{ $pub->date_debut->format('d/m/Y') }}
                                     @else
                                         Jusqu'au {{ $pub->date_fin->format('d/m/Y') }}
                                     @endif
@@ -191,13 +194,14 @@
                             </div>
                             @endif
                             
-                            {{-- Description --}}
-                            <p class="text-sm md:text-body-md mb-6 opacity-90 line-clamp-3">{{ $pub->description }}</p>
+                            {{-- Description (2 lignes max sur mobile, 3 sur PC) --}}
+                            <p class="text-xs sm:text-sm md:text-base mb-4 md:mb-6 opacity-90 line-clamp-2 md:line-clamp-3 drop-shadow-sm">{{ $pub->description }}</p>
                             
                             {{-- Bouton --}}
                             @if(!empty($pub->lien))
-                            <a href="{{ $pub->lien }}" class="inline-block bg-white text-primary px-6 py-2.5 rounded-xl font-body-md-bold hover:bg-primary-fixed hover:text-primary transition-colors shadow-md hover:shadow-lg">
+                            <a href="{{ $pub->lien }}" class="inline-flex items-center gap-2 bg-white text-primary px-5 py-2.5 md:px-8 md:py-3.5 rounded-lg md:rounded-xl text-xs md:text-base font-bold hover:bg-primary-fixed transition-colors shadow-lg active:scale-95">
                                 {{ $pub->bouton_texte ?? 'En profiter' }}
+                                <span class="material-symbols-outlined text-sm md:text-lg">arrow_forward</span>
                             </a>
                             @endif
                         </div>
@@ -205,8 +209,9 @@
                 </div>
             @empty
                 <!-- Fallback au cas où il n'y a pas de pub en base de données -->
-                <div class="min-w-full shrink-0 snap-start relative h-64 md:h-80 promo-card bg-surface-container flex items-center justify-center">
-                    <p class="text-on-surface-variant font-bold text-lg">Bientôt de nouvelles offres exclusives...</p>
+                <div class="min-w-full shrink-0 snap-start relative h-[300px] md:h-[400px] promo-card bg-surface-container flex flex-col items-center justify-center p-6 text-center">
+                    <span class="material-symbols-outlined text-4xl md:text-6xl text-outline-variant mb-4">campaign</span>
+                    <p class="text-on-surface-variant font-bold text-sm md:text-xl">Bientôt de nouvelles offres exclusives...</p>
                 </div>
             @endforelse
             
@@ -214,9 +219,10 @@
         
         <!-- Petits Ronds de progression (Dots) -->
         @if(isset($publicites) && $publicites->count() > 1)
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20" id="promoDots">
+        <div class="absolute bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20" id="promoDots">
             @foreach ($publicites as $index => $pub)
-            <button class="w-2 h-2 rounded-full {{ $index === 0 ? 'bg-white w-4' : 'bg-white/50' }} transition-all duration-300 shadow-sm"></button>
+            <!-- Les ronds sont un peu plus petits sur mobile -->
+            <button class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full {{ $index === 0 ? 'bg-white w-3 md:w-6' : 'bg-white/50' }} transition-all duration-300 shadow-sm"></button>
             @endforeach
         </div>
         @endif
@@ -278,146 +284,148 @@ Voir tout <span class="material-symbols-outlined text-sm">chevron_right</span>
 </section>
 
 <!-- Featured Products Slider -->
-<section class="px-margin-desktop mb-16 relative">
-    <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-secondary text-3xl">star</span>
-            <h2 class="font-headline-md text-headline-md text-on-surface">Produits en vedette</h2>
+<section class="px-4 md:px-margin-desktop mb-12 md:mb-16 relative">
+    
+    <!-- En-tête de la section -->
+    <div class="flex items-center justify-between mb-4 md:mb-8">
+        <div class="flex items-center gap-2 md:gap-3">
+            <span class="material-symbols-outlined text-secondary text-2xl md:text-3xl">star</span>
+            <h2 class="font-headline-md text-lg md:text-3xl text-on-surface font-black">Produits en vedette</h2>
         </div>
-        <div class="flex gap-2">
-            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all" id="prodPrev">
+        
+        <!-- Boutons de navigation (Cachés sur mobile, car on glisse avec le doigt) -->
+        <div class="hidden md:flex gap-2">
+            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all active:scale-95" id="prodPrev">
                 <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all" id="prodNext">
+            <button class="bg-surface-container-high hover:bg-primary-fixed text-on-surface p-2 rounded-full transition-all active:scale-95" id="prodNext">
                 <span class="material-symbols-outlined">chevron_right</span>
             </button>
         </div>
     </div>
 
-    <div class="flex overflow-x-auto snap-x snap-mandatory gap-gutter no-scrollbar pb-6" id="productSlider">
+    <!-- Conteneur du Slider -->
+    <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 no-scrollbar pb-4 md:pb-6" id="productSlider">
         @foreach ($produits as $produit)
-        <div class="product-card min-w-[280px] md:min-w-[320px] snap-start bg-surface-container-lowest rounded-3xl overflow-hidden card-shadow group flex flex-col h-full border border-outline-variant/30 transition-transform hover:translate-y-[-4px]">
-            <div class="relative h-48 overflow-hidden cursor-pointer" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+        <!-- Carte Produit (75vw sur mobile pour voir le bord de la suivante) -->
+        <div class="product-card min-w-[75vw] sm:min-w-[280px] md:min-w-[320px] snap-start bg-surface-container-lowest rounded-2xl md:rounded-3xl overflow-hidden shadow-sm hover:shadow-md flex flex-col h-full border border-outline-variant/30 transition-transform duration-300 hover:-translate-y-1">
+            
+            <!-- Image (Hauteur réduite sur mobile h-40) -->
+            <div class="relative h-40 md:h-48 overflow-hidden cursor-pointer shrink-0" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
                 <img alt="{{ $produit->produit?->nom }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="/storage/{{ $produit->produit?->image }}">
-                <div class="absolute top-4 left-4 bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold">BIO</div>
+                <!-- Badge BIO -->
+                <div class="absolute top-3 left-3 md:top-4 md:left-4 bg-secondary text-on-secondary px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-bold shadow-sm">
+                    BIO
+                </div>
             </div>
-            <div class="p-card-padding flex flex-col flex-1">
-                <h3 class="font-body-md-bold text-on-surface mb-1 cursor-pointer hover:text-primary" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+            
+            <!-- Contenu -->
+            <div class="p-3 md:p-5 flex flex-col flex-grow">
+                <!-- Titre (line-clamp pour bloquer à 2 lignes) -->
+                <h3 class="font-body-md-bold text-sm md:text-lg text-on-surface mb-1 cursor-pointer hover:text-primary line-clamp-2 leading-tight" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
                     {{ $produit->produit?->nom }}
                 </h3>
-                <p class="text-on-surface-variant text-sm mb-4 cursor-pointer hover:underline" onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
-                    {{ $produit->fournisseur?->nom }}
+                
+                <!-- Fournisseur -->
+                <p class="text-[10px] md:text-sm text-on-surface-variant flex items-center gap-1 mb-3 md:mb-4 cursor-pointer hover:underline truncate" onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
+                    <span class="material-symbols-outlined text-sm md:text-base">storefront</span>
+                    <span class="truncate">{{ $produit->fournisseur?->nom }}</span>
                 </p>
-                <div class="mt-auto flex items-center justify-between">
-                    <div>
-                        <span class="text-primary font-headline-md">{{ $produit->prix }} FCFA</span>
+                
+                <!-- Zone du bas : Prix et Bouton (Réorganisée pour éviter les chevauchements) -->
+                <div class="mt-auto flex items-end justify-between border-t border-outline-variant/30 pt-3">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] md:text-xs font-bold text-secondary mb-0.5">{{ $produit->quantite }} Disponibles</span>
+                        <span class="text-primary font-headline-md text-base md:text-xl font-black leading-none">{{ $produit->prix }} FCFA</span>
                     </div>
-                    <div>
-                        <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ $produit->quantite }} Disponible</span>
-                    </div>
-                    <button class="bg-primary add-to-cart-btn text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center" data-produit-id="{{ $produit->id }}">
-                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                    
+                    <button class="add-to-cart-btn bg-primary text-on-primary p-2 md:p-3 rounded-xl md:rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0" data-produit-id="{{ $produit->id }}">
+                        <span class="material-symbols-outlined text-base md:text-xl">add_shopping_cart</span>
                     </button>
                 </div>
             </div>
+            
         </div>
         @endforeach
-        <!-- Product Card 2 -->
-{{-- <div class="min-w-[280px] md:min-w-[320px] snap-start bg-surface-container-lowest rounded-3xl overflow-hidden card-shadow group flex flex-col h-full border border-outline-variant/30 transition-transform hover:translate-y-[-4px]">
-<div class="relative h-48 overflow-hidden cursor-pointer" onclick="window.location.href='detail-produit.html?id=oeufs'">
-<img alt="Œufs Frais" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuPbLSkf3X5sQ9M5aJN2YVEr_-65gAKQj27vjhXt6NXL7ecXcxs4iZ5ed32j3FfHEOUq87lssVbUEVyxlmZuOSBpKJ_lH7qIzpdOUoIO5CHypKo311M8VEmc7nU9Yt_pzVto6Fx6QV7SUOIEeDvPYbnEyAaeES71IbiE-TrylLmGsYXl5CvXToszP04TlgcB2NyO6diEFkVbBJCdu_YrJA__paqTXC3nXRaAa9b0jSfa1hnhuSRSN9yAigLrFLvENAVV5qAqcNfMo">
-<div class="absolute top-4 left-4 bg-status-success text-on-primary px-3 py-1 rounded-full text-label-sm font-bold">FRAIS</div>
-</div>
-<div class="p-card-padding flex flex-col flex-1">
-<h3 class="font-body-md-bold text-on-surface mb-1 cursor-pointer hover:text-primary" onclick="window.location.href='detail-produit.html?id=oeufs'">Plateau de 30 Œufs Frais</h3>
-<p class="text-on-surface-variant text-sm mb-4 cursor-pointer hover:underline" onclick="window.location.href='detail-fournisseur.html'">Les Œufs d'Or - Grand Bassam</p>
-<div class="mt-auto flex items-center justify-between">
-<div>
-<span class="text-primary font-headline-md">2.500 FCFA</span>
-</div>
-<a href="panier.html" class="bg-primary text-on-primary p-3 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center">
-<span class="material-symbols-outlined">add_shopping_cart</span>
-</a>
-</div>
-</div>
-</div> --}}
-
     </div>
 
-    <div class="flex justify-center gap-2 mt-4" id="prodDots">
+    <!-- Points de pagination (Dots) -->
+    <div class="flex justify-center gap-2 mt-2 md:mt-4" id="prodDots">
         @foreach ($produits as $index => $produit)
-        <button class="w-2 h-2 rounded-full {{ $index === 0 ? 'bg-primary' : 'bg-outline-variant' }} transition-all duration-300" data-index="{{ $index }}"></button>
+        <button class="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full {{ $index === 0 ? 'bg-primary' : 'bg-outline-variant' }} transition-all duration-300" data-index="{{ $index }}"></button>
         @endforeach
     </div>
 </section>
 
+
 <!-- Nearby Farmers Bento -->
-<section class="px-margin-desktop mb-20">
-<div class="mb-8">
-<h2 class="font-headline-md text-headline-md text-on-surface">Éleveurs certifiés à proximité</h2>
-<p class="text-on-surface-variant font-body-md">Soutenez l'économie locale et achetez en toute confiance</p>
-</div>
-<div class="relative group">
-  <div class="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <button type="button" id="farmerPrev" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110">
-            <span class="material-symbols-outlined text-2xl">chevron_left</span>
-        </button>
+<section class="px-4 md:px-margin-desktop mb-12 md:mb-20">
+    
+    <!-- En-tête -->
+    <div class="mb-4 md:mb-8">
+        <h2 class="font-headline-md text-xl md:text-headline-md text-on-surface font-black">Éleveurs certifiés à proximité</h2>
+        <p class="text-on-surface-variant text-sm md:text-base font-body-md mt-1">Soutenez l'économie locale et achetez en toute confiance</p>
     </div>
- <div class="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <button type="button" id="farmerNext" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110">
-            <span class="material-symbols-outlined text-2xl">chevron_right</span>
-        </button>
+    
+    <div class="relative group">
+        
+        <!-- Boutons de navigation (Cachés sur mobile) -->
+        <div class="hidden md:flex absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="farmerPrev" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110 active:scale-95">
+                <span class="material-symbols-outlined text-2xl">chevron_left</span>
+            </button>
+        </div>
+        <div class="hidden md:flex absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button type="button" id="farmerNext" class="w-12 h-12 flex items-center justify-center bg-white shadow-xl text-primary rounded-full transition-transform duration-300 hover:scale-110 active:scale-95">
+                <span class="material-symbols-outlined text-2xl">chevron_right</span>
+            </button>
+        </div>
+
+        <!-- Slider des Éleveurs -->
+        <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 no-scrollbar pb-4 md:pb-8" id="farmerSlider">
+            
+            @foreach ($fournisseurs as $fournisseur)
+            <!-- Carte Éleveur -->
+            <div class="min-w-[85vw] sm:min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg h-[350px] md:h-[450px] shrink-0">
+                
+                <!-- Image de fond -->
+                <img alt="{{ $fournisseur->nom }}" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="/storage/{{ $fournisseur->image }}">
+                
+                <!-- Dégradé Noir pour lire le texte -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-5 md:p-8 text-white">
+                    
+                    <div class="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                        <!-- Avatar / Logo de l'éleveur -->
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl border-2 border-primary-fixed overflow-hidden shrink-0 bg-white">
+                            <img alt="Farmer" class="w-full h-full object-cover" src="/storage/Logo/user.jpg">
+                        </div>
+                        
+                        <!-- Nom et Note -->
+                        <div>
+                            <h3 class="text-lg md:text-2xl font-bold leading-tight line-clamp-1">{{ $fournisseur->nom_ferme }} {{ $fournisseur->nom }}</h3>
+                            <div class="flex items-center gap-1 text-secondary-container mt-0.5">
+                                <span class="material-symbols-outlined text-[14px] md:text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="text-xs md:text-sm font-bold">4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Type / Description -->
+                    <p class="text-xs md:text-sm text-gray-200 mb-4 md:mb-6 line-clamp-2">{{ $fournisseur->type }}</p>
+                    
+                    <!-- Bouton -->
+                    <a href="{{route('Detail-Fournisseurs',$fournisseur->id)}}" class="bg-white text-primary w-fit px-5 py-2.5 md:px-6 md:py-3 rounded-lg md:rounded-xl text-sm md:text-base font-bold hover:bg-primary-fixed transition-colors shadow-lg active:scale-95">
+                        Voir la ferme
+                    </a>
+                </div>
+                
+            </div>
+            @endforeach
+
+        </div>
     </div>
-
-<div class="flex overflow-x-auto snap-x snap-mandatory gap-gutter no-scrollbar pb-8" id="farmerSlider">
-<!-- Farmer 1 -->
-
-@foreach ($fournisseurs as $fournisseur)
-  
-
-<div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
-<img alt="{{ $fournisseur->nom }}" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="/storage/{{ $fournisseur->image }}">
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-14 h-14 rounded-2xl border-2 border-primary-fixed overflow-hidden">
-<img alt="Farmer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7tisvdeNuOrGpG5FFJCrix7h3s2yP6lB28m4gGZwC0ZD1k_JtfA7FRuciIWnF46j22ki7UFHzBVSOMHOukPGqltLKKu1h_ILDLOTkn1wg38W3jeNMmYsldaDmLaGTN_oCbRorGtnGZGz0pVAdRCvmsWkj8wr0QTsb0x1-Yhz6LJ7HPe-YLYkKkzPw0m_TkFTUuyr5X7koc2xLX6h3WUJcU5u5gN0AdB3fAE-aNWcS6RlKvT0eTJkdg4W1q5a-L2Qr6n6mz7nk-Hk">
-</div>
-<div>
-<h3 class="font-headline-md">{{ $fournisseur->nom_ferme }} {{ $fournisseur->nom }}</h3>
-<div class="flex items-center gap-1 text-secondary-container">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="font-body-md-bold">4.9</span>
-</div>
-</div>
-</div>
-<p class="text-sm opacity-90 mb-6 line-clamp-2">{{ $fournisseur->type }}</p>
-<a href="{{route('Detail-Fournisseurs',$fournisseur->id)}}" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
-</div>
-</div>
-@endforeach
-<!-- Farmer 2 -->
-<div class="min-w-[300px] md:min-w-[400px] snap-start group/card relative rounded-3xl overflow-hidden card-shadow h-[450px]">
-<img alt="Les Œufs d'Or" class="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO1YPXrZ-rbsH0SH04mCcBYyuD1zjTxz1Yr1tuXevlnQ4CagGgRUSP89O1SiBxLcINSx24a4W6wfqQfTVyvXE-xxHor4VNdPUivQEpQTKfaI-bTG88XGNh_zgfWH3rkOalKHfSgeM-mQ8m2g0m8NaEoLLa3IevFmHG0VJ3D-1IpEqzmS7IbatJjf5a53zI8-Iez8KZ4CQoVr8Fv_6CxnxAJgqrkHxQa82hOskRbnqopQ4_bspeyg9Guh4IT3ZirB2wTeMYlbZfacs">
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-14 h-14 rounded-2xl border-2 border-primary-fixed overflow-hidden bg-white">
-<span class="material-symbols-outlined text-primary text-3xl flex items-center justify-center h-full">egg</span>
-</div>
-<div>
-<h3 class="font-headline-md">Les Œufs d'Or</h3>
-<div class="flex items-center gap-1 text-secondary-container">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="font-body-md-bold">4.7</span>
-</div>
-</div>
-</div>
-<p class="text-sm opacity-90 mb-6 line-clamp-2">Production d'œufs frais de qualité supérieure à Grand Bassam. Livraison rapide.</p>
-<a href="detail-fournisseur.html" class="bg-white text-primary w-fit px-6 py-2 rounded-xl font-body-md-bold hover:bg-primary-fixed transition-colors">Voir la ferme</a>
-</div>
-</div>
-</div>
-</div>
 </section>
+
 </main>
 
 

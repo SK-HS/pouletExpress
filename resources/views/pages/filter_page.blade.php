@@ -1,5 +1,5 @@
 <div class="px-6 py-4">
-    <h2 class="font-headline-md text-headline-md text-primary">Filtres du Marché</h2>
+    <h5 class="font-headline-md text-headline-md text-primary">Filtres du Marché</h5>
     <p class="text-on-surface-variant text-sm">Affinez votre recherche</p>
 </div>
 
@@ -7,14 +7,14 @@
 
     <nav class="flex flex-col gap-1 px-4">
         <span class="text-xs font-bold text-outline-variant uppercase px-2 mb-2 tracking-widest">Catégories</span>
-        @foreach ($categories as $categorie)
-        <label class="{{ in_array($categorie->id, request('categories', [])) ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface' }} font-body-md-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
-            <input type="checkbox" name="categories[]" value="{{ $categorie->id }}" class="hidden filter-checkbox"
-                   {{ in_array($categorie->id, request('categories', [])) ? 'checked' : '' }}>
-            <span class="material-symbols-outlined">agriculture</span>
-            {{ $categorie->type }} : {{ $categorie->nom }}
-        </label>
-        @endforeach
+       @foreach ($categories as $categorie)
+<label class="{{ in_array($categorie->id, (array) request('categories', [])) ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface' }} font-body-md-bold rounded-lg px-4 py-3 flex items-center gap-3 transition-all cursor-pointer">
+    <input type="checkbox" name="categories[]" value="{{ $categorie->id }}" class="hidden filter-checkbox"
+           {{ in_array($categorie->id, (array) request('categories', [])) ? 'checked' : '' }}>
+    <span class="material-symbols-outlined">agriculture</span>
+                 {{ $categorie->nom }}
+</label>
+@endforeach
     </nav>
 
     <div class="px-6 py-6 border-t border-outline-variant/30 mt-4">

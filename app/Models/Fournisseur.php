@@ -60,6 +60,10 @@ class Fournisseur extends Authenticatable
     {
         return $this->belongsTo(Quartier::class);
     }
+     public function produits()
+    {
+        return $this->hasMany(ProduitFournisseur::class);
+    }
 
     protected static function booted()
     {

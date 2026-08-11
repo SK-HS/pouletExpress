@@ -25,7 +25,7 @@
         <div class="flex items-center gap-2 md:gap-4 shrink-0">
             <a href="{{ route('Panier-Produit')}}" id="cart-link" class="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-container transition-all shrink-0">
                 <span class="material-symbols-outlined text-xl lg:text-2xl">shopping_cart</span>
-                <span id="cartCountBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-[10px] text-on-secondary flex items-center justify-center rounded-full font-bold transition-transform duration-200 {{ $cartCount > 0 ? '' : 'hidden' }}">
+                <span id="cartCountBadge" class=" cart-badge absolute -top-1 -right-1 w-5 h-5 bg-secondary text-[10px] text-on-secondary flex items-center justify-center rounded-full font-bold transition-transform duration-200 {{ $cartCount > 0 ? '' : 'hidden' }}">
                     {{ $cartCount }}
                 </span>
             </a>

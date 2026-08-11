@@ -46,53 +46,72 @@ class PagesController extends Controller
 
     public function get_services(Request $request)
 {  
-    $validated = $request->validate([
-    'categories' => 'integer|exists:categories,id',
-    'fournisseurs' => 'integer|exists:fournisseurs,id',
-    'quartier' => 'integer|exists:quartiers,id',
-]);
-    $query = ProduitFournisseur::with(['produit', 'categorie', 'fournisseur', 'taille'])
-                                ->where('quantite', '>', 0);
+      $validated = $request->validate([
+        'categories'   => 'nullable|array',
+        'categories.*' => 'integer|exists:categories,id',
 
-    // Filtre par catégories (plusieurs sélections possibles)
-    if ($request->filled('categories')) {
-        $query->whereIn('categorie_id', $request->categories);
+        'fournisseurs'   => 'nullable|array',
+        'fournisseurs.*' => 'integer|exists:fournisseurs,id',
+
+        'quartier' => 'nullable|integer|exists:quartiers,id',
+        'prix_max' => 'nullable|numeric|min:0',
+        'tri'      => 'nullable|string|in:prix_desc,prix_asc,recent',
+        'page'     => 'nullable|integer|min:1|max:1000', // borne la pagination, évite les OFFSET démesurés
+    ]);
+
+    // 2. REQUÊTE avec eager loading limité aux colonnes utiles
+    $query = ProduitFournisseur::with([
+            'produit:id,nom,image',
+            'categorie:id,nom',
+            'fournisseur:id,nom_ferme,quartier_id',
+            'taille:id,taille',
+        ])
+        ->where('quantite', '>', 0)
+        ->select('id','nom_produit','quantite','prix','statuts','etat','commande_min','temps_preparation',
+                 'fournisseur_id','produit_id','taille_id','categorie_id','images','description');
+
+    // Filtre catégories
+    if (!empty($validated['categories'])) {
+        $query->whereIn('categorie_id', $validated['categories']);
     }
 
-    // Filtre par fournisseurs (plusieurs sélections possibles)
-    if ($request->filled('fournisseurs')) {
-        $query->whereIn('fournisseur_id', $request->fournisseurs);
+    // Filtre fournisseurs
+    if (!empty($validated['fournisseurs'])) {
+        $query->whereIn('fournisseur_id', $validated['fournisseurs']);
     }
 
-    // Filtre par localité (quartier du fournisseur)
-    if ($request->filled('quartier')) {
-        $query->whereHas('fournisseur', function ($q) use ($request) {
-            $q->where('quartier_id', $request->quartier);
+    // Filtre quartier — whereIn + sous-requête plutôt que whereHas,
+    // plus performant à volumétrie élevée (évite le coût d'un EXISTS corrélé)
+    if (!empty($validated['quartier'])) {
+        $query->whereIn('fournisseur_id', function ($q) use ($validated) {
+            $q->select('id')
+              ->from('fournisseurs')
+              ->where('quartier_id', $validated['quartier']);
         });
     }
 
-    // Filtre par prix maximum
-    if ($request->filled('prix_max')) {
-        $query->where('prix', '<=', $request->input('prix_max'));
+    // Filtre prix maximum
+    if (!empty($validated['prix_max'])) {
+        $query->where('prix', '<=', $validated['prix_max']);
     }
 
-    // Tri
-    switch ($request->input('tri')) {
-        case 'prix_desc':
-            $query->orderBy('prix', 'desc');
-            break;
-        case 'recent':
-            $query->orderBy('created_at', 'desc');
-            break;
-        default:
-            $query->orderBy('prix', 'asc');
-    }
+    // 3. TRI — lu depuis $validated (cohérent avec la validation, pas depuis $request brut)
+    match ($validated['tri'] ?? 'prix_asc') {
+        'prix_desc' => $query->orderBy('prix', 'desc'),
+        'recent'    => $query->orderBy('created_at', 'desc'),
+        default     => $query->orderBy('prix', 'asc'),
+    };
 
+    // Tri secondaire stable (évite un ordre incohérent entre 2 pages si plusieurs lignes ont le même prix)
+    $query->orderBy('id', 'asc');
+
+    // 4. PAGINATION
     $produits = $query->paginate(12)->withQueryString();
+    
 
-    $categories = Categorie::all();
-    $fournisseurs = Fournisseur::all();
-    $quartiers = Quartier::with('commune.ville')->get();
+    $categories = Categorie::select('id','nom')->get();
+    $fournisseurs = Fournisseur::select('id','nom')->get();
+    $quartiers = Quartier::with('commune.ville')->select('commune_id','id','nom_quartier')->get();
 
     return view('pages.services', compact('produits', 'categories', 'fournisseurs', 'quartiers'));
 }

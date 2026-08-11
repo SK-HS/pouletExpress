@@ -34,49 +34,73 @@
             </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productGrid">
-        @forelse ($produits as $produit)
-        <div class="group bg-surface-container-lowest rounded-2xl p-3 shadow-sm border border-outline-variant/30 transition-all duration-300 hover:shadow-md">
-            <div class="relative w-full aspect-square rounded-xl overflow-hidden mb-4 cursor-pointer" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="/storage/{{ $produit->produit->image }}" alt="{{ $produit->produit?->nom }}">
-                <div class="absolute top-3 left-3 bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Vente</div>
-            </div>
-            <div class="px-2">
-                <p class="text-xs text-outline font-bold uppercase tracking-widest mb-1">{{ $produit->categorie?->nom }}</p>
-                <h3 class="font-body-md-bold text-lg text-on-surface mb-1 cursor-pointer hover:text-primary" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">{{ $produit->produit?->nom }}</h3>
-                <div class="flex items-center gap-1 mb-2">
-                    <span class="material-symbols-outlined text-orange-money text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-                    <span class="text-sm font-bold">4.8</span>
-                    <span class="text-xs text-outline">(124)</span>
-                </div>
-                <p class="text-xs text-on-surface-variant flex items-center gap-1 mb-4 cursor-pointer hover:underline" onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
-                    <span class="material-symbols-outlined text-md">user_attributes</span> {{ $produit->fournisseur?->nom }}
-                </p>
-                <p class="text-md text-on-surface-variant flex items-center justify-between mb-4 font-bold cursor-pointer hover:underline">
-                    <span class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-orange-money font-bold text-md">balance</span>
-                        {{ $produit->taille?->taille }} Kg
-                    </span>
-                    <span class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-orange-money font-bold text-md">storefront</span>
-                        {{ $produit->quantite }} Stock
-                    </span>
-                </p>
-                <div class="flex items-center justify-between mt-auto">
-                    <span class="font-headline-md text-primary">{{ $produit->prix }} FCFA</span>
-                    {{-- <a href="#" data-produit-id="{{ $produit->id }}" class="bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-2 rounded-xl transition-all flex items-center justify-center">
-                        <span class="material-symbols-outlined">add_shopping_cart</span>
-                    </a> --}}
-                    <button type="button" class="add-to-cart-btn bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-1.5 md:p-2 rounded-lg md:rounded-xl transition-all active:scale-90" data-produit-id="{{ $produit->id }}">
-                    <span class="material-symbols-outlined text-sm md:text-base">add_shopping_cart</span>
-                </button>
-                </div>
+   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 md:gap-6" id="productGrid">
+    @forelse ($produits as $produit)
+    <!-- Carte Produit (Padding réduit sur mobile : p-2 au lieu de p-3) -->
+    <div class="group bg-surface-container-lowest rounded-xl md:rounded-2xl p-2 md:p-3 shadow-sm border border-outline-variant/30 transition-all duration-300 hover:shadow-md flex flex-col h-full">
+        
+        <!-- Image -->
+        <div class="relative w-full aspect-square rounded-lg md:rounded-xl overflow-hidden mb-2 md:mb-4 cursor-pointer shrink-0" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" title="{{ $produit->produit?->nom }}"  src="/storage/{{ $produit->produit->image }}" alt="{{ $produit->produit?->nom }}">
+            <div class="absolute top-2 left-2 md:top-3 md:left-3 bg-primary text-on-primary text-[8px] md:text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                Top Vente
             </div>
         </div>
-        @empty
-        <p class="text-on-surface-variant col-span-full text-center py-12">Aucun produit ne correspond à ces filtres.</p>
-        @endforelse
+
+        <!-- Infos -->
+        <div class="px-1 md:px-2 flex flex-col flex-grow">
+            <!-- Catégorie -->
+            <p class="text-[9px] md:text-xs text-outline font-bold uppercase tracking-widest mb-1 truncate">{{ $produit->categorie?->nom }}</p>
+            
+            <!-- Titre (line-clamp-2 empêche le texte de dépasser sur 3 lignes et de casser le design) -->
+            <h3 title="{{ $produit->produit?->nom }}" class="font-body-md-bold text-sm md:text-lg text-on-surface mb-1 cursor-pointer hover:text-primary line-clamp-2 leading-tight" onclick="window.location.href='{{ route('Detail-Produit', $produit->id) }}'">
+                {{ $produit->produit?->nom }}
+            </h3>
+            
+            <!-- Notes -->
+            <div class="flex items-center gap-1 mb-2">
+                <span class="material-symbols-outlined text-orange-money text-[12px] md:text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                <span class="text-[10px] md:text-sm font-bold">4.8</span>
+                <span class="text-[9px] md:text-xs text-outline">(124)</span>
+            </div>
+            
+            <!-- Fournisseur -->
+            <p class="text-[10px] md:text-xs text-on-surface-variant flex items-center gap-1 mb-2 md:mb-4 cursor-pointer hover:underline truncate" onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
+                <span class="material-symbols-outlined text-[14px] md:text-md">user_attributes</span> 
+                <span class="truncate">{{ $produit->fournisseur?->nom }}</span>
+            </p>
+            
+            <!-- Poids & Stock (Passe l'un en dessous de l'autre sur les tous petits écrans pour éviter l'écrasement) -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3 md:mb-4 mt-auto">
+                <span class="flex items-center gap-1 text-[10px] md:text-sm text-on-surface-variant font-bold">
+                    <span class="material-symbols-outlined text-orange-money font-bold text-[14px] md:text-md">balance</span>
+                    {{ $produit->taille?->taille }} Kg
+                </span>
+                <span class="flex items-center gap-1 text-[10px] md:text-sm text-on-surface-variant font-bold">
+                    <span class="material-symbols-outlined text-orange-money font-bold text-[14px] md:text-md">storefront</span>
+                    {{ $produit->quantite }} En Stock
+                </span>
+            </div>
+            
+            <!-- Prix et Bouton Panier -->
+            <div class="flex items-center justify-between pt-1 border-t border-outline-variant/30">
+                <span class="font-headline-md text-sm md:text-lg text-primary font-black">{{ $produit->prix }} FCFA</span>
+                
+                <button type="button" class="add-to-cart-btn bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-1.5 md:p-2 rounded-lg transition-all active:scale-90 shadow-sm" data-produit-id="{{ $produit->id }}">
+                    <span class="material-symbols-outlined text-sm md:text-xl">add_shopping_cart</span>
+                </button>
+            </div>
+        </div>
+        
     </div>
+    @empty
+    <div class="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30">
+        <span class="material-symbols-outlined text-4xl text-outline-variant mb-3">search_off</span>
+        <p class="text-on-surface-variant text-center font-bold">Aucun produit ne correspond à ces filtres.</p>
+    </div>
+    @endforelse
+</div>
+
 </main>
 </div>
 
@@ -156,7 +180,7 @@ function toggleMobileFilters(show) {
     const panel = document.getElementById('drawer-panel');
 
     if (show) {
-        moveFormToMobile(); // ✅ on déplace le formulaire AVANT d'ouvrir le drawer
+        moveFormToMobile(); //  on déplace le formulaire AVANT d'ouvrir le drawer
         drawer.classList.remove('opacity-0', 'pointer-events-none');
         panel.classList.remove('translate-x-full');
         document.body.style.overflow = 'hidden';

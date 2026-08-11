@@ -64,7 +64,7 @@
 
                                 <!-- Vendor Mini Card -->
                                 <div class="bg-surface-container rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-surface-container-high transition-colors"
-                                        onclick="window.location.href='detail-fournisseur.html'">
+                                        onclick="window.location.href='{{ route('Detail-Fournisseurs', $produit->fournisseur_id) }}'">
                                         <div class="flex items-center gap-3">
                                                 <div
                                                         class="w-12 h-12 rounded-full overflow-hidden bg-white border border-outline-variant">
@@ -92,9 +92,8 @@
                                 </div>
 
                                 <div class="space-y-1">
-                                        <p id="product-description" class="text-on-surface-variant font-body-md">Poulet
-                                                élevé en plein air, 100% naturel. Une viande ferme et savoureuse, idéale
-                                                pour les grillades et les plats traditionnels ivoiriens.</p>
+                                        <p id="product-description" class="text-on-surface-variant font-body-md">
+                                               {{ $produit->description }}</p>
                                         <p class="text-on-surface font-body-md-bold mt-4 flex items-center gap-2">
                                                 <span
                                                         class="material-symbols-outlined text-status-success">inventory_2</span>
@@ -114,21 +113,21 @@
                                 <!-- Purchase Section -->
                                 <div class="pt-4 border-t border-outline-variant space-y-4">
                                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                                                <div class="flex items-center justify-between border-2 border-outline rounded-xl h-12 w-full sm:w-auto">
+                                                {{-- <div class="flex items-center justify-between border-2 border-outline rounded-xl h-12 w-full sm:w-auto">
                                                         <button class="px-4 h-full hover:bg-surface-container transition-colors"
                                                                 onclick="const i = this.nextElementSibling; i.value = Math.max(1, parseInt(i.value)-1)">-</button>
                                                         <input class="w-12 text-center bg-transparent border-none focus:ring-0 font-body-md-bold"
                                                                 readonly="" type="number" value="1">
                                                         <button class="px-4 h-full hover:bg-surface-container transition-colors"
                                                                 onclick="const i = this.previousElementSibling; i.value = parseInt(i.value)+1">+</button>
-                                                </div>
-                                                <a href="panier.html"
-                                                        class="flex-grow bg-primary text-on-primary h-12 rounded-xl font-body-md-bold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-container transition-colors">
+                                                </div> --}}
+                                                <button  data-produit-id="{{ $produit->id }}"
+                                                        class="flex-grow add-to-cart-btn bg-primary text-on-primary h-12 rounded-xl font-body-md-bold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-container transition-colors">
                                                         <span class="material-symbols-outlined">shopping_cart</span>
                                                         Ajouter au panier
-                                                </a>
+                                                </button>
                                         </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {{-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <a href="finaliser-commande.html"
                                                         class="border-2 border-primary text-primary h-12 rounded-xl font-body-md-bold hover:bg-primary/5 transition-colors flex items-center justify-center">
                                                         Acheter maintenant
@@ -137,7 +136,7 @@
                                                         class="bg-orange-money text-white h-12 rounded-xl font-body-md-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                                                         Payer via Mobile Money
                                                 </a>
-                                        </div>
+                                        </div> --}}
                                 </div>
                         </div>
 

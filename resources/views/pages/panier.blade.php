@@ -196,7 +196,47 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Retirer un produit
-    document.querySelectorAll('.remove-btn').forEach(function (btn) {
+    // document.querySelectorAll('.remove-btn').forEach(function (btn) {
+    //     btn.addEventListener('click', function () {
+    //         const produitId = btn.getAttribute('data-produit-id');
+
+    //         fetch('/panier/retirer', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRF-TOKEN': csrfToken,
+    //             },
+    //             body: JSON.stringify({ produit_id: produitId }),
+    //         })
+    //             .then((res) => res.json())
+    //             .then((data) => {
+    //                 if (data.success) {
+    //                     const card = document.querySelector(`.cart-item[data-produit-id="${produitId}"]`);
+    //                     if (card) card.remove();
+
+    //                     document.getElementById('sous_total').dataset.value = data.total;
+    //                     document.getElementById('sous_total').textContent = formatMontant(data.total) + ' FCFA';
+    //                     document.getElementById('items_count').textContent = data.count;
+
+    //                     recalculerTotal();
+
+    //                      this.closest('.cart-item-row').remove(); // (Adaptez la classe à votre ligne HTML)
+    //                         // 2. METTRE À JOUR LE CHIFFRE EN DIRECT ! 
+    //                         document.getElementById('cartCountBadge').textContent = data.cartCount;
+                            
+    //                         // Si le panier tombe à 0, vous pouvez même cacher la bulle rouge
+    //                         if (data.cartCount === 0) {
+    //                             document.getElementById('cartCountBadge').style.display = 'none';
+    //                         }
+    //                 }
+    //             });
+    //     });
+
+
+
+    // });
+
+        document.querySelectorAll('.remove-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const produitId = btn.getAttribute('data-produit-id');
 
@@ -204,25 +244,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': csrfToken, // Assurez-vous que csrfToken est bien défini plus haut dans votre JS
                 },
                 body: JSON.stringify({ produit_id: produitId }),
             })
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.success) {
+                        
+                        // 1. On supprime visuellement la ligne du produit
                         const card = document.querySelector(`.cart-item[data-produit-id="${produitId}"]`);
                         if (card) card.remove();
 
-                        document.getElementById('sous_total').dataset.value = data.total;
-                        document.getElementById('sous_total').textContent = formatMontant(data.total) + ' FCFA';
-                        document.getElementById('items_count').textContent = data.count;
+                        // 2. On met à jour les totaux en bas du panier
+                        const sousTotalEl = document.getElementById('sous_total');
+                        if (sousTotalEl) {
+                            sousTotalEl.dataset.value = data.total;
+                            sousTotalEl.textContent = formatMontant(data.total) + ' FCFA';
+                        }
+                        
+                        // 3. On met à jour le texte qui dit "X articles" dans le résumé
+                        const itemsCountEl = document.getElementById('items_count');
+                        if (itemsCountEl) itemsCountEl.textContent = data.count;
 
-                        recalculerTotal();
+                        // 4. On recalcule la facture globale
+                        if (typeof recalculerTotal === "function") {
+                            recalculerTotal();
+                        }
+
+                        // 5. METTRE À JOUR LE BADGE ROUGE DU PANIER (Dans le menu en haut)
+                        const cartBadge = document.getElementById('cartCountBadge');
+                        if (cartBadge) {
+                            cartBadge.textContent = data.count; // On utilise data.count
+                            
+                            if (data.count === 0) {
+                                cartBadge.style.display = 'none'; // On cache la bulle si le panier est vide
+                            } else {
+                                cartBadge.style.display = 'flex'; // On la laisse visible
+                            }
+                        }
                     }
-                });
+                })
+                .catch((error) => console.error("Erreur lors de la suppression:", error));
         });
     });
+
 
     // ============ GESTION DE LA LIVRAISON ============
 
