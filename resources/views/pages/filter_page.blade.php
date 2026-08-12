@@ -60,30 +60,132 @@
 </form>
 
 <script>
-    document.querySelectorAll('.filter-checkbox, .filter-select').forEach(el => {
-        el.addEventListener('change', () => document.getElementById('filterForm').submit());
+    // document.querySelectorAll('.filter-checkbox, .filter-select').forEach(el => {
+    //     el.addEventListener('change', () => document.getElementById('filterForm').submit());
+    // });
+
+    // document.querySelectorAll('.price-slider').forEach(slider => {
+    //     let debounce;
+    //     slider.addEventListener('input', function () {
+    //         const val = parseInt(this.value);
+    //         const formatted = (val / 1000).toFixed(0) + 'k';
+    //         document.querySelectorAll('.price-display').forEach(d => d.textContent = `${formatted} max`);
+    //         clearTimeout(debounce);
+    //         debounce = setTimeout(() => document.getElementById('filterForm').submit(), 500);
+    //     });
+    // });
+
+    // const fournisseurSearch = document.getElementById('fournisseurSearch');
+    // if (fournisseurSearch) {
+    //     fournisseurSearch.addEventListener('input', function () {
+    //         const query = this.value.toLowerCase();
+    //         document.querySelectorAll('.fournisseur-item').forEach(item => {
+    //             const name = item.querySelector('.fournisseur-name').textContent.toLowerCase();
+    //             item.style.display = name.includes(query) ? 'flex' : 'none';
+    //         });
+    //     });
+    // }
+
+
+    
+</script>
+
+<script>
+    const filterForm = document.getElementById('filterForm');
+
+    // 1. LA FONCTION MAGIQUE AJAX
+    function fetchFilteredProducts() {
+        // Crée l'URL avec tous les paramètres cochés (ex: ?categories[]=1&prix_max=20000)
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData).toString();
+        const url = `${filterForm.action}?${params}`;
+
+        // Optionnel : Effet visuel de chargement sur la grille (devient un peu transparente)
+        const productGrid = document.getElementById('productGrid');
+        if (productGrid) {
+            productGrid.style.opacity = '0.4';
+            productGrid.style.pointerEvents = 'none'; // Empêche de cliquer pendant le chargement
+        }
+
+        // Met à jour l'URL dans la barre d'adresse du navigateur en direct (très bon pour le SEO et le bouton "Retour")
+        window.history.pushState({}, '', url);
+
+        // Lancement de la requête silencieuse
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text()) // On récupère le code HTML complet
+        .then(html => {
+            // On transforme le texte HTML en un vrai "Document" manipulable
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // On extrait LA nouvelle grille calculée par le serveur
+            const newGrid = doc.getElementById('productGrid');
+            
+            // On remplace le contenu de l'ancienne grille par la nouvelle !
+            if (newGrid && productGrid) {
+                productGrid.innerHTML = newGrid.innerHTML;
+                productGrid.style.opacity = '1'; // On enlève le voile de chargement
+                productGrid.style.pointerEvents = 'auto'; // On réactive les clics
+            }
+        })
+        .catch(error => {
+            console.error("Erreur lors du filtrage :", error);
+            if (productGrid) {
+                productGrid.style.opacity = '1';
+                productGrid.style.pointerEvents = 'auto';
+            }
+        });
+    }
+
+        // 2. ÉCOUTEURS D'ÉVÉNEMENTS
+    
+    // --- Pour les Select (ex: Quartier) ---
+    document.querySelectorAll('.filter-select').forEach(el => {
+        el.addEventListener('change', fetchFilteredProducts);
     });
 
+    // --- Pour les Checkboxes (Catégories et Éleveurs) ---
+    document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            
+            // A. Changement visuel instantané pour les Catégories (qui sont des gros boutons)
+            const label = this.closest('label');
+            
+            // Si c'est un bouton "Catégorie" (on vérifie s'il a les classes de design)
+            if (label && this.classList.contains('hidden')) {
+                if (this.checked) {
+                    // On l'allume (Actif)
+                    label.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                    label.classList.remove('text-on-surface');
+                } else {
+                    // On l'éteint (Inactif)
+                    label.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+                    label.classList.add('text-on-surface');
+                }
+            }
+            
+            // B. Lancement de la requête AJAX après avoir changé la couleur
+            fetchFilteredProducts();
+        });
+    });
+
+    // --- Pour le Prix ---
     document.querySelectorAll('.price-slider').forEach(slider => {
-        let debounce;
+        let debounceTimer;
         slider.addEventListener('input', function () {
             const val = parseInt(this.value);
             const formatted = (val / 1000).toFixed(0) + 'k';
             document.querySelectorAll('.price-display').forEach(d => d.textContent = `${formatted} max`);
-            clearTimeout(debounce);
-            debounce = setTimeout(() => document.getElementById('filterForm').submit(), 500);
+            
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchFilteredProducts, 500);
         });
     });
 
-    const fournisseurSearch = document.getElementById('fournisseurSearch');
-    if (fournisseurSearch) {
-        fournisseurSearch.addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-            document.querySelectorAll('.fournisseur-item').forEach(item => {
-                const name = item.querySelector('.fournisseur-name').textContent.toLowerCase();
-                item.style.display = name.includes(query) ? 'flex' : 'none';
-            });
-        });
-    }
 </script>
+
 
