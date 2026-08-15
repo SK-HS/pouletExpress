@@ -120,7 +120,7 @@ class AuthClientController extends Controller
             $path=null;
 
   try {
-    DB::transaction(function () use ($request, $validated, $client) {
+    DB::transaction(function () use ($request, $validated, $client, $path) {
             $client->type = $validated['type'];
             $client->quartier_id = $validated['quartier'];
             $client->nom = $validated['nom'];

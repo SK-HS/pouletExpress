@@ -18,7 +18,7 @@
 <span class="material-symbols-outlined text-primary">location_on</span>
 <input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
 </div>
-<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<a href="{{route('Services')}}" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
 <span class="">Explorer</span>
 <span class="material-symbols-outlined">arrow_forward</span>
 </a>
@@ -39,7 +39,7 @@
 <span class="material-symbols-outlined text-primary">location_on</span>
 <input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
 </div>
-<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<a href="{{route('Services')}}" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
 <span class="">Explorer</span>
 <span class="material-symbols-outlined">arrow_forward</span>
 </a>
@@ -60,7 +60,7 @@
 <span class="material-symbols-outlined text-primary">location_on</span>
 <input class="w-full border-none focus:ring-0 text-on-surface py-3" placeholder="Entrez votre localisation..." type="text">
 </div>
-<a href="produits.html" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
+<a href="{{route('Services')}}" class="bg-primary text-on-primary px-8 py-3 rounded-xl font-body-md-bold hover:bg-primary-container transition-colors flex items-center gap-2">
 <span class="">Explorer</span>
 <span class="material-symbols-outlined">arrow_forward</span>
 </a>
@@ -131,7 +131,7 @@
 <span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-sm font-bold mb-4 inline-block">OFFRE LIMITÉE</span>
 <h2 class="text-headline-md font-headline-md mb-2">Promo -15% sur l'aliment volaille</h2>
 <p class="text-body-md mb-6 opacity-90">Optimisez la croissance de vos sujets avec notre gamme premium AgriNutrition.</p>
-<a href="produits.html" class="inline-block bg-white text-primary px-6 py-2 rounded-lg font-body-md-bold hover:bg-primary-fixed transition-colors">En profiter</a>
+<a href="{{route('Services')}}" class="inline-block bg-white text-primary px-6 py-2 rounded-lg font-body-md-bold hover:bg-primary-fixed transition-colors">En profiter</a>
 </div>
 </div>
 </div>
@@ -239,42 +239,42 @@
 <h2 class="font-headline-md text-headline-md text-on-surface">Parcourir par catégories</h2>
 <p class="text-on-surface-variant font-body-md">Trouvez exactement ce dont vous avez besoin</p>
 </div>
-<a href="produits.html" class="text-primary font-body-md-bold flex items-center gap-1 hover:underline">
+<a href="{{route('Services')}}" class="text-primary font-body-md-bold flex items-center gap-1 hover:underline">
 Voir tout <span class="material-symbols-outlined text-sm">chevron_right</span>
 </a>
 </div>
 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-gutter">
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">pets</span>
 </div>
 <span class="font-body-md-bold text-on-surface">Poulets</span>
 </a>
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">egg</span>
 </div>
 <span class="font-body-md-bold text-on-surface">Œufs</span>
 </a>
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">featured_seasonal_and_gifts</span>
 </div>
 <span class="font-body-md-bold text-on-surface">Pintades</span>
 </a>
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">cruelty_free</span>
 </div>
 <span class="font-body-md-bold text-on-surface">Dindes</span>
 </a>
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">grass</span>
 </div>
 <span class="font-body-md-bold text-on-surface">Aliments</span>
 </a>
-<a href="produits.html" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
+<a href="{{route('Services')}}" class="group cursor-pointer bg-surface-container-low hover:bg-primary-fixed transition-all duration-300 rounded-3xl p-6 flex flex-col items-center text-center">
 <div class="w-16 h-16 mb-4 rounded-2xl bg-surface-container-highest flex items-center justify-center group-hover:bg-white transition-colors">
 <span class="material-symbols-outlined text-primary text-4xl">construction</span>
 </div>

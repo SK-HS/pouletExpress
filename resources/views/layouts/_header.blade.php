@@ -2,7 +2,7 @@
     <div class="flex items-center gap-4 lg:gap-8 shrink-0">
         <a href="{{route('index')}}" class="flex items-center gap-2 shrink-0">
             {{-- min-w-[120px] empêche le "saut" au chargement du logo --}}
-            <img alt="POULETXPRESS" class="h-10 w-auto object-contain min-w-[120px]" src="#">
+            <img alt="POULETXPRESS" class="h-12 w-auto object-contain min-w-[120px]" src="/storage/Logo/logoPexpress.png">
         </a>
         {{-- Réduit un peu la taille sur écran moyen pour éviter de compresser les onglets --}}
         <div class="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant w-64 lg:w-80 shrink-0">
@@ -14,7 +14,7 @@
     <nav class="flex items-center gap-2 md:gap-4 lg:gap-6 shrink-0">
         {{-- whitespace-nowrap garantit que les mots ne passent JAMAIS sur 2 lignes --}}
         <div class="hidden lg:flex items-center gap-6 shrink-0 whitespace-nowrap">
-            <a class="text-primary font-bold font-body-md" href="{{route('index')}}">Accueil</a>
+            <a class="text-primary font-bold font-body-md active" href="{{route('index')}}">Accueil</a>
             <a class="text-on-surface-variant hover:text-primary transition-colors font-body-md " href="{{route('A-Propos')}}">À-propos</a>
             <a class="text-on-surface-variant hover:text-primary transition-colors font-body-md" href="{{route('Services')}}">Produits</a>
             <a class="text-on-surface-variant hover:text-primary transition-colors font-body-md" href="{{route('Contact')}}">Nous contacter</a>
@@ -80,3 +80,4 @@
         </div>
     </nav>
 </header>
+
