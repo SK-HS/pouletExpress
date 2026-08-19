@@ -11,23 +11,26 @@
 </div>
 @endif
 
-<form method="POST" action="{{route('Valider-Commande-Panier')}}" id="commandeForm" enctype="multipart/form-data" >
+{{-- enctype multipart retiré : aucun fichier n'est envoyé, inutile d'alourdir la requête --}}
+<form method="POST" action="{{ route('Valider-Commande-Panier') }}" id="commandeForm">
     @csrf
 
-{{-- Champs cachés pour les coordonnées GPS --}}
-<input type="hidden" name="latitude"  id="latitude"  value="">
-<input type="hidden" name="longitude" id="longitude" value="">
+    {{-- Jeton anti double-soumission : généré une fois par affichage de page,
+         vérifié et invalidé côté serveur pour empêcher qu'un double-clic
+         (ou un rechargement de page après soumission) ne crée deux commandes --}}
+    <input type="hidden" name="form_token" value="{{ $formToken }}">
+
+    <input type="hidden" name="latitude"  id="latitude"  value="">
+    <input type="hidden" name="longitude" id="longitude" value="">
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-<!-- Left Side: Delivery Details -->
 <section class="lg:col-span-7 space-y-8">
 <div class="flex flex-col gap-2">
 <h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">Finaliser votre commande</h1>
 <p class="font-body-md text-on-surface-variant">Veuillez renseigner vos informations de livraison.</p>
 </div>
 
-<!-- Address Selection Card -->
 <div class="bg-surface-container-lowest p-card-padding rounded-xl shadow-sm border border-outline-variant">
 <div class="flex items-center gap-3 mb-6">
 <span class="material-symbols-outlined text-primary">location_on</span>
@@ -36,7 +39,6 @@
 
 <div class="space-y-5">
 
-    {{-- ─── BLOC GPS ──────────────────────────────────────────── --}}
     <div class="rounded-xl border-2 border-outline-variant overflow-hidden">
         <div class="bg-primary/5 px-4 py-3 border-b border-outline-variant/50">
             <p class="font-body-md-bold text-primary text-sm">Lieu de livraison</p>
@@ -72,6 +74,7 @@
                 <input type="text"
                        name="lieu_livraison"
                        id="lieu_livraison"
+                       maxlength="500"
                        placeholder="Ex: Cocody Riviera 3, face à la pharmacie, bâtiment bleu..."
                        value="{{ old('lieu_livraison') }}"
                        class="w-full border-2 border-outline-variant rounded-xl p-3 font-body-md
@@ -94,7 +97,7 @@
         </div>
         <div class="space-y-1">
         <label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Commune / Quartier</label>
-        <input name="commune_quartier" required
+        <input name="commune_quartier" required maxlength="255"
                class="w-full border-2 border-outline-variant rounded-lg p-3 font-body-md focus:border-primary focus:ring-0 outline-none transition-all"
                placeholder="ex: Cocody Mermoz" type="text" value="{{ old('commune_quartier') }}">
         </div>
@@ -117,7 +120,8 @@
 
     <div class="space-y-1">
     <label class="font-label-caps text-label-caps uppercase text-on-surface-variant">Téléphone du destinataire</label>
-    <input name="telephone_livraison" required
+    <input name="telephone_livraison" required maxlength="20" pattern="^[0-9+\s\-]{8,20}$"
+           title="Numéro de téléphone valide (8 à 20 caractères : chiffres, +, espaces, tirets)"
            class="w-full border-2 border-outline-variant rounded-lg p-3 font-body-md focus:border-primary focus:ring-0 outline-none transition-all"
            placeholder="+225 07 00 00 00 00" type="tel"
            value="{{ old('telephone_livraison', $client->telephone ?? '') }}">
@@ -126,7 +130,6 @@
 </div>
 </div>
 
-<!-- Delivery Slot Selection -->
 <div class="bg-surface-container-lowest p-card-padding rounded-xl shadow-sm border border-outline-variant">
 <div class="flex items-center gap-3 mb-6">
 <span class="material-symbols-outlined text-primary">schedule</span>
@@ -147,7 +150,6 @@
 </div>
 </section>
 
-<!-- Right Side: Order Summary -->
 <aside class="lg:col-span-5 sticky top-24">
 <div class="bg-surface-container-lowest p-card-padding rounded-xl shadow-lg border border-primary-container/20 overflow-hidden">
 <div class="bg-primary-container/10 -mx-card-padding -mt-card-padding p-4 mb-6">
@@ -159,7 +161,6 @@ Résumé de commande
 
 <div class="space-y-6 mb-8">
     @php
-        // Regrouper les articles du panier par fournisseur_id
         $itemsParFournisseur = collect($items)->groupBy(function($item) {
             return $item['produit']->fournisseur_id;
         });
@@ -170,14 +171,14 @@ Résumé de commande
         <div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
             <h4 class="font-label-caps text-[10px] text-primary uppercase tracking-widest mb-3 flex items-center gap-2 border-b border-primary/20 pb-2">
                 <span class="material-symbols-outlined text-[14px]">inventory_2</span>
-                Colis {{ $indexColis++ }} : Expédié par {{ $articlesGroupes->first()['produit']->fournisseur->nom_ferme ?? 'Fournisseur' }}
+                Colis {{ $indexColis++ }} : Expédié par {{ $articlesGroupes->first()['produit']->fournisseur?->nom_ferme ?? 'Fournisseur' }}
             </h4>
-            
+
             <div class="space-y-3">
                 @foreach ($articlesGroupes as $item)
                     <div class="flex justify-between items-start">
                         <div class="flex-1 pr-2">
-                            <p class="font-body-md-bold text-sm leading-tight">{{ $item['produit']->produit?->nom }}</p>
+                            <p class="font-body-md-bold text-sm leading-tight">{{ $item['produit']->produit?->nom ?? 'Produit' }}</p>
                             <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Quantité: {{ $item['quantite'] }}</p>
                         </div>
                         <span class="font-body-md-bold text-sm whitespace-nowrap">{{ number_format($item['sous_total'], 0, ',', ' ') }} FCFA</span>
@@ -194,22 +195,21 @@ Résumé de commande
 <span id="resume_sous_total" data-value="{{ $sousTotal }}">{{ number_format($sousTotal, 0, ',', ' ') }} FCFA</span>
 </div>
 <div class="flex justify-between">
-<span>Frais de Livraison (Unique)</span>
+<span>Frais de Livraison ({{ $itemsParFournisseur->count() }} colis)</span>
 <span id="resume_livraison" data-value="0">0 FCFA</span>
 </div>
 <div class="flex justify-between font-headline-md text-headline-md text-on-surface pt-4 border-t border-outline-variant">
 <span>Total à payer</span>
 <span class="text-primary font-black" id="resume_total">{{ number_format($sousTotal, 0, ',', ' ') }} FCFA</span>
 </div>
-<p class="text-[15px] text-on-surface-variant italic mt-2 text-center">
-        Les articles provenant de fournisseurs différents nécessitent des expéditions séparées. Les frais de livraison s'appliquent par colis.
-    </p>
+<p class="text-xs text-on-surface-variant italic mt-2 text-center">
+    Les articles provenant de fournisseurs différents nécessitent des expéditions séparées. Les frais de livraison s'appliquent par colis.
+</p>
 </div>
 </div>
 </aside>
 </div>
 
-<!-- Payment Selection Section -->
 <section class="mt-12 space-y-8">
 <div class="flex flex-col gap-2">
 <h2 class="font-headline-md text-headline-md text-primary">Méthode de paiement</h2>
@@ -263,9 +263,9 @@ Résumé de commande
 <p class="font-label-sm text-label-sm text-on-surface-variant">Validation par Mobile Money</p>
 </div>
 </div>
-<button type="submit" class="w-full md:w-auto px-12 h-14 bg-primary text-white font-body-md-bold rounded-xl active:scale-95 transition-transform shadow-lg shadow-primary/20 flex items-center justify-center gap-3">
-Valider et Payer
-<span class="material-symbols-outlined">arrow_forward</span>
+<button type="submit" id="btn-submit" class="w-full md:w-auto px-12 h-14 bg-primary text-white font-body-md-bold rounded-xl active:scale-95 transition-transform shadow-lg shadow-primary/20 flex items-center justify-center gap-3">
+<span id="btn-submit-label">Valider et Payer</span>
+<span class="material-symbols-outlined" id="btn-submit-icon">arrow_forward</span>
 </button>
 </div>
 
@@ -275,43 +275,34 @@ Valider et Payer
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Calcul des frais de livraison ──────────────────────────
-    // const quartierSelect = document.getElementById('quartier_id');
-    // const sousTotal = parseFloat(document.getElementById('resume_sous_total').dataset.value) || 0;
+    // ── Calcul des frais de livraison (multiplié par le nombre de fournisseurs) ──
+    const quartierSelect = document.getElementById('quartier_id');
+    const sousTotalEl = document.getElementById('resume_sous_total');
+    const sousTotal = sousTotalEl ? parseFloat(sousTotalEl.dataset.value) || 0 : 0;
+    const nombreFournisseurs = {{ (int) $itemsParFournisseur->count() }};
 
-    // function formatMontant(v) {
-    //     return new Intl.NumberFormat('fr-FR').format(v);
-    // }
+    function formatMontant(v) {
+        return new Intl.NumberFormat('fr-FR').format(v);
+    }
 
-    // quartierSelect.addEventListener('change', function () {
-    //     const frais = parseFloat(this.options[this.selectedIndex].getAttribute('data-frais')) || 0;
-    //     document.getElementById('resume_livraison').textContent = formatMontant(frais) + ' FCFA';
-    //     document.getElementById('resume_livraison').dataset.value = frais;
-    //     document.getElementById('resume_total').textContent = formatMontant(sousTotal + frais) + ' FCFA';
-    // });
+    //  Garde défensive : évite un crash JS si l'élément venait à manquer
+    if (quartierSelect) {
+        quartierSelect.addEventListener('change', function () {
+            const fraisBase = parseFloat(this.options[this.selectedIndex].getAttribute('data-frais')) || 0;
+            const fraisTotalLivraison = fraisBase * nombreFournisseurs;
 
-    // ── Calcul des frais de livraison (Multiplié par fournisseur) ──
-const quartierSelect = document.getElementById('quartier_id');
-const sousTotal = parseFloat(document.getElementById('resume_sous_total').dataset.value) || 0;
+            const resumeLivraison = document.getElementById('resume_livraison');
+            const resumeTotal = document.getElementById('resume_total');
 
-// On récupère le nombre de fournisseurs depuis PHP
-const nombreFournisseurs = {{ $itemsParFournisseur->count() }}; 
-
-function formatMontant(v) {
-    return new Intl.NumberFormat('fr-FR').format(v);
-}
-
-quartierSelect.addEventListener('change', function () {
-    const fraisBase = parseFloat(this.options[this.selectedIndex].getAttribute('data-frais')) || 0;
-    
-    // On multiplie les frais par le nombre de fournisseurs !
-    const fraisTotalLivraison = fraisBase * nombreFournisseurs; 
-
-    document.getElementById('resume_livraison').textContent = formatMontant(fraisTotalLivraison) + ' FCFA';
-    document.getElementById('resume_livraison').dataset.value = fraisTotalLivraison;
-    document.getElementById('resume_total').textContent = formatMontant(sousTotal + fraisTotalLivraison) + ' FCFA';
-});
-
+            if (resumeLivraison) {
+                resumeLivraison.textContent = formatMontant(fraisTotalLivraison) + ' FCFA';
+                resumeLivraison.dataset.value = fraisTotalLivraison;
+            }
+            if (resumeTotal) {
+                resumeTotal.textContent = formatMontant(sousTotal + fraisTotalLivraison) + ' FCFA';
+            }
+        });
+    }
 
     // ── Style créneaux radio ───────────────────────────────────
     document.querySelectorAll('.creneau-label input[type=radio]').forEach(function (radio) {
@@ -337,82 +328,93 @@ quartierSelect.addEventListener('change', function () {
 
     function afficherResultat(type, message) {
         gpsResult.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700', 'bg-amber-50', 'text-amber-700');
-
         const styles = {
             success: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: 'check_circle' },
             error:   { bg: 'bg-red-50',     text: 'text-red-700',     icon: 'error' },
             warning: { bg: 'bg-amber-50',   text: 'text-amber-700',   icon: 'warning' },
         };
-
         const s = styles[type] || styles.warning;
         gpsResult.classList.add(s.bg, s.text);
         gpsResultIcon.textContent = s.icon;
         gpsResultText.textContent = message;
     }
 
-    btnGps.addEventListener('click', function () {
-        if (!navigator.geolocation) {
-            afficherResultat('error', 'La géolocalisation n\'est pas supportée par votre navigateur. Décrivez votre adresse manuellement ci-dessous.');
-            return;
-        }
-
-        btnGps.disabled = true;
-        gpsIcon.textContent  = 'refresh';
-        gpsIcon.style.animation = 'spin 1s linear infinite';
-        gpsLabel.textContent = 'Localisation en cours...';
-
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                const precision = Math.round(position.coords.accuracy);
-
-                inputLat.value = lat;
-                inputLng.value = lng;
-
-                btnGps.disabled = false;
-                gpsIcon.textContent = 'check_circle';
-                gpsIcon.style.animation = '';
-                gpsLabel.textContent   = 'Position captée — cliquer pour actualiser';
-                btnGps.classList.remove('bg-primary');
-                btnGps.classList.add('bg-emerald-600');
-
-                afficherResultat('success',
-                    'Position GPS enregistrée (précision ±' + precision + ' m). '
-                    + 'Vous pouvez aussi ajouter une description pour aider le livreur.'
-                );
-            },
-            function (err) {
-                btnGps.disabled = false;
-                gpsIcon.textContent = 'my_location';
-                gpsIcon.style.animation = '';
-                gpsLabel.textContent = 'Capter ma position GPS (je suis sur place)';
-
-                let msg = '';
-                switch (err.code) {
-                    case err.PERMISSION_DENIED:
-                        msg = 'Permission GPS refusée. Autorisez la localisation dans les paramètres de votre navigateur, puis réessayez.';
-                        if (location.protocol === 'http:' && !location.hostname.includes('localhost')) {
-                            msg += ' Note : le GPS nécessite une connexion HTTPS.';
-                        }
-                        break;
-                    case err.POSITION_UNAVAILABLE:
-                        msg = 'Position GPS indisponible. Vérifiez que le GPS est activé sur votre téléphone.';
-                        break;
-                    case err.TIMEOUT:
-                        msg = 'Délai GPS dépassé. Allez en extérieur et réessayez.';
-                        break;
-                    default:
-                        msg = 'Erreur GPS. Décrivez votre adresse manuellement ci-dessous.';
-                }
-                afficherResultat('error', msg);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 12000,
-                maximumAge: 0,
+    if (btnGps) {
+        btnGps.addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                afficherResultat('error', 'La géolocalisation n\'est pas supportée par votre navigateur. Décrivez votre adresse manuellement ci-dessous.');
+                return;
             }
-        );
+
+            btnGps.disabled = true;
+            gpsIcon.textContent = 'refresh';
+            gpsIcon.style.animation = 'spin 1s linear infinite';
+            gpsLabel.textContent = 'Localisation en cours...';
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const precision = Math.round(position.coords.accuracy);
+
+                    inputLat.value = lat;
+                    inputLng.value = lng;
+
+                    btnGps.disabled = false;
+                    gpsIcon.textContent = 'check_circle';
+                    gpsIcon.style.animation = '';
+                    gpsLabel.textContent = 'Position captée — cliquer pour actualiser';
+                    btnGps.classList.remove('bg-primary');
+                    btnGps.classList.add('bg-emerald-600');
+
+                    afficherResultat('success',
+                        'Position GPS enregistrée (précision ±' + precision + ' m). '
+                        + 'Vous pouvez aussi ajouter une description pour aider le livreur.'
+                    );
+                },
+                function (err) {
+                    btnGps.disabled = false;
+                    gpsIcon.textContent = 'my_location';
+                    gpsIcon.style.animation = '';
+                    gpsLabel.textContent = 'Capter ma position GPS (je suis sur place)';
+
+                    let msg = '';
+                    switch (err.code) {
+                        case err.PERMISSION_DENIED:
+                            msg = 'Permission GPS refusée. Autorisez la localisation dans les paramètres de votre navigateur, puis réessayez.';
+                            if (location.protocol === 'http:' && !location.hostname.includes('localhost')) {
+                                msg += ' Note : le GPS nécessite une connexion HTTPS.';
+                            }
+                            break;
+                        case err.POSITION_UNAVAILABLE:
+                            msg = 'Position GPS indisponible. Vérifiez que le GPS est activé sur votre téléphone.';
+                            break;
+                        case err.TIMEOUT:
+                            msg = 'Délai GPS dépassé. Allez en extérieur et réessayez.';
+                            break;
+                        default:
+                            msg = 'Erreur GPS. Décrivez votre adresse manuellement ci-dessous.';
+                    }
+                    afficherResultat('error', msg);
+                },
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+            );
+        });
+    }
+
+    // ── Anti double-soumission côté client ──────────────────
+    // Désactive le bouton dès le premier clic, empêche un double-clic
+    // d'envoyer deux fois le formulaire pendant que la 1ère requête est en cours
+    const form = document.getElementById('commandeForm');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnLabel = document.getElementById('btn-submit-label');
+
+    form.addEventListener('submit', function () {
+        btnSubmit.disabled = true;
+        btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+        btnLabel.textContent = 'Traitement en cours...';
+        // Le formulaire continue sa soumission normale (pas de preventDefault) —
+        // on désactive juste visuellement pour empêcher un second clic
     });
 });
 </script>

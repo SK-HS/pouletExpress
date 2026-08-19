@@ -19,10 +19,14 @@ class FournisseurController extends Controller
     
     public function espace_fournisseur( Request $request)
     {
+       $validate= $request->validate([
+             'periode' => ['nullable', 'integer', 'min:1', 'max:365'],
+           ]);
+
          $fournisseur = Auth::guard('fournisseur')->user();
         $quartiers = Quartier::get();
 
-    $periode = (int) $request->input('periode', 30);
+   $periode = $validate['periode'] ?? 30;
     $dateDebut = now()->subDays($periode);
 
     // ── Ventes totales sur la période (commandes confirmées reçues) ──
@@ -460,8 +464,12 @@ public function save_edite_produit_fournisseur(Request $request,int $id)
 
 public function export_Commandes_fournisseur(Request $request)
 {
+    $validate = $request->validate([
+    'periode' => ['nullable', 'integer', 'min:1', 'max:365'],
+       ]);
+
     $fournisseur = Auth::guard('fournisseur')->user();
-    $periode = (int) $request->input('periode', 30);
+    $periode = $validate['periode'] ?? 30;
     $dateDebut = now()->subDays($periode);
 
     $commandes = CommandeClient::with(['client'])

@@ -19,9 +19,9 @@ Route::post('/Soumetre-Message', [PostsController::class, 'post_message_contact'
 
 ///////////gestion du panier////////////////////
 Route::get('/panier', [CartController::class, 'index'])->name('Panier-Produit');
-Route::post('/panier/ajouter', [CartController::class, 'add'])->name('panier.add');
-Route::post('/panier/modifier', [CartController::class, 'update'])->name('panier.update');
-Route::post('/panier/retirer', [CartController::class, 'remove'])->name('panier.remove');
+Route::post('/panier/ajouter', [CartController::class, 'add'])->middleware('throttle:30,1')->name('panier.add');
+Route::post('/panier/modifier', [CartController::class, 'update']) ->middleware('throttle:60,1')->name('panier.update');
+Route::post('/panier/retirer', [CartController::class, 'remove'])->middleware('throttle:30,1')->name('panier.remove');
 Route::post('/panier/vider', [CartController::class, 'clear'])->name('panier.clear');
 
 
@@ -40,8 +40,8 @@ Route::middleware('guest:client')->prefix('client')->group(function () {
 
 Route::middleware('auth:client')->prefix('client')->group(function () {
     //   Gestion du panier client
-    Route::post('/commande/valider/panier', [CartController::class, 'valider_commande'])->name('Valider-Commande-Panier');
-    Route::get('/finaliser-commande', [CartController::class, 'finaliser_commande'])->name('Finaliser-Commande');
+    Route::get('/finaliser/commande', [CartController::class, 'finaliser_commande'])->name('Finaliser-Commande');
+    Route::post('/commande/valider/panier', [CartController::class, 'valider_commande']) ->middleware('throttle:10,1')->name('Valider-Commande-Panier');
     Route::get('/commande/confirmation/{reference}', [CartController::class, 'confirmation_commande'])->name('Confirmation-Commande');
     //gestion client
     Route::put('/modification/profil/client', [AuthClientController::class, 'modification_profil_client'])->name('Modifier-Profil-Client');

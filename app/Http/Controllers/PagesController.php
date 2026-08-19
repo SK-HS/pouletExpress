@@ -63,7 +63,7 @@ class PagesController extends Controller
     $query = ProduitFournisseur::with([
             'produit:id,nom,image',
             'categorie:id,nom',
-            'fournisseur:id,nom_ferme,quartier_id',
+            'fournisseur:id,nom_ferme,quartier_id,nom',
             'taille:id,taille',
         ])
         ->where('quantite', '>', 0)

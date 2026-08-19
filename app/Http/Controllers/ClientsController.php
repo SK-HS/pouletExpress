@@ -120,23 +120,69 @@ class ClientsController extends Controller
 
     public function suivi_commande_client()
     {
-        $commandes = CommandeClient::with('detailCommandeClients')
-                     ->where('client_id', Auth::guard('client')->id())
-                     ->latest('id')
-                     ->first();
+        // $livraison =null;
+        // $commandes = CommandeClient::with('detailCommandeClients')
+        //              ->where('client_id', Auth::guard('client')->id())
+        //              ->latest('id')
+        //              ->first();
+        // $livraison =$commandes?->livraison;
+        
+         $client = Auth::guard('client')->user();
+
+    $commandes = CommandeClient::with([
+            'client',
+            'fournisseur',
+            'quartier',
+            'livreur',
+            'livraison',
+            'detailCommandeClients.produitFournisseur.produit',
+            'detailCommandeClients.produitFournisseur.fournisseur',
+        ])
+        ->where('client_id', $client->id)
+        ->latest('id')
+        ->first();
+        
+         if (!$commandes) {
+        abort(404, 'Commande introuvable.');
+    }
+    
         $livraison =$commandes->livraison;
-     return view('clients.suivi_commande1',compact('commandes','livraison'));
+        
+     return view('clients.suivi_commande',compact('commandes','livraison'));
     }
 
     public function suivi_last_commande_client(int $id)
     {
-        $commandes = CommandeClient::with('detailCommandeClients', 'livraison')
-                     ->where('client_id', Auth::guard('client')->id())
-                     ->where('id', $id)
-                     ->first();
-        $livraison =$commandes->livraison;
+        // $commandes = CommandeClient::with('detailCommandeClients', 'livraison')
+        //              ->where('client_id', Auth::guard('client')->id())
+        //              ->where('id', $id)
+        //              ->first();
+        // $livraison =$commandes?->livraison;
+        
+        $client = Auth::guard('client')->user();
+
+    $commandes = CommandeClient::with([
+            'client',
+            'fournisseur',
+            'quartier',
+            'livreur',
+            'livraison',
+            'detailCommandeClients.produitFournisseur.produit',
+            'detailCommandeClients.produitFournisseur.fournisseur',
+        ])
+        ->where('client_id', $client->id)
+        ->where('id', $id)
+        ->first();
+        
+            if (!$commandes) {
+        abort(404, 'Commande introuvable.');
+    }
+    
+        $livraison =$commandes?->livraison;
+        
         //dd($commandes);
-     return view('clients.suivi_commande1',compact('commandes','livraison'));
+     
+     return view('clients.suivi_commande',compact('commandes','livraison'));
     }
 
 
@@ -159,11 +205,17 @@ class ClientsController extends Controller
 
     public function suiviPolling(string $reference)
 {
+    
+    $client = Auth::guard('client')->user();
+    
     $commande = CommandeClient::with(['livraison.livreur'])
         ->where('reference', $reference)
-        ->where('client_id', Auth::guard('client')->id())
+        ->where('client_id', $client->id)
         ->firstOrFail();
 
+  if (!$commande) {
+        abort(404);
+    }
     $livraison = $commande->livraison;
 
     return response()->json([
@@ -172,6 +224,8 @@ class ClientsController extends Controller
         'livreur' => $livraison?->livreur ? [
             'nom' => $livraison->livreur->nom,
             'telephone' => $livraison->livreur->telephone,
+            'latitude'  => $livraison->latitude,
+            'longitude' => $livraison->longitude,
         ] : null,
 
         'dates' => [
