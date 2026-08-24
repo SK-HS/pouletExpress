@@ -34,7 +34,8 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 md:gap-6" id="productGrid">
     @forelse ($produits as $produit)
     @php
-        // Variables de base
+        //s Toutes les données potentiellement absentes sont sécurisées ici,
+        // une seule fois, plutôt que de multiplier les ?-> dans tout le template
         $nomProduit    = $produit->produit?->nom ?? 'Produit sans nom';
         $imageProduit  = $produit->produit?->image;
         $urlImage      = $imageProduit ? '/storage/' . $imageProduit : asset('images/produit.png');
@@ -42,103 +43,55 @@
         $nomFournisseur = $produit->fournisseur?->nom ?? 'Fournisseur inconnu';
         $urlDetail     = route('Detail-Produit', $produit->id);
         $urlFournisseur = $produit->fournisseur_id ? route('Detail-Fournisseurs', $produit->fournisseur_id) : '#';
-
-        // ==========================================
-        // VARIABLES DE PROMOTION AJOUTÉES ICI
-        // ==========================================
-        // $prix_initial = $produit->prix;
-        
-        // // On récupère la promo complète
-        // $promo = $produit->getPromoActive();
-        
-        // $en_promo_immediate = false;
-        // $promo_volume = false;
-        // $prix_final = $prix_initial;
-        
-        // if ($promo) {
-        //     // S'il n'y a pas de seuil (ou seuil de 1), la promo s'applique tout de suite
-        //     if (!$promo->seuil_quantite || $promo->seuil_quantite <= 1) {
-        //         $en_promo_immediate = true;
-        //         $prix_final = $prix_initial - ($prix_initial * ($promo->taux_remise / 100));
-        //     } 
-        //     // S'il y a un seuil (ex: 15), on informe le client !
-        //     else {
-        //         $promo_volume = true;
-        //     }
-        // }
-
-
-        $prix_initial = $produit->prix;
-        $promo_immediate = $produit->getPromoImmediate();
-        $promo_volume = $produit->getPromoVolume();
-        $prix_final = $prix_initial;
-        $pourcentage_immediat = 0;
-        
-        if ($promo_immediate) {
-            $pourcentage_immediat = round($promo_immediate->taux_remise);
-            $prix_final = $prix_initial - ($prix_initial * ($pourcentage_immediat / 100));
-        }
-//dd($promo_volume);
     @endphp
-    
-   
     <div class="group bg-surface-container-lowest rounded-xl md:rounded-2xl p-2 md:p-3 shadow-sm border border-outline-variant/30 transition-all duration-300 hover:shadow-md flex flex-col h-full">
-               <div class="relative w-full aspect-square rounded-lg md:rounded-xl overflow-hidden mb-2 md:mb-4 cursor-pointer shrink-0" onclick="window.location.href='{{ $urlDetail }}'">
-            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="{{ $urlImage }}" alt="{{ $nomProduit }}">
-            
-            <div class="absolute top-2 left-2 md:top-3 md:left-3 flex flex-col items-start gap-1">
-                <!-- BADGE PROMO IMMÉDIATE -->
-                @if($promo_immediate)
-                <span class="bg-status-error text-white text-[8px] md:text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse">
-                    Promo -{{ $pourcentage_immediat }}%
-                </span>
-                @else
-                  <span class="bg-primary text-on-primary text-[8px] md:text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                    Top Vente
-                </span>
-                @endif
 
+        <div class="relative w-full aspect-square rounded-lg md:rounded-xl overflow-hidden mb-2 md:mb-4 cursor-pointer shrink-0" onclick="window.location.href='{{ $urlDetail }}'">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                 title="{{ $nomProduit }}"
+                 src="{{ $urlImage }}"
+                 alt="{{ $nomProduit }}"
+                 loading="lazy"
+                 decoding="async"
+                 onerror="this.onerror=null;this.src='{{ asset('images/produit-placeholder.png') }}';">
+            <div class="absolute top-2 left-2 md:top-3 md:left-3 bg-primary text-on-primary text-[8px] md:text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                Top Vente
             </div>
         </div>
-        
-
-
-                    <!-- ZONE DES PRIX ET PANIER MISES À JOUR -->
-           
-
 
         <div class="px-1 md:px-2 flex flex-col flex-grow">
-            <!-- (Le milieu de votre carte reste identique : Titre, Etoiles, Fournisseur) -->
-            
-            <!-- ZONE DES PRIX MISE A JOUR -->
-            <div class="flex items-center justify-between pt-1 border-t border-outline-variant/30 mt-2">
-                
-                <div class="flex flex-col justify-center">
-                    <!-- GESTION DU PRIX (BARRÉ OU NORMAL) -->
-                    @if($promo_immediate)
-                        <span class="text-[10px] md:text-[11px] text-on-surface-variant line-through mb-0.5">
-                            {{ number_format($prix_initial, 0, ',', ' ') }} FCFA
-                        </span>
-                        <div class="flex items-center gap-1">
-                            <span class="font-headline-md text-sm md:text-lg text-status-error font-black leading-none">
-                                {{ number_format($prix_final, 0, ',', ' ') }} FCFA
-                            </span>
-                        </div>
-                    @else
-                        <span class="font-headline-md text-sm md:text-lg text-primary font-black">
-                            {{ number_format($prix_initial, 0, ',', ' ') }} FCFA
-                        </span>
-                    @endif
-                    
-                    <!-- L'INCITATION GROSSISTE (S'affiche en dessous du prix si elle existe) -->
-                    @if($promo_volume)
-                        <span class="text-[9px] md:text-[10px] text-orange-money font-bold mt-1">
-                         -{{ round($promo_volume->taux_remise) }}% dès {{ $promo_volume->seuil_quantite }} pièces !
-                        </span>
-                    @endif
-                </div>
+            <p class="text-[9px] md:text-xs text-outline font-bold uppercase tracking-widest mb-1 truncate">{{ $nomCategorie }}</p>
 
-                <button type="button" class="add-to-cart-btn bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-1.5 md:p-2 rounded-lg transition-all active:scale-90 shadow-sm shrink-0" data-produit-id="{{ $produit->id }}">
+            <h3 title="{{ $nomProduit }}" class="font-body-md-bold text-sm md:text-lg text-on-surface mb-1 cursor-pointer hover:text-primary line-clamp-2 leading-tight" onclick="window.location.href='{{ $urlDetail }}'">
+                {{ $nomProduit }}
+            </h3>
+
+            <div class="flex items-center gap-1 mb-2">
+                <span class="material-symbols-outlined text-orange-money text-[12px] md:text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                <span class="text-[10px] md:text-sm font-bold">4.8</span>
+                <span class="text-[9px] md:text-xs text-outline">(124)</span>
+            </div>
+
+            <p class="text-[10px] md:text-xs text-on-surface-variant flex items-center gap-1 mb-2 md:mb-4 cursor-pointer hover:underline truncate" onclick="window.location.href='{{ $urlFournisseur }}'">
+                <span class="material-symbols-outlined text-[14px] md:text-md">user_attributes</span>
+                <span class="truncate">{{ $nomFournisseur }}</span>
+            </p>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3 md:mb-4 mt-auto">
+                <span class="flex items-center gap-1 text-[10px] md:text-sm text-on-surface-variant font-bold">
+                    <span class="material-symbols-outlined text-orange-money font-bold text-[14px] md:text-md">balance</span>
+                    {{ $produit->taille?->taille ?? '—' }} Kg
+                </span>
+                <span class="flex items-center gap-1 text-[10px] md:text-sm text-on-surface-variant font-bold">
+                    <span class="material-symbols-outlined text-orange-money font-bold text-[14px] md:text-md">storefront</span>
+                    {{ max(0, (int) $produit->quantite) }} En Stock
+                </span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-outline-variant/30">
+                <span class="font-headline-md text-sm md:text-lg text-primary font-black">{{ number_format($produit->prix, 0, ',', ' ') }} FCFA</span>
+
+                <button type="button" class="add-to-cart-btn bg-primary-container hover:bg-primary text-on-primary-container hover:text-on-primary p-1.5 md:p-2 rounded-lg transition-all active:scale-90 shadow-sm" data-produit-id="{{ $produit->id }}">
                     <span class="material-symbols-outlined text-sm md:text-xl">add_shopping_cart</span>
                 </button>
             </div>
@@ -152,7 +105,7 @@
     @endforelse
     </div>
 
-    {{-- Pagination --}}
+    {{-- Pagination — indispensable si $produits est paginé, sinon le lien "page suivante" n'existe nulle part --}}
     @if(method_exists($produits, 'links'))
     <div class="mt-8">
         {{ $produits->links() }}
@@ -181,6 +134,9 @@
 
 @push('scripts')
 <script>
+// Scripts commentés/dupliqués retirés — leur logique vit déjà dans pages.filter_page
+// pour éviter le risque de double attachement d'événements (double-soumission du formulaire)
+
 function moveFormToMobile() {
     const mobileContainer = document.getElementById('filters-container-mobile');
     const desktopForm = document.getElementById('filterForm');

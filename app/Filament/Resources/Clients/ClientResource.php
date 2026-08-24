@@ -21,6 +21,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
@@ -111,7 +112,9 @@ class ClientResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('adresse')
                     ->placeholder('-'),
-                TextEntry::make('code_client')
+                TextEntry::make('etat')
+                    ->placeholder('-'),
+                TextEntry::make('statut')
                     ->placeholder('-'),
                 TextEntry::make('user.name')
                     ->label('Utilisateur'),
@@ -143,6 +146,16 @@ class ClientResource extends Resource
                     ->searchable(),
                 TextColumn::make('code_client')
                     ->searchable(),
+                IconColumn::make('etat')
+                    ->boolean(),
+                TextColumn::make('statut')
+                      ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'ACTIF' => 'success',
+                    'EN_ATTENTE' => 'primary',
+                    'BLOQUE' => 'danger',
+                    'REJETE' => 'warning',
+                }),
                 TextColumn::make('user.name')
                     ->label('Utilisateur')
                     ->searchable()

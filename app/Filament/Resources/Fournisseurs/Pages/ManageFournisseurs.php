@@ -16,4 +16,6 @@ class ManageFournisseurs extends ManageRecords
             CreateAction::make(),
         ];
     }
+
+    
 }

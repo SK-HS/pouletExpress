@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Livreurs;
 use App\Filament\Resources\Livreurs\Pages\ManageLivreurs;
 use App\Models\Livreur;
 use BackedEnum;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -13,14 +14,23 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class LivreurResource extends Resource
@@ -49,6 +59,13 @@ class LivreurResource extends Resource
                         'CAMIONNETTE' => 'Camionnette',
                         'CAMION' => 'Camion',
                     ]),
+                Select::make('categorie')
+                    ->label('Categorie du livreur')
+                    ->options([
+                        'STANDARD' => 'STANDARD',
+                        'VIP' => 'VIP',
+                        'VVIP' => 'VVIP',
+                    ])->default("STANDARD"),
                 TextInput::make('adresse'),
                 TextInput::make('telephone')
                     ->tel(),
@@ -103,6 +120,8 @@ class LivreurResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('contact')
                     ->placeholder('-'),
+                TextEntry::make('categorie')
+                    ->placeholder('-'),
                 TextEntry::make('quartier.nom_quartier')
                     ->placeholder('-'),
                 ImageEntry::make('image')
@@ -123,6 +142,29 @@ class LivreurResource extends Resource
                 TextEntry::make('compte')
                     ->numeric()
                     ->placeholder('-'),
+                IconEntry::make('etat')
+                    ->boolean()
+                    ->placeholder('-'),
+                TextEntry::make('statut')
+                    ->placeholder('-'),
+
+                RepeatableEntry::make('statutLivreurs')
+                    ->label("Statut Livreur")
+                    ->columnSpanFull()
+                     ->table([
+                            TableColumn::make('STATUT'),
+                            TableColumn::make('MONTANT'),
+                            TableColumn::make('MOTIF'),
+                            TableColumn::make('UTILISATEUR'),
+                            TableColumn::make('DATE'),
+                        ])
+                    ->schema([
+                        TextEntry::make('statut'),
+                        TextEntry::make('montant'),
+                        TextEntry::make('motif'),
+                        TextEntry::make('user.name'),
+                        TextEntry::make('created_at')->dateTime('d-m-Y H:i'),
+                    ])
             ]);
     }
 
@@ -136,6 +178,8 @@ class LivreurResource extends Resource
                 TextColumn::make('nom')
                     ->searchable(),
                 TextColumn::make('type')
+                    ->searchable(),
+                TextColumn::make('categorie')
                     ->searchable(),
                 TextColumn::make('adresse')
                     ->searchable(),
@@ -162,6 +206,18 @@ class LivreurResource extends Resource
                 TextColumn::make('compte')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('statut')
+                      ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'ACTIF' => 'success',
+                    'EN_ATTENTE' => 'primary',
+                    'BLOQUE' => 'danger',
+                    'REJETE' => 'warning',
+                })
+                    ->sortable(),
+                IconColumn::make('etat')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -173,9 +229,66 @@ class LivreurResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+                DeleteBulkAction::make(),
+
+                BulkAction::make('MiseAJourStatutLivreur')
+                        ->label('Mise à jour du statut')
+                        ->icon('heroicon-m-arrow-down-tray')
+                        ->color('info')
+                        ->modalHeading('Mettre à jour le statut des livreurs sélectionnés')
+                        ->requiresConfirmation()
+                       ->modalWidth(Width::ExtraLarge)
+                        ->form([
+                            Section::make('Détails de la mise à jour')->schema([
+                                Select::make('statut')
+                                    ->label('Nouveau Statut')
+                                    ->options([
+                                        'EN_ATTENTE' => 'EN_ATTENTE',
+                                        'ACTIF'      => 'ACTIF',
+                                        'BLOQUE'     => 'BLOQUE',
+                                        'REJETE'     => 'REJETE',
+                                    ])
+                                    ->required()
+                                    ->live(), 
+
+                                TextInput::make('montant')
+                                    ->label('Montant (Pénalité / Caution)')
+                                    ->numeric()
+                                    ->prefix('CFA')
+                                    ->nullable(),
+
+                                Textarea::make('motif')
+                                    ->label('Motif (Obligatoire si Bloqué ou Rejeté)')
+                                    ->required(fn ($get) => in_array($get('statut'), ['BLOQUE', 'REJETE']))
+                                    ->columnSpanFull(),
+                            ])->columns(2),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            try {
+                                // Appel de la logique métier située dans le Model Livreur
+                                foreach ($records as $record) {
+                                    $record->mise_a_jour_statut($data);
+                                }
+
+                                Notification::make()
+                                    ->title('Statuts mis à jour avec succès')
+                                    ->body(count($records) . ' livreur(s) modifié(s).')
+                                    ->success()
+                                    ->send();
+
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->title('Erreur lors de la mise à jour')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+            ->deselectRecordsAfterCompletion(),
+
+    ])
+]);
+                
     }
 
     public static function getPages(): array

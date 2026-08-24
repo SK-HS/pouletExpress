@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class ClientsController extends Controller
 {
-    public function espace_client(Request $request)
+    public function espace_client_last(Request $request)
     {
 
     $validated = $request->validate([
@@ -101,6 +101,104 @@ class ClientsController extends Controller
         'commandeActive',
         'totalPeriode',
     ));
+}
+
+public function espace_client(Request $request)
+{
+    $client = Auth::guard('client')->user();
+
+    //  Validation stricte des filtres — jamais de valeur arbitraire
+    // injectée dans la requête SQL
+    $validated = $request->validate([
+        'statut'     => 'nullable|in:tous,en_cours,livre,RECEPTIONNEE,annule',
+        'search'     => 'nullable|string|max:50',
+        'date_debut' => 'nullable|date|before_or_equal:today',
+        'date_fin'   => 'nullable|date|before_or_equal:today|after_or_equal:date_debut',
+    ]);
+
+    $query = CommandeClient::with('livraison')
+        ->where('client_id', $client->id); // IDOR bloqué : uniquement les commandes du client connecté
+
+    // Filtre par statut
+    switch ($validated['statut'] ?? 'tous') {
+        case 'en_cours':
+            $query->where('statut', '!=', 'ANNULEE')
+                  ->where('commande_recu', 0);
+            break;
+        case 'livre':
+            $query->where('commande_recu', 1);
+            break;
+        case 'RECEPTIONNEE':
+            $query->whereHas('livraison', fn ($q) => $q->where('statut', 'RECEPTIONNEE'));
+            break;
+        case 'annule':
+            $query->where('statut', 'ANNULEE');
+            break;
+        // 'tous' → pas de filtre supplémentaire
+    }
+
+    if (!empty($validated['search'])) {
+        $query->where('reference', 'like', '%' . $validated['search'] . '%');
+    }
+
+    if (!empty($validated['date_debut'])) {
+        $query->whereDate('date_commande', '>=', $validated['date_debut']);
+    }
+
+    if (!empty($validated['date_fin'])) {
+        $query->whereDate('date_commande', '<=', $validated['date_fin']);
+    }
+
+    $commandes = (clone $query)
+        ->orderBy('date_commande', 'desc')
+        ->paginate(5)
+        ->withQueryString();
+
+    $totalPeriode = (clone $query)->sum('montant_ttc');
+
+    // Requête AJAX : on ne retourne QUE le fragment nécessaire,
+    // sans recalculer les stats globales de la bannière (gain de perf important
+    // vu que ce chemin est appelé à chaque frappe clavier / changement de filtre)
+    if ($request->ajax() || $request->wantsJson()) {
+        return view('clients.historique_commande', [
+            'commandes'    => $commandes,
+            'totalPeriode' => $totalPeriode,
+        ]);
+    }
+
+    // Chargement complet de la page (première visite) : stats globales calculées une seule fois
+    $totalCommandes = CommandeClient::where('client_id', $client->id)->count();
+
+    $totalDepense = CommandeClient::where('client_id', $client->id)
+        ->where('commande_recu', 1)
+        ->sum('montant_ttc');
+
+    $commandesLivrees = CommandeClient::where('client_id', $client->id)
+        ->where('commande_recu', 1)
+        ->count();
+
+    $commandesEnCours = CommandeClient::where('client_id', $client->id)
+        ->where('statut', '!=', 'ANNULEE')
+        ->where('commande_recu', 0)
+        ->count();
+
+    $commandeActive = CommandeClient::with('livraison')
+        ->where('client_id', $client->id)
+        ->whereHas('livraison', function ($q) {
+            $q->whereIn('statut', ['EN_ATTENTE', 'AFFECTEE', 'RECUPEREE', 'EN_ROUTE']);
+        })
+        ->orderBy('date_commande', 'desc')
+        ->first();
+
+    return view('clients.index', [
+        'commandes'        => $commandes,
+        'totalPeriode'     => $totalPeriode,
+        'totalCommandes'   => $totalCommandes,
+        'totalDepense'     => $totalDepense,
+        'commandesLivrees' => $commandesLivrees,
+        'commandesEnCours' => $commandesEnCours,
+        'commandeActive'   => $commandeActive,
+    ]);
 }
 
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable; 
 use Illuminate\Notifications\Notifiable; 
+use Illuminate\Support\Facades\Auth;
 
 
 class Fournisseur extends Authenticatable
@@ -35,6 +36,7 @@ class Fournisseur extends Authenticatable
         'nom_gerant',
         'capacite_ferme',
         'etat',
+        'statut',
         'description',
         'image_ferme',
          'disponible',
@@ -64,6 +66,10 @@ class Fournisseur extends Authenticatable
     {
         return $this->hasMany(ProduitFournisseur::class);
     }
+     public function statutFournisseur()
+    {
+        return $this->hasMany(StatutFournisseur::class);
+    }
 
     protected static function booted()
     {
@@ -77,5 +83,27 @@ class Fournisseur extends Authenticatable
         });
 
 
+    }
+
+       public function mise_a_jour_statut(array $data)
+    {
+        // 1. Déterminer l'état (1 si ACTIF, sinon 0)
+        $etat = ($data['statut'] === 'ACTIF') ? 1 : 0;
+
+        // 2. Mettre à jour la table 'livreurs'
+        $this->update([
+            'statut'      => $data['statut'],
+            'etat'        => $etat,
+            // 'motif_rejet' => $data['motif'] ?? null,
+        ]);
+
+        // 3. Créer l'historique dans 'statut_livreurs'
+        \App\Models\StatutFournisseur::create([
+            'fournisseur_id' => $this->id,
+            'user_id'    => Auth::id(), // L'admin connecté
+            'statut'     => $data['statut'],
+            'motif'      => $data['motif'] ?? null,
+            'montant'    => $data['montant'] ?? 0,
+        ]);
     }
 }

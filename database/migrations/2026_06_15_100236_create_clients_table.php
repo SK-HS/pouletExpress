@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('contact')->nullable();
             $table->boolean('etat')->default(1);
             $table->string('password')->nullable();
+            $table->string('statut')->nullable();
             $table->string('longitude');
             $table->string('latitude');
             $table->text('image')->nullable();

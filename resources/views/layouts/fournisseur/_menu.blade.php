@@ -80,6 +80,16 @@
             <span class="material-symbols-outlined {{ request()->routeIs('Approvisionnement-Historique') ? 'active-pill' : '' }}">history</span>
             <span class="font-body-md text-body-md">Historique Approvisionnement</span>
         </a>
+        <!-- Lien pub -->
+        <a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-150 
+            {{ request()->routeIs('Liste-Campagnes') 
+                ? 'bg-surface-container-high dark:bg-surface-variant text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim' 
+                : 'hover:bg-surface-container-high dark:hover:bg-surface-variant text-on-surface-variant dark:text-surface-variant' }}" 
+            href="{{route('Liste-Campagnes')}}">
+            
+            <span class="material-symbols-outlined {{ request()->routeIs('Liste-Campagnes') ? 'active-pill' : '' }}">percent</span>
+            <span class="font-body-md text-body-md">Campagne Pub</span>
+        </a>
         </nav>
         
       <div class="mt-auto border-t border-outline-variant pt-4 pb-8 lg:pb-4">

@@ -68,8 +68,8 @@ class Versement extends Model
                 
                     $vente = CommandeClient::lockForUpdate()->findOrFail($model->commande_client_id);
 
-                    $vente->solde -= $model->montant;
                     $vente->avance += $model->montant;
+                    $vente->solde = $model->montant - $vente->avance;
 
                     // $vente->statut = $vente->solde <= 0
                     //     ? 'Paiement validé'

@@ -24,22 +24,66 @@ class AuthLivreurController extends Controller
    
     public function post_login_livreur(Request $request)
     {
-        //dd($request->all());
-      $credentials = $request->validate([
-            'telephone' => 'required|string',
-            'password' => 'required',
-        ]);
+     
+    // 1. Validation de base
+    $request->validate([
+        'telephone' => 'required|string',
+        'password'  => 'required',
+    ]);
 
-        if (! Auth::guard('livreur')->attempt($credentials, $request->boolean('remember'))) {
+    $identifiant = $request->input('telephone');
+    $password = $request->input('password');
+
+    // Déterminer si l'identifiant est un email ou un téléphone
+    $champBaseDeDonnees = filter_var($identifiant, FILTER_VALIDATE_EMAIL) ? 'email' : 'telephone';
+
+    $credentials = [
+        $champBaseDeDonnees => $identifiant,
+        'password'          => $password,
+    ];
+
+    // 2. On tente de connecter l'utilisateur
+    if (! Auth::guard('livreur')->attempt($credentials, $request->boolean('remember'))) {
+        throw ValidationException::withMessages([
+            'telephone' => 'Les identifiants fournis sont incorrects.',
+        ]);
+    }
+
+    // 3. La connexion a réussi (le mot de passe est bon).
+    // On récupère maintenant les données du livreur pour vérifier son statut
+    $livreur = Auth::guard('livreur')->user();
+
+    // Vérification de l'état
+    if ($livreur->etat == 0) {
+        
+        // Le compte n'est pas actif, on le déconnecte tout de suite
+        Auth::guard('livreur')->logout();
+        
+        // On affiche le message personnalisé selon le statut
+        if ($livreur->statut == 'EN_ATTENTE') {
             throw ValidationException::withMessages([
-                'telephone' => 'Les identifiants fournis sont incorrects.',
+                'telephone' => 'Votre compte est en cours de traitement.', // Ou 'message' selon votre fichier Blade
             ]);
         }
 
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('Livreur-Espace'));
+        if ($livreur->statut == 'BLOQUE') {
+            throw ValidationException::withMessages([
+                'telephone' => "Votre compte a été suspendu, veuillez contacter l'administrateur.",
+            ]);
+        }
+        
+        // Par sécurité, si l'état est à 0 mais qu'il n'a ni l'un ni l'autre statut :
+        throw ValidationException::withMessages([
+            'telephone' => 'Votre compte est inactif.',
+        ]);
     }
+
+    // 4. Si tout est parfait (le mot de passe est bon, et l'état n'est pas à 0)
+    $request->session()->regenerate();
+
+     return redirect()->intended(route('Livreur-Espace'));
+}
+
 
     public function logout_livreur(Request $request)
     {
@@ -78,11 +122,12 @@ class AuthLivreurController extends Controller
     }
     public function save_inscription_livreur(Request $request)
     {
-         $request->validate([
+        $validatedData = $request->validate([
             'nom'         => 'required|string|max:255',
             'telephone'   => 'required|string|max:20|unique:livreurs,telephone',
             'email'       => 'nullable|email|max:255|unique:livreurs,email',
             'type'        => 'required',
+            'categorie'        => 'nullable',
             'quartier_id' => 'required|exists:quartiers,id', // Vérifie que le quartier existe
             'adresse'     => 'nullable|string|max:255',
             'password'    => 'required|string|min:4|confirmed', // 'confirmed' vérifie password_confirmation
@@ -105,17 +150,20 @@ class AuthLivreurController extends Controller
         // 4. Création du Livreur dans la base de données
         $livreur = Livreur::create([
             // 'reference'   => $reference,
-            'nom'         => $request->nom,
-            'type'        => $request->type,
-            'telephone'   => $request->telephone,
-            'email'       => $request->email,
-            'adresse'     => $request->adresse,
-            'quartier_id' => $request->quartier_id,
+            'nom'         => $validatedData['nom'],
+            'type'        => $validatedData['type'],
+            'telephone'   => $validatedData['telephone'],
+            'email'       => $validatedData['email'],
+            'adresse'     => $validatedData['adresse'],
+            'quartier_id' => $validatedData['quartier_id'],
+            'categorie' => $validatedData['adresse'],
             'image'       => $imagePath,
             'password'    => Hash::make($request->password), // Cryptage obligatoire du mot de passe
             
             'disponible'  => 1, // On le met disponible pour des courses dès son inscription
-            // 'compte'      => 0, // Solde financier de départ à 0
+            'compte'      => 0, // Solde financier de départ à 0
+            'etat'      => 0, // Solde financier de départ à 0
+            'statut'      => "EN_ATTENTE", // Solde financier de départ à 0
         ]);
         // 5. Redirection vers la page de connexion avec un message de succès
      return redirect()->route('Livreur-Login');
@@ -137,6 +185,7 @@ class AuthLivreurController extends Controller
             'adresse'     => 'nullable|string|max:255',
             'quartier_id' => 'nullable|integer', // Vous pouvez ajouter |exists:quartiers,id si vous avez une table quartiers
             'type'        => 'nullable|string',
+            'categorie'        => 'nullable|string',
             'image'       => 'nullable|image', // 2Mo Max
             'password'    => 'nullable|string|min:4|confirmed', // 'confirmed' vérifie le champ 'password_confirmation'
         ]);
@@ -156,6 +205,7 @@ class AuthLivreurController extends Controller
                 $livreur->adresse = $validatedData['adresse'];
                 $livreur->quartier_id = $validatedData['quartier_id'];
                 $livreur->type = $validatedData['type'];
+                $livreur->categorie = $validatedData['categorie'];
                 $livreur->disponible = $request->has('disponible') ? 1 : 0;
                 if ($request->filled('password')) {
                     $livreur->password = Hash::make($request->password);

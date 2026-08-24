@@ -94,11 +94,46 @@ class CartService
 
         $items = [];
         foreach ($produits as $produit) {
+            // $quantite = $panier[$produit->id];
+            // $items[] = [
+            //     'produit' => $produit,
+            //     'quantite' => $quantite,
+            //     'sous_total' => $produit->prix * $quantite,
+            // ];
+
             $quantite = $panier[$produit->id];
+            // 1. On récupère le prix normal
+            $prix_initial = $produit->prix;
+            
+            // 2. On calcule le prix final en fonction de la quantité !
+            $prix_final = $produit->calculerPrixFinal($quantite);
+
+            // On récupère la promo volume pour voir si le client pourrait en profiter
+                $promo_volume = $produit->getPromoVolume();
+                $manquant_promo_volume = null;
+                $taux_promo_volume = null;
+                
+                if ($promo_volume && $quantite < $promo_volume->seuil_quantite) {
+                    $manquant_promo_volume = $promo_volume->seuil_quantite - $quantite;
+                    $taux_promo_volume = $promo_volume->taux_remise;
+                }
+        
             $items[] = [
                 'produit' => $produit,
                 'quantite' => $quantite,
-                'sous_total' => $produit->prix * $quantite,
+                
+                // On garde une trace des prix pour l'affichage visuel (barré / rouge)
+                'prix_unitaire_initial' => $prix_initial,
+                'prix_unitaire_final'   => $prix_final,
+                'en_promo'              => $prix_final < $prix_initial,
+                'economie_unitaire'     => $prix_initial - $prix_final,
+                
+                // 3. Le VRAI sous-total calculé avec le prix remisé
+                'sous_total' => $prix_final * $quantite,
+
+                // Les infos pour afficher un message d'encouragement
+                'quantite_manquante_promo' => $manquant_promo_volume,
+                'taux_promo_volume' => $taux_promo_volume,
             ];
         }
 

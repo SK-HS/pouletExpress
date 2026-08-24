@@ -133,7 +133,8 @@ class CartController extends Controller
     $this->cart->update($produitId, $quantiteDemandee);
  
     $items = collect($this->cart->getItemsWithDetails());
-    $item = $items->firstWhere(fn ($i) => $i['produit']->id === $produitId);
+    // $item = $items->firstWhere(fn ($i) => $i['produit']->id === $produitId);
+     $item = $items->firstWhere(fn ($i) => $i['produit']->id == $produitId);
  
     return response()->json([
         'success' => true,
@@ -143,6 +144,13 @@ class CartController extends Controller
             'produit_id' => $item['produit']->id,
             'quantite'   => $item['quantite'],
             'sous_total' => $item['sous_total'],
+
+            'prix_unitaire_initial'    => $item['prix_unitaire_initial'],
+            'prix_unitaire_final'      => $item['prix_unitaire_final'],
+            'en_promo'                 => $item['en_promo'],
+            'economie_unitaire'        => $item['economie_unitaire'],
+            'quantite_manquante_promo' => $item['quantite_manquante_promo'],
+            'taux_promo_volume'        => $item['taux_promo_volume'],
         ] : null,
     ]);
 }
@@ -248,7 +256,7 @@ class CartController extends Controller
         $service = $quartier->service ?? null;
     }
  
-    $type_commande = $service ? 'Avec Livraison' : 'Sans Livraison';
+      $type_commande = $service ? 'Avec Livraison' : 'Sans Livraison';
       $sessionGroupId = 'GRP-' . date('Ymd-Hi') . '-' . Auth::guard('client')->id();
  
     try {
@@ -306,7 +314,7 @@ class CartController extends Controller
                         'commande_client_id'    => $commande->id,
                         'produit_fournisseur_id'=> $item['produit']->id,
                         'quantite'              => $item['quantite'],
-                        'prix_unitaire'         => $item['produit']->prix,
+                        'prix_unitaire'         => $item['prix_unitaire_final'],
                         'montant'               => $item['sous_total'],
                         'type'                  => 'PRODUIT',
                     ]);
@@ -345,7 +353,7 @@ class CartController extends Controller
                 // ]);
             }
  
-            return $commandesCreees;
+            return $sessionGroupId;
         });
     } catch (\RuntimeException $e) {
         // Stock insuffisant détecté pendant la transaction → tout est annulé automatiquement (rollback)
@@ -354,12 +362,13 @@ class CartController extends Controller
  
     $this->cart->clear();
  
-    if (count($commandesCreees) === 1) {
-        return redirect()->route('Confirmation-Commande', $commandesCreees[0]->reference);
-    }
+    // if (count($commandesCreees) === 1) {
+    //     return redirect()->route('Confirmation-Commande', $commandesCreees[0]->reference);
+    // }
  
-    $references = collect($commandesCreees)->pluck('reference')->implode(',');
-    return redirect()->route('commande.confirmation.groupee', ['references' => $references]);
+    // $references = collect($commandesCreees)->pluck('reference')->implode(',');
+    // return redirect()->route('Confirmation-Commande', ['references' => $sessionGroupId]);
+    return redirect()->route('Confirmation-Commande', $sessionGroupId);
 }
 
 

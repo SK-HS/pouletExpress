@@ -1,6 +1,22 @@
 @extends('layouts.master')
 @section('content')
 
+        @php
+
+        $prix_initial = $produit->prix;
+        $promo_immediate = $produit->getPromoImmediate();
+        $promo_volume = $produit->getPromoVolume();
+        
+        // Calcul du prix final si promo immédiate
+        $prix_final = $prix_initial;
+        $pourcentage_immediat = 0;
+        
+        if ($promo_immediate) {
+            $pourcentage_immediat = round($promo_immediate->taux_remise);
+            $prix_final = $prix_initial - ($prix_initial * ($pourcentage_immediat / 100));
+        }  
+                
+        @endphp
 
   <main class="flex-grow container mx-auto px-margin-mobile md:px-margin-desktop py-8">
                 <!-- Breadcrumbs -->
@@ -47,19 +63,38 @@
                                                                 class="material-symbols-outlined text-[18px]">verified</span>
                                                         Certifié
                                                 </span>
+                                                 @if($promo_immediate)
+                                                <span class="bg-status-error text-white text-[8px] md:text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse">
+                                                Promo -{{ $pourcentage_immediat }}%
+                                                </span>
+                                                @endif
                                         </div>
                                         <h2 id="product-title" class="font-headline-lg text-headline-lg text-primary">
                                                {{ $produit->produit?->nom }}</h2>
+                                         @if($promo_immediate)
                                         <div class="flex items-center gap-3">
                                                 <span id="product-price"
                                                         class="font-headline-lg text-secondary text-headline-lg">
-                                                        {{ $produit->prix }}
-                                                        FCFA</span>
-                                                <span id="product-original-price"
-                                                        class="text-on-surface-variant line-through font-body-md">
-                                                        {{ $produit->prix }}
-                                                        FCFA</span>
+                                                        {{-- {{ $produit->prix }}
+                                                        FCFA --}}
+                                                         {{ number_format($prix_final, 0, ',', ' ') }} FCFA
+                                                </span>
+                                                <span id="product-original-price" class="text-on-surface-variant line-through font-body-md">
+                                                       {{ number_format($prix_initial, 0, ',', ' ') }} FCFA
+                                                </span>
                                         </div>
+                                        @else
+                                        <span id="product-price"  class="font-headline-lg text-secondary text-headline-lg">
+                                                        {{-- {{ $produit->prix }}
+                                                        FCFA --}}
+                                                         {{ number_format($prix_initial, 0, ',', ' ') }} FCFA
+                                                </span>
+                                        @endif
+                                         @if($promo_volume)
+                                                <span class="text-[15px] md:text-[15px] text-orange-money font-bold mt-1">
+                                                -{{ round($promo_volume->taux_remise) }}% dès {{ $promo_volume->seuil_quantite }} pièces achettées !
+                                                </span>
+                                        @endif
                                 </div>
 
                                 <!-- Vendor Mini Card -->

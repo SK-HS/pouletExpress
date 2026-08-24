@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Categorie;
 use App\Models\Fournisseur;
-use App\Models\Produit;
+// use App\Models\Produit;
 use App\Models\ProduitFournisseur;
 use App\Models\Publicite;
 use App\Models\Quartier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PagesController extends Controller
 {
 
-    public function get_index()
+    public function get_index_last()
     {
         $produits = ProduitFournisseur::with('fournisseur','produit','categorie','taille')->where('quantite','>',0)->get();
         
@@ -30,6 +31,105 @@ class PagesController extends Controller
 
         return view('pages.index', compact('produits','fournisseurs','publicites'));
     }
+    
+
+public function get_index()
+{
+    $produits = Cache::remember('accueil_produits_v1', 300, function () {
+        return ProduitFournisseur::with([
+                'fournisseur:id,nom,nom_ferme',
+                'produit:id,nom,image',
+                'categorie:id,nom',
+                'taille:id,taille',
+            ])
+            ->where('quantite', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
+    });
+
+    // Vérification défensive : si le cache est corrompu (pas une Collection),
+    // on l'ignore et on relance une requête fraîche immédiatement
+    if (!($produits instanceof \Illuminate\Support\Collection)) {
+        Cache::forget('accueil_produits_v1');
+        $produits = ProduitFournisseur::with([
+                'fournisseur:id,nom,nom_ferme',
+                'produit:id,nom,image',
+                'categorie:id,nom',
+                'taille:id,taille',
+            ])
+            ->where('quantite', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
+    }
+
+    $fournisseurs = Cache::remember('accueil_fournisseurs_v1', 300, function () {
+        return Fournisseur::select('id', 'nom', 'nom_ferme', 'image', 'type', 'note_moyenne')
+            ->where('etat', 1)
+            ->whereHas('produits', function ($q) {
+                $q->where('quantite', '>', 0);
+            })
+            ->limit(8)
+            ->get();
+    });
+
+    if (!($fournisseurs instanceof \Illuminate\Support\Collection)) {
+        Cache::forget('accueil_fournisseurs_v1');
+        $fournisseurs = Fournisseur::select('id', 'nom', 'nom_ferme', 'image', 'type', 'note_moyenne')
+            ->where('etat', 1)
+            ->whereHas('produits', function ($q) {
+                $q->where('quantite', '>', 0);
+            })
+            ->limit(8)
+            ->get();
+    }
+
+    $publicites = Cache::remember('accueil_publicites_v1', 300, function () {
+        return Publicite::where('est_actif', true)
+            ->where(function ($query) {
+                $query->whereNull('date_debut')->orWhere('date_debut', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('date_fin')->orWhere('date_fin', '>=', now());
+            })
+            ->limit(5)
+            ->get();
+    });
+
+    // Vérifie que chaque élément est bien une instance Publicite,
+    // pas une chaîne (c'est précisément le bug rencontré : "$pub" était un string)
+    if (!($publicites instanceof \Illuminate\Support\Collection)
+        || ($publicites->isNotEmpty() && !($publicites->first() instanceof \App\Models\Publicite))) {
+        Cache::forget('accueil_publicites_v1');
+        $publicites = Publicite::where('est_actif', true)
+            ->where(function ($query) {
+                $query->whereNull('date_debut')->orWhere('date_debut', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('date_fin')->orWhere('date_fin', '>=', now());
+            })
+            ->limit(5)
+            ->get();
+    }
+
+    $statsElevateurs = Cache::remember('accueil_stats_elevateurs_v1', 300, function () {
+        return Fournisseur::where('etat', 1)->count();
+    });
+
+    $statsProduits = Cache::remember('accueil_stats_produits_v1', 300, function () {
+        return ProduitFournisseur::where('quantite', '>', 0)->count();
+    });
+
+    return view('pages.index', [
+        'produits'        => $produits,
+        'fournisseurs'    => $fournisseurs,
+        'publicites'      => $publicites,
+        'statsElevateurs' => $statsElevateurs . '+',
+        'statsProduits'   => $statsProduits . '+',
+    ]);
+}
+
     public function get_a_propos()
     {
         return view('pages.a_propos');

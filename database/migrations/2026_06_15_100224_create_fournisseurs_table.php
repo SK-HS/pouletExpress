@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('nom_ferme')->nullable();
             $table->string('nom_gerant')->nullable();
             $table->string('capacite_ferme')->nullable();
+            $table->string('statut')->nullable();
             $table->boolean('etat')->default(1);
             $table->text('image')->nullable();
             $table->text('image_ferme')->nullable();

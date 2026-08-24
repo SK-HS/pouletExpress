@@ -109,6 +109,7 @@ class AuthFournisseurController extends Controller
                 'etat' => 0,
                 'disponible' => 0,
                 'compte' => 0,
+                'statut' => "EN_ATTENTE",
             ]);
             // 5. Tout s'est bien passé, on valide la transaction
            
@@ -120,31 +121,67 @@ class AuthFournisseurController extends Controller
 
 
     public function post_login_fournisseur(Request $request)
-    {
+{
+    // 1. Validation de base
+    $request->validate([
+        'telephone' => 'required|string',
+        'password'  => 'required',
+    ]);
 
-    $credentials = $request->validate([
-            'telephone' => 'required|string',
-            'password' => 'required',
+    $identifiant = $request->input('telephone');
+    $password = $request->input('password');
+
+    // Déterminer si l'identifiant est un email ou un téléphone
+    $champBaseDeDonnees = filter_var($identifiant, FILTER_VALIDATE_EMAIL) ? 'email' : 'telephone';
+
+    $credentials = [
+        $champBaseDeDonnees => $identifiant,
+        'password'          => $password,
+    ];
+
+    // 2. On tente de connecter l'utilisateur
+    if (! Auth::guard('fournisseur')->attempt($credentials, $request->boolean('remember'))) {
+        throw ValidationException::withMessages([
+            'telephone' => 'Les identifiants fournis sont incorrects.',
         ]);
-        $identifiant = $request->input('telephone');
-        $password = $request->input('password');
+    }
 
-        $champBaseDeDonnees = filter_var($identifiant, FILTER_VALIDATE_EMAIL) ? 'email' : 'telephone';
+    // 3. La connexion a réussi (le mot de passe est bon).
+    // On récupère maintenant les données du fournisseur pour vérifier son statut
+    $fournisseur = Auth::guard('fournisseur')->user();
 
-        $credentials = [
-            $champBaseDeDonnees => $identifiant,
-            'password'          => $password
-        ];
-        if (! Auth::guard('fournisseur')->attempt($credentials, $request->boolean('remember'))) {
+    // Vérification de l'état
+    if ($fournisseur->etat == 0) {
+        
+        // Le compte n'est pas actif, on le déconnecte tout de suite
+        Auth::guard('fournisseur')->logout();
+        
+        // On affiche le message personnalisé selon le statut
+        if ($fournisseur->statut == 'EN_ATTENTE') {
             throw ValidationException::withMessages([
-                'telephone' => 'Les identifiants fournis sont incorrects.',
+                'telephone' => 'Votre compte est en cours de traitement.', // Ou 'message' selon votre fichier Blade
             ]);
         }
 
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('Fournisseur-Espace'));
+        if ($fournisseur->statut == 'BLOQUE') {
+            throw ValidationException::withMessages([
+                'telephone' => "Votre compte a été suspendu, veuillez contacter l'administrateur.",
+            ]);
+        }
+        
+        // Par sécurité, si l'état est à 0 mais qu'il n'a ni l'un ni l'autre statut :
+        throw ValidationException::withMessages([
+            'telephone' => 'Votre compte est inactif.',
+        ]);
     }
+
+    // 4. Si tout est parfait (le mot de passe est bon, et l'état n'est pas à 0)
+    $request->session()->regenerate();
+
+    return redirect()->intended(route('Fournisseur-Espace'));
+}
+
+    
 
     public function update_profil_fournisseur(Request $request)
 {

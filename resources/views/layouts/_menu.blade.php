@@ -48,7 +48,7 @@
     </a>
     
     <!-- Help -->
-    <a href="{{ route('Contact') }}" class="flex items-center justify-center w-11 h-11 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-container transition-all shadow-sm">
+    <a href="{{route('Fournisseur-Espace')}}" class="flex items-center justify-center w-11 h-11 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-container transition-all shadow-sm">
         <span class="material-symbols-outlined text-xl">help_outline</span>
     </a>
 </div>

@@ -45,13 +45,13 @@ class CommandeLivreur extends Model
 
           $commdclient = CommandeClient::lockForUpdate()->findOrFail($model->commande_client_id);
 
-                    $commdclient->statut = "Livraison en cours";
+                    $commdclient->statut = "NOUVEAU";
                     $commdclient->livreur_id = $model->livreur_id;
 
                     $commdclient->save();
 
                     StatutCommande::create([
-                            'statut' => "Livraison en cours",
+                            'statut' => "NOUVEAU",
                             'commande_client_id'=>$model->commande_client_id,
                             'user_id'=>Auth::id(),]);
             }

@@ -1,11 +1,32 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+// Route::get('/clear-cache', function() {
+//      \Artisan::call('optimize:clear');
+//     return 'Caches vidés avec succès !';
+// });
+
+
+Route::get('/storage/{path}', function ($path) {
+    $file = Storage::disk('public')->path($path);
+
+    if (!file_exists($file)) {
+        abort(404);
+    }
+
+    return Response::file($file);
+})->where('path', '.*');
+
+
 
 Route::get('/', [PagesController::class, 'get_index'])->name('index');
 Route::get('/A-propos', [PagesController::class, 'get_a_propos'])->name('A-Propos');
@@ -45,7 +66,7 @@ Route::middleware('auth:client')->prefix('client')->group(function () {
     Route::get('/commande/confirmation/{reference}', [CartController::class, 'confirmation_commande'])->name('Confirmation-Commande');
     //gestion client
     Route::put('/modification/profil/client', [AuthClientController::class, 'modification_profil_client'])->name('Modifier-Profil-Client');
-    Route::get('/espace/client', [ClientsController::class, 'espace_client'])->name('Clients-Espace');
+    Route::get('/espace/client', [ClientsController::class, 'espace_client'])->middleware('throttle:60,1')->name('Clients-Espace');
     Route::get('/profil/client', [ClientsController::class, 'profil_client'])->name('Client-Profil');
     Route::get('/suivi/commande/client', [ClientsController::class, 'suivi_commande_client'])->name('Suivi-Commande-Client');
     Route::get('/suivi/last/commande/client/{id}', [ClientsController::class, 'suivi_last_commande_client'])->name('Suivi-last-Commande');
@@ -77,7 +98,7 @@ Route::middleware('auth:livreur')->prefix('livreur')->group(function () {
     Route::put('/livraison/demarrer/{id}', [LivreursController::class, 'demarre_livraison'])->name('Livraison-Demarrer');
     Route::put('/livraison/En/Route/{id}', [LivreursController::class, 'en_route_livraison'])->name('Livraison-En-Route');
     Route::put('/livraison/terminer/{id}', [LivreursController::class, 'terminer_livraison'])->name('Livraison-Terminer');
-    Route::post('/actualiser/position/gps', [LivreursController::class, 'actualiser_position_gps'])->name('Actualiser-Position-gps');
+    Route::post('/actualiser/position/gps', [LivreursController::class, 'actualiser_position_gps'])->middleware('throttle:20,1')->name('Actualiser-Position-gps');
     
     Route::get('/localisation/produit', [LivreursController::class, 'localisation_produit'])->name('Localisation-Produit-livreur');
     Route::get('/livreur/profil', [LivreursController::class, 'profil_livreur'])->name('Profil-Livreur');
@@ -127,7 +148,14 @@ Route::middleware('auth:fournisseur')->prefix('fournisseur')->group(function () 
     
     Route::get('/approvisionnement/produit', [FournisseurController::class, 'approvisonnement'])->name('Approvisionnement-Produit');
     Route::get('/approvisionnement/historique', [FournisseurController::class, 'approvisionnement_historique'])->name('Approvisionnement-Historique');
-    Route::put('/reapprovisionner/produit/{id}', [FournisseurController::class, 'reapprovisionner'])->name('Reapprovisionner-Produit');
+    Route::put('/reapprovisionner/produit/{id}', [FournisseurController::class, 'reapprovisionner_produit'])->name('Reapprovisionner-Produit');
+    
+    Route::get('liste/campagnes', [FournisseurController::class, 'liste_campagnes'])->name('Liste-Campagnes');
+    Route::get('create/campagnes', [FournisseurController::class, 'create_campagne_promotion'])->name('Ajouter-Campagnes');
+    Route::post('/save/campagne/fournisseur', [FournisseurController::class, 'post_campagne_fournisseur'])->name('Save-Campagne-Fournisseur');
+    Route::get('edit/campagne/fournisseur/{id}', [FournisseurController::class, 'edit_campagne_fournisseur'])->name('Edit-Campagne-Fournisseur');
+    Route::put('update/campagne/fournisseur/{id}', [FournisseurController::class, 'update_campagne_fournisseur'])->name('Update-Campagne-Fournisseur');
+    Route::delete('delete/campagne/fournisseur/{id}', [FournisseurController::class, 'supprimer_campagne_fournisseur'])->name('Delete-Campagne-Fournisseur');
 
   });
 

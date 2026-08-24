@@ -34,6 +34,12 @@
             <span class="text-sm font-semibold">{{ session('success') }}</span>
         </div>
         @endif
+           @if(session('error'))
+        <div class="flex items-center gap-2 mb-8 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
+            <span class="material-symbols-outlined">error</span>
+            <span class="text-sm font-semibold">{{ session('error') }}</span>
+        </div>
+        @endif
 
         <form method="POST" action="{{route('Update-Fournisseu-Profil')}}" enctype="multipart/form-data" class="space-y-8" id="regForm">
             @csrf

@@ -22,9 +22,12 @@ return new class extends Migration
             $table->string('contact')->nullable();
             $table->string('remember_token')->nullable();
             $table->boolean('disponible')->default(0);
+            $table->boolean('etat')->default(0);
             $table->string('password')->nullable();
+            $table->string('statut')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
+            $table->string('categorie')->nullable();
             $table->text('image')->nullable();
             $table->float('compte')->default(0);
             $table->foreignId('quartier_id')->constrained('quartiers')->onDelete('cascade');

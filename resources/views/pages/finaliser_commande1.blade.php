@@ -167,26 +167,61 @@ Résumé de commande
         $indexColis = 1;
     @endphp
 
-    @foreach ($itemsParFournisseur as $fournisseur_id => $articlesGroupes)
+      @foreach ($itemsParFournisseur as $fournisseur_id => $articlesGroupes)
         <div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
             <h4 class="font-label-caps text-[10px] text-primary uppercase tracking-widest mb-3 flex items-center gap-2 border-b border-primary/20 pb-2">
                 <span class="material-symbols-outlined text-[14px]">inventory_2</span>
                 Colis {{ $indexColis++ }} : Expédié par {{ $articlesGroupes->first()['produit']->fournisseur?->nom_ferme ?? 'Fournisseur' }}
             </h4>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
                 @foreach ($articlesGroupes as $item)
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 pr-2">
-                            <p class="font-body-md-bold text-sm leading-tight">{{ $item['produit']->produit?->nom ?? 'Produit' }}</p>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Quantité: {{ $item['quantite'] }}</p>
+                    <div class="flex flex-col gap-1 border-b border-outline-variant/30 pb-2 last:border-0 last:pb-0">
+                        <div class="flex justify-between items-start">
+                            <!-- Infos Produit -->
+                            <div class="flex-1 pr-2">
+                                <p class="font-body-md-bold text-sm leading-tight">{{ $item['produit']->produit?->nom ?? 'Produit' }}</p>
+                                <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5 flex items-center flex-wrap gap-2">
+                                    <span>Quantité: {{ $item['quantite'] }}</span>
+                                    
+                                    <!-- BADGE PROMO -->
+                                    @if(isset($item['en_promo']) && $item['en_promo'])
+                                        <span class="text-status-success font-bold bg-status-success/10 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider">
+                                            Promo appliquée
+                                        </span>
+                                    @endif
+                                </p>
+                            </div>
+                            
+                            <!-- Sous-total Produit -->
+                            <div class="text-right shrink-0">
+                                @if(isset($item['en_promo']) && $item['en_promo'])
+                                    <!-- Ancien sous-total barré -->
+                                    <p class="text-[10px] text-on-surface-variant line-through mb-0.5">
+                                        {{ number_format($item['prix_unitaire_initial'] * $item['quantite'], 0, ',', ' ') }} FCFA
+                                    </p>
+                                @endif
+                                
+                                <!-- Nouveau sous-total -->
+                                <p class="font-body-md-bold text-sm whitespace-nowrap {{ (isset($item['en_promo']) && $item['en_promo']) ? 'text-status-error' : '' }}">
+                                    {{ number_format($item['sous_total'], 0, ',', ' ') }} FCFA
+                                </p>
+                            </div>
                         </div>
-                        <span class="font-body-md-bold text-sm whitespace-nowrap">{{ number_format($item['sous_total'], 0, ',', ' ') }} FCFA</span>
+                        
+                        <!-- Ligne spéciale : l'économie réalisée (S'affiche uniquement en cas de promo) -->
+                        @if(isset($item['en_promo']) && $item['en_promo'])
+                            <p class="text-[10px] text-status-success font-bold text-right flex justify-end items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">savings</span>
+                                Économie : -{{ number_format($item['economie_unitaire'] * $item['quantite'], 0, ',', ' ') }} FCFA
+                            </p>
+                        @endif
                     </div>
                 @endforeach
             </div>
         </div>
     @endforeach
+
 </div>
 
 <div class="space-y-3 font-body-md text-on-surface-variant bg-surface-container-lowest border-t-2 border-dashed border-outline-variant pt-4">
