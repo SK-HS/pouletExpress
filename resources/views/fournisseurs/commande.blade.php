@@ -30,7 +30,7 @@
     <!-- Onglets des statuts -->
     <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1 border-b border-outline-variant/50">
         <a href="{{ route('Fournisseur-Commande') }}" class="whitespace-nowrap px-4 py-2 rounded-t-xl font-bold transition-all {{ !request('statut') ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }}">Toutes</a>
-        <a href="{{ route('Fournisseur-Commande', ['statut' => 'NOUVELLE']) }}" class="whitespace-nowrap px-4 py-2 rounded-t-xl font-bold transition-all flex items-center gap-2 {{ request('statut') == 'NOUVELLE' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }}">
+        <a href="{{ route('Fournisseur-Commande', ['statut' => 'NOUVEAU']) }}" class="whitespace-nowrap px-4 py-2 rounded-t-xl font-bold transition-all flex items-center gap-2 {{ request('statut') == 'NOUVELLE' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }}">
             Nouvelles
             @if(isset($countNouvelles) && $countNouvelles > 0)
                 <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ $countNouvelles }}</span>
@@ -97,7 +97,7 @@
                             // Couleurs selon le statut pour le badge
                             switch(strtoupper($commande->statut)) {
                                 case 'EN ATTENTE':
-                                case 'NOUVELLE': $badgeClass = 'bg-error-container text-error border-error/20'; break;
+                                case 'NOUVEAU': $badgeClass = 'bg-error-container text-error border-error/20'; break;
                                 case 'LIVRÉE':
                                 case 'LIVREE':   $badgeClass = 'bg-status-success/10 text-status-success border-status-success/20'; break;
                                 default:         $badgeClass = 'bg-secondary-container text-on-secondary-container border-secondary-container'; break;

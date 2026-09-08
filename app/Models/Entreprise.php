@@ -18,6 +18,7 @@ class Entreprise extends Model
         'status',
         'user_id',
         'ville',
+        'compte',
     ];
 
     public function user()

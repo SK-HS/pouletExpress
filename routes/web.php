@@ -100,6 +100,11 @@ Route::middleware('auth:livreur')->prefix('livreur')->group(function () {
     Route::put('/livraison/terminer/{id}', [LivreursController::class, 'terminer_livraison'])->name('Livraison-Terminer');
     Route::post('/actualiser/position/gps', [LivreursController::class, 'actualiser_position_gps'])->middleware('throttle:20,1')->name('Actualiser-Position-gps');
     
+    Route::get('alert/livreur', [LivreursController::class, 'alerte_livreur'])->name('Livreur-Alert');
+    Route::get('demande/retrait/livreur', [LivreursController::class, 'demande_retrait_livreur'])->name('Demande-Retrait-Livreur');
+    Route::Post('nouvelle/demande/retrait/livreur', [LivreursController::class, 'nouvelle_demande_retrait_livreur'])->name('Nouvelle-Demande-Retrait-Livreur');
+    Route::put('update/demande/retrait/livreur', [LivreursController::class, 'update_demande_retrait_livreur'])->name('Update-Demande-Retrait-Livreur');
+
     Route::get('/localisation/produit', [LivreursController::class, 'localisation_produit'])->name('Localisation-Produit-livreur');
     Route::get('/livreur/profil', [LivreursController::class, 'profil_livreur'])->name('Profil-Livreur');
     Route::put('/livreur/profil/update', [AuthLivreurController::class, 'update_profil_livreur'])->name('Livreur-Profil-Update');
@@ -156,6 +161,13 @@ Route::middleware('auth:fournisseur')->prefix('fournisseur')->group(function () 
     Route::get('edit/campagne/fournisseur/{id}', [FournisseurController::class, 'edit_campagne_fournisseur'])->name('Edit-Campagne-Fournisseur');
     Route::put('update/campagne/fournisseur/{id}', [FournisseurController::class, 'update_campagne_fournisseur'])->name('Update-Campagne-Fournisseur');
     Route::delete('delete/campagne/fournisseur/{id}', [FournisseurController::class, 'supprimer_campagne_fournisseur'])->name('Delete-Campagne-Fournisseur');
+    
+    Route::get('alert/commande', [FournisseurController::class, 'alerte_fournisseur'])->name('Commande-Alert');
+
+    Route::get('demande/retrait/fournisseur', [FournisseurController::class, 'demande_retrait_fournisseur'])->name('Demande-Retrait-Fournisseur');
+    Route::Post('nouvelle/demande/retrait/fournisseur', [FournisseurController::class, 'nouvelle_demande_retrait_fournisseur'])->name('Nouvelle-Demande-Retrait-Fournisseur');
+    Route::put('update/demande/retrait/fournisseur', [FournisseurController::class, 'update_demande_retrait_fournisseur'])->name('Update-Demande-Retrait-Fournisseur');
+
 
   });
 

@@ -21,6 +21,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class CommandeLivreurResource extends Resource
 {
@@ -28,12 +29,15 @@ class CommandeLivreurResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string | UnitEnum | null $navigationGroup = 'GESTION COMMANDE';
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $recordTitleAttribute = 'statut';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
-            
+         
             ->components([
                 Select::make('quartier')
                     ->relationship('quartier', 'nom_quartier')
@@ -48,8 +52,11 @@ class CommandeLivreurResource extends Resource
                     ->required(),
                 Select::make('statut')
                     ->options([
-                        "Recherche d'un livreur"=>"Recherche d'un livreur",
-                        "Livreur assigné"=>"Livreur assigné"
+                        "EN_ATTENTE"=>"En attente d'un Livreur",
+                        "AFFECTEE"=>"Livreur assigné",
+                        "RECUPEREE"=>"Commande recuperée",
+                        "EN_ROUTE"=>"Livreur en route pour livrer",
+                        "LIVREE"=>"Commande livrée au client",
                     ])
                     ->required(),
                 DateTimePicker::make('date_affectation')

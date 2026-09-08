@@ -6,9 +6,14 @@ use App\Models\Approvisionnement;
 use App\Models\CampagnePromotion;
 use App\Models\Categorie;
 use App\Models\CommandeClient;
+use App\Models\DemandeRetrait;
+use App\Models\Fournisseur;
+use App\Models\FournisseurSolde;
+use App\Models\GestionnaireSolde;
 use App\Models\Produit;
 use App\Models\ProduitFournisseur;
 use App\Models\Quartier;
+use App\Models\StatutCommande;
 use App\Models\Taille;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -172,24 +177,6 @@ class FournisseurController extends Controller
 }
 
 
-    // public function commande_fournisseur(Request $request)
-    // {
-    //     $fournisseur = Auth::guard('fournisseur')->user();
-    //     // $commandes = CommandeClient::with('client','detailCommandeClients')
-    //     //                             ->where('fournisseur_id', $fournisseur->id)
-    //     //                              ->get();
-    //      $query = CommandeClient::where('fournisseur_id',  $fournisseur->id)
-    //                        ->with('client', 'detailCommandeClients');
-    // // On applique le filtre si ce n'est pas "TOUTES"
-    // if ($request->filled('statut') && $request->statut !== 'TOUTES') {
-    //     $query->where('statut', $request->statut);
-    // }
-    // $commandes = $query->orderBy('created_at', 'desc')->get();
-   
-
-    // return view('fournisseurs.commande', compact('commandes'));
-    // }
-
     public function commande_fournisseur(Request $request)
 {
     $fournisseurId = Auth::guard('fournisseur')->id();
@@ -293,16 +280,153 @@ class FournisseurController extends Controller
     ]);
 }
 
+    public function alerte_fournisseur()
+{
+    $fournisseurUser = Auth::guard('fournisseur')->user();
+
+    $nouvelleCommande = CommandeClient::where('statut', "NOUVEAU")
+                ->where('fournisseur_id', $fournisseurUser->id)
+                ->count();
+
+
+    return response()->json([
+        'nouvelleCommande' => $nouvelleCommande,
+    ]);
+}
+
+    public function demande_retrait_fournisseur(Request $request)
+    {  
+        $fournisseur = Auth::guard('fournisseur')->user();
+        // $demandes = DemandeRetrait::where('beneficiaire_type', fournisseur::class)
+        //         ->where('beneficiaire_id', $fournisseur->id)
+        //         ->get();
+        //  $query = $fournisseur->demandesRetraits()->latest();
+             $query = DemandeRetrait::where('beneficiaire_type', Fournisseur::class)
+                                    ->where('beneficiaire_id', $fournisseur->id)
+                                    ->latest();
+        // Si le fournisseur a utilisé le filtre "Date"
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        // Si le fournisseur a utilisé le filtre "Statut"
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+        // On exécute la requête
+        $demandes = $query->get();
+        $demandes = $query->paginate(10)->withQueryString();
+
+        return view('fournisseurs.demande_retrait',compact('demandes','fournisseur'));
+    }
+    public function nouvelle_demande_retrait_fournisseur(Request $request)
+    {  
+    
+        $fournisseur = Auth::guard('fournisseur')->user();
+        // 1. Validation stricte des données envoyées par le Modal
+        $request->validate([
+            'montant' => 'required|numeric|min:1000|max:' . $fournisseur->compte,
+            'mode_paiement' => 'required|string',
+            'numero_paiement' => 'required|string',
+        ]);
+        // 2. Sécurité Ultime : on vérifie que le fournisseur ne "triche" pas en modifiant le HTML
+        if ($fournisseur->compte < $request->montant) {
+            return back()->with('error', 'Fonds insuffisants sur votre compte.');
+        }
+        // 3. Création automatique grâce à la relation polymorphique !
+        DemandeRetrait::create([
+            'beneficiaire_type' => Fournisseur::class,
+            'beneficiaire_id'   => $fournisseur->id,
+            'montant' => $request->montant,
+            'mode_paiement' => $request->mode_paiement,
+            'numero_paiement' => $request->numero_paiement,
+            'statut' => 'EN_ATTENTE',
+        ]);
+        /* 
+        NOTE : Si vous voulez déduire l'argent du solde TOUT DE SUITE 
+        avant même que l'admin ne valide, décommentez ces lignes :
+        $livreur->compte -= $request->montant;
+        $livreur->save();
+        */
+        return back()->with('success', 'Votre demande de retrait a été soumise avec succès.');
+    
+    }
+
+    public function update_demande_retrait_fournisseur(Request $request)
+    {
+        $fournisseur = Auth::guard('fournisseur')->user();
+        $request->validate([
+            'demande_id' => 'required|exists:demande_retraits,id',
+            'montant' => 'required|numeric|min:1000',
+            'mode_paiement' => 'required|string|in:wave,mobile,espece',
+            'numero_paiement' => 'required|string',
+        ]);
+
+        $demande = DemandeRetrait::where('beneficiaire_type', Fournisseur::class)
+                                    ->where('beneficiaire_id', $fournisseur->id)
+                                    ->findOrFail($request->demande_id);
+
+        // $demande = $fournisseur->demandesRetraits()->findOrFail($request->demande_id);
+        // 2. Sécurité : Interdire la modification si la demande est déjà payée ou rejetée
+        if ($demande->statut !== 'EN_ATTENTE') {
+            return back()->with('error', 'Modification impossible : cette demande est déjà en cours de traitement ou terminée.');
+        }
+        // 3. Sécurité : Vérifier à nouveau le plafond du solde
+        if ($fournisseur->compte < $request->montant) {
+            return back()->with('error', 'Fonds insuffisants pour ce nouveau montant.');
+        }
+        // 4. On met à jour
+        $demande->update([
+            'montant' => $request->montant,
+            'mode_paiement' => $request->mode_paiement,
+            'numero_paiement' => $request->numero_paiement,
+        ]);
+        return back()->with('success', 'Votre demande de retrait a été mise à jour.');
+    }
+
+        //valider la recuperation de la commande par le livreur
 
     public function commande_livree_fournisseur(int $id)
     {
         $fournisseur = Auth::guard('fournisseur')->user();
 
         $commande = CommandeClient::where('id', $id)
-            ->where('fournisseur_id', $fournisseur->id)
-            ->firstOrFail();
+                                ->where('fournisseur_id', $fournisseur->id)
+                                ->firstOrFail();
+        if ($commande->cmmd_livre_fournisseur !=0) {
+               return back()->with("success : Cette commande a déjà été marquée comme livrée par le fournisseur.");
+            }
 
         $commande->update(['cmmd_livre_fournisseur' => 1, 'date_cmmd_livre_fournisseur'=>now()]);
+
+         StatutCommande::create([
+                'statut'             => 'LIVREE PAR FOURNISSEUR',
+                'commande_client_id' => $commande->id, 
+                'type'               => 'FOURNISSEUR',
+                'typeId'             => Auth::id(),
+            ]);
+
+        // $tauxCommission = 0.10; // 10%, configurable
+        // $commission = round($commande->montant_brut * $tauxCommission);
+        // $montant = $commande->montant_brut - $commission;
+
+        // FournisseurSolde::create([
+        //         'statut' => 'EN_ATTENTE', 
+        //         'commande_client_id' => $id,
+        //         'fournisseur_id' => $fournisseur->id,
+        //         'montant' => $montant,
+        //         'disponible_le' => now()->addHours(24),
+
+        //     ]);
+
+        // GestionnaireSolde::create([
+        //             'debiteur_type' => Fournisseur::class,
+        //             'debiteur_id'   => $fournisseur->id,
+        //             'statut' => 'EN_ATTENTE', 
+        //             'commande_client_id' => $id,
+        //             'montant' => $commission,
+        //             'disponible_le' => now()->addHours(24),
+        //             'details' => 'Commission sur commande fournisseur (10%)',
+        //         ]);
 
         return redirect()->back()->with('success', 'Merci ! Votre commande a été marquée comme récupérée.');
     }
@@ -800,6 +924,8 @@ public function post_campagne_fournisseur(Request $request)
         
         return redirect()->back()->with('success', 'La campagne a été supprimée définitivement.');
     }
+
+
 
 
 

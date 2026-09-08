@@ -36,8 +36,8 @@ class EntrepriseResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string | UnitEnum | null $navigationGroup = 'GESTION';
-    protected static ?int $navigationSort = 4;
+    protected static string | UnitEnum | null $navigationGroup = 'ADMINISTRATION';
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $recordTitleAttribute = 'nom';
 
@@ -100,6 +100,8 @@ class EntrepriseResource extends Resource
                     ->label('Email address'),
                 TextEntry::make('site_web')
                     ->label('Site Web'),
+                TextEntry::make('compte')
+                    ->label('Compte'),
                 ImageEntry::make('logo')
                     ->disk('public')
                     ->imageWidth(200)
@@ -146,8 +148,8 @@ class EntrepriseResource extends Resource
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                // TextColumn::make('site_web')
-                //     ->searchable(),
+                TextColumn::make('compte')
+                    ->searchable(),
                 IconColumn::make('status')
                     ->boolean(),
                 // TextColumn::make('user_id')

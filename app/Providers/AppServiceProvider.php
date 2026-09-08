@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
          Schema::defaultStringLength(191);
          View::composer('*', function ($view) {
         $view->with('cartCount', app(CartService::class)->count());
+        
     });
     }
 }

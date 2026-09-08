@@ -18,9 +18,42 @@
         <span class="material-symbols-outlined">light_mode</span>
       </button>
 
-      <button class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition relative">
+      {{-- <button class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition relative">
         <span class="material-symbols-outlined">notifications</span>
         <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-orange-600"></span>
-      </button>
+      </button> --}}
+
+<div class="relative inline-block">
+    
+    <!-- Votre bouton original (avec l'ajout du onclick) -->
+    <button onclick="document.getElementById('notif-dropdown-livreur').classList.toggle('hidden')" class="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition relative cursor-pointer">
+        <span class="material-symbols-outlined">notifications</span>
+        
+        <!-- Votre pastille Orange (modifiée pour afficher le chiffre) -->
+        <span id="badge-notif-livreur" class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-orange-600 rounded-full hidden">
+            0
+        </span>
+    </button>
+
+    <!-- Le Menu Déroulant (Adapté avec vos couleurs Slate) -->
+    <div id="notif-dropdown-livreur" class="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 hidden z-50 overflow-hidden">
+        
+        <div class="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-white">Missions disponibles</h3>
+        </div>
+        
+        <div class="p-4 text-center">
+            <p id="notif-message-livreur" class="text-sm text-slate-500 dark:text-slate-400">
+                Aucune livraison disponible pour le moment.
+            </p>
+        </div>
+        
+        <a href="{{route('Livreur-Espace')}}" class="block w-full text-center p-3 text-sm font-bold text-orange-600 dark:text-orange-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            Voir livraison disponible
+        </a>
+    </div>
+</div>
+
+
     </div>
   </header>

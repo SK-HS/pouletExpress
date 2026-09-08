@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\CommandeClient;
 use App\Models\CommandeLivreur;
+use App\Models\Fournisseur;
 use App\Models\FournisseurSolde;
+use App\Models\GestionnaireSolde;
+use App\Models\Livreur;
+use App\Models\LivreurSolde;
 use App\Models\Quartier;
 use App\Models\StatutCommande;
 use Illuminate\Http\Request;
@@ -356,6 +360,13 @@ public function espace_client(Request $request)
                     'message' => 'Vous avez déjà validé la réception de cette commande.'
                 ];
             }
+
+            if (!in_array($commande->statut, ['RECUPEREE', 'EN_ROUTE', 'LIVREE'])) {
+                return [
+                    'success' => false,
+                    'message' => "Impossible de valider : la commande n'est pas encore en cours de livraison (statut : {$commande->statut})."
+                ];
+            }
  
             // 3. Mise à jour de la commande
             $commande->update([
@@ -372,18 +383,73 @@ public function espace_client(Request $request)
                 'typeId' => $client->id, 
             ]);
 
-            // 5. Calcul de l'argent dû au fournisseur (Uniquement le prix des PRODUITS)
-            $montant_fournisseur = $commande->detailCommandeClients()
-                ->where('type', 'PRODUIT') 
-                ->sum('montant');
+            // ============================================================
+            // COMMISSION FOURNISSEUR (10% sur le montant brut produits)
+            // ============================================================
 
-            // 6. Mise à jour du solde du fournisseur
-            FournisseurSolde::create([
+        if ($commande->montant_brut > 0) {
+            $tauxCommissionF = 0.10; // 10%, configurable
+            $commissionF = round($commande->montant_brut * $tauxCommissionF);
+            $montantF = $commande->montant_brut - $commissionF;
+
+        FournisseurSolde::create([
                 'statut' => 'EN_ATTENTE', 
-                'commande_client_id' => $commande->id,
+                'commande_client_id' => $id,
                 'fournisseur_id' => $commande->fournisseur_id,
-                'montant' => $montant_fournisseur, // L'argent est sécurisé ici !
+                'montant' => $montantF,
+                'disponible_le' => now()->addHours(24),
+
             ]);
+
+        GestionnaireSolde::create([
+                    'debiteur_type' => Fournisseur::class,
+                    'debiteur_id'   => $commande->fournisseur_id,
+                    'statut' => 'EN_ATTENTE', 
+                    'commande_client_id' => $id,
+                    'montant' => $commissionF,
+                    'disponible_le' => now()->addHours(24),
+                    'details' => 'Commission sur commande fournisseur (10%)',
+                ]);
+            }
+
+            // ============================================================
+            // COMMISSION LIVREUR (5% sur les frais de service)
+            // ============================================================
+
+            $montant_livraison = $commande->detailCommandeClients()
+                                        ->where('type', 'SERVICE') 
+                                        ->sum('montant');
+
+            $commandeLivreur = CommandeLivreur::where('commande_client_id', $id)
+                                            ->lockForUpdate()
+                                            ->first();
+
+        if ($commandeLivreur && $montant_livraison > 0){
+            
+            $tauxCommissionL = 0.05; // 5%, configurable
+            $commissionL = round($montant_livraison * $tauxCommissionL);
+            $montantL = $montant_livraison - $commissionL;
+
+            LivreurSolde::create([
+                    'statut' => 'EN_ATTENTE', 
+                    'commande_livreur_id' => $commandeLivreur->id,
+                    'montant' => $montantL,
+                    'livreur_id' => $commande->livreur_id,
+                    'disponible_le' => now()->addHours(24),
+                ]);
+
+            GestionnaireSolde::create([
+                    'debiteur_type' => Livreur::class,
+                    'debiteur_id'   => $commande->livreur_id,
+                    'statut' => 'EN_ATTENTE', 
+                    'commande_client_id' => $id,
+                    'montant' => $commissionL,
+                    'disponible_le' => now()->addHours(24),
+                    'details' => 'Commission sur livraison commande (5%)',
+                ]);
+
+            }
+                
 
             return ['success' => true, 'message' => 'Commande reçue et validée avec succès. Merci !'];
         });

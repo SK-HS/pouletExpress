@@ -40,7 +40,7 @@
                 <div class="flex justify-between items-start gap-4">
                     <div>
                         <h3 class="font-body-md-bold cursor-pointer hover:text-primary leading-tight" onclick="window.location.href='{{ route('Detail-Produit', $item['produit']->id) }}'">{{ $nomProduit }}</h3>
-                        <p class="text-label-sm text-on-surface-variant mt-1">Poids approx. {{ number_format($item['produit']->taille?->taille ?? 0) }}kg</p>
+                        <p class="text-label-sm text-on-surface-variant mt-1">Poids approx. {{ $item['produit']->taille?->taille }}kg</p>
                         
                         <!-- CONTENEUR DES MESSAGES PROMOS (Géré par JS) -->
                         <div class="js-promo-messages" data-produit-id="{{ $item['produit']->id }}">
@@ -290,7 +290,44 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             const produitId = btn.getAttribute('data-produit-id');
             if(confirm('Voulez-vous retirer cet article de votre panier ?')) {
-                updateItem(produitId, 0); 
+                updateItem(produitId, 0);
+                 fetch('/panier/retirer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ produit_id: produitId }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (!data.success) return;
+
+                    const card = document.querySelector(`.cart-item[data-produit-id="${produitId}"]`);
+                    if (card) card.remove();
+
+                    const sousTotalEl = document.getElementById('sous_total');
+                    if (sousTotalEl) {
+                        sousTotalEl.dataset.value = data.total;
+                        sousTotalEl.textContent = formatMontant(data.total) + ' FCFA';
+                    }
+
+                    const itemsCountEl = document.getElementById('items_count');
+                    if (itemsCountEl) itemsCountEl.textContent = data.count;
+
+                    recalculerTotal();
+
+                    const cartBadge = document.getElementById('cartCountBadge');
+                    if (cartBadge) {
+                        cartBadge.textContent = data.count;
+                        cartBadge.style.display = data.count === 0 ? 'none' : 'flex';
+                    }
+
+                    if (data.count === 0) {
+                        setTimeout(() => location.reload(), 300);
+                    }
+                })
+                .catch((error) => console.error('Erreur lors de la suppression:', error)); 
             }
         });
     });

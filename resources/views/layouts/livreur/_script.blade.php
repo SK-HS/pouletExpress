@@ -149,3 +149,62 @@ function initStatusToggle(initialStatus) {
 }
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    let anciennesMissions = 0; 
+
+    function faireUnBip() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return; 
+        
+        const ctx = new AudioContext();
+        const oscillateur = ctx.createOscillator();
+        const volume = ctx.createGain();
+        
+        oscillateur.type = 'sine'; 
+        // J'ai mis une fréquence légèrement différente (plus grave) pour différencier le son du livreur
+        oscillateur.frequency.value = 600; 
+        volume.gain.value = 0.5; 
+        
+        oscillateur.connect(volume);
+        volume.connect(ctx.destination);
+        
+        oscillateur.start();
+        oscillateur.stop(ctx.currentTime + 0.3); 
+    }
+
+    function verifierMissionsLivreur() {
+        
+        fetch('{{ route('Livreur-Alert') }}')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('badge-notif-livreur');
+                const messageDiv = document.getElementById('notif-message-livreur');
+                
+                // ATTENTION : Ici on utilise data.commandes car c'est ce que votre PHP renvoie !
+                const nbActuel = data.comandedispos; 
+                
+                if (nbActuel > anciennesMissions) {
+                    faireUnBip(); 
+                }
+                anciennesMissions = nbActuel;
+                
+                if (nbActuel > 0) {
+                    badge.textContent = nbActuel;
+                    badge.classList.remove('hidden');
+                    // Texte adapté au livreur
+                    messageDiv.innerHTML = `Vous avez <strong class="text-status-error">${nbActuel} livraison(s) disponible(s)</strong> près de vous !`;
+                } else {
+                    badge.classList.add('hidden');
+                    messageDiv.innerHTML = "Aucune livraison disponible pour le moment.";
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+
+    verifierMissionsLivreur();
+    setInterval(verifierMissionsLivreur, 5000); 
+});
+</script>
+

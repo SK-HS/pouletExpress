@@ -58,6 +58,10 @@
             <h4 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
                 {{ number_format( $fournisseur->compte, 0, ',', ' ') }}
             </h4>
+             <a href="{{route('Demande-Retrait-Fournisseur')}}" class="w-full py-2.5 bg-orange-600 hover:bg-orange-500 hover:bg-primary/30 backdrop-blur-sm rounded-xl text-white font-bold text-sm transition flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined text-sm">payments</span>
+                Demander retrait
+                </a>
         </div>
 
         {{-- Ventes totales --}}

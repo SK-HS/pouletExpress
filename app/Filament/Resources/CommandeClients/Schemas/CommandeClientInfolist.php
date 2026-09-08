@@ -69,6 +69,7 @@ class CommandeClientInfolist
                             TableColumn::make('PRIX'),
                             TableColumn::make('TOTAL'),
                         ])
+                    
                     ->schema([
                         TextEntry::make('id')
                             ->label('Désignation')
@@ -95,11 +96,45 @@ class CommandeClientInfolist
                      ->table([
                             TableColumn::make('DATE'),
                             TableColumn::make('STATUT'),
+                            TableColumn::make('OPERATEUR'),
+                            TableColumn::make('OPERATEUR NOM'),
                         ])
                     ->schema([
                         TextEntry::make('created_at')
                                 ->dateTime('j M ,Y à H:i:s'),
-                        TextEntry::make('statut'),
+                        TextEntry::make('statut')
+                         ->badge() 
+                        ->color(fn ($state) => match($state) {
+                            'RECEPTIONNEE'  => 'success',
+                            'LIVREE_PAR_FOURNISSEUR'    => 'success',
+                            'EN_ROUTE'      => 'info',
+                            'RECUPEREE'     => 'warning',
+                            'AFFECTEE'      => 'warning',
+                            'EN_ATTENTE'    => 'gray',
+                            default         => 'gray',
+                        }),
+                        TextEntry::make('type'),
+                        TextEntry::make('typeId')
+                            ->label('Opérateur')
+                            ->formatStateUsing(function ($state, $record) {
+                                return match($record->type) {
+                                  'CLIENT' => (function() use ($record) {
+                                        $p = \App\Models\Client::find($record->typeId);
+                                      return $p ? "{$p->nom} - ({$p->telephone})" : 'Client introuvable'; })(),
+                                  'LIVREUR' => (function() use ($record) {
+                                        $p = \App\Models\Livreur::find($record->typeId);
+                                      return $p ? "{$p->nom} - ({$p->telephone})" : 'Livreur introuvable'; })(),
+
+                                    'FOURNISSEUR' => (function() use ($record) {
+                                        $p = \App\Models\Fournisseur::find($record->typeId);
+                                        return $p ? "{$p->nom} - ({$p->telephone})" : 'Fournisseur introuvable';  })(),
+
+                                
+                                    'ADMINISTRATEUR' => \App\Models\User::find($record->typeId)?->name ?? 'Admin introuvable',
+                                      default          => $record->type,
+                                };
+                            }),
+
                     ])
                     ->columns(2)
             ]);

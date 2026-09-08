@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\CommandeClient;
 use App\Models\CommandeLivreur;
-use App\Models\DetailCommandeClient;
+use App\Models\DemandeRetrait;
+use App\Models\GestionnaireSolde;
+use App\Models\Livreur;
 use App\Models\LivreurSolde;
 use App\Models\Quartier;
 use App\Models\StatutCommande;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class LivreursController extends Controller
 {
+
+
     /**
      * Rayon maximum (en km) pour qu'une commande soit visible par un livreur
      */
@@ -48,48 +53,55 @@ class LivreursController extends Controller
  
     // ── Statistiques du jour ──
     $livraisonsJour = CommandeLivreur::where('livreur_id', $livreur->id)
-        ->where('statut', 'LIVREE')
-        ->whereDate('date_arrivee', $today)
-        ->count();
+                                        ->where('statut', 'LIVREE')
+                                        ->whereDate('date_arrivee', $today)
+                                        ->count();
  
     $livraisonsTotal = CommandeLivreur::where('livreur_id', $livreur->id)
-        ->where('statut', 'LIVREE')
-        ->count();
+                                        ->where('statut', 'LIVREE')
+                                        ->count();
  
     // Distance du jour (somme des distances des livraisons terminées aujourd'hui)
     $distanceJour = CommandeLivreur::where('livreur_id', $livreur->id)
-        ->where('statut', 'LIVREE')
-        ->whereDate('date_arrivee', $today)
-        ->sum('distance');
- 
+                                    ->where('statut', 'LIVREE')
+                                    ->whereDate('date_arrivee', $today)
+                                    ->sum('distance');
+                            
     // Gains du jour (montant_ttc des commandes livrées aujourd'hui)
     $gainJour = CommandeClient::whereHas('livraison', function ($q) use ($livreur, $today) {
-            $q->where('livreur_id', $livreur->id)
-              ->where('statut', 'LIVREE')
-              ->whereDate('date_arrivee', $today);
-        })
-        ->sum('montant_ttc');
+                                $q->where('livreur_id', $livreur->id)
+                                ->where('statut', 'LIVREE')
+                                ->whereDate('date_arrivee', $today);
+                            })
+                            ->sum('montant_ttc');
  
     // Gains totaux
     $gainTotal = CommandeClient::whereHas('livraison', function ($q) use ($livreur) {
             $q->where('livreur_id', $livreur->id)->where('statut', 'LIVREE');
-        })
-        ->sum('montant_ttc');
+            })
+            ->sum('montant_ttc');
   
     // Note moyenne (à adapter si tu as une table d'avis)
     $note = '—'; // remplace par la vraie note si tu as un système d'avis
- 
-    return view('livreur.index', compact(
-        'commandesDisponibles',
-        'commandesEnCours',
-        'livraisonsJour',
-        'livraisonsTotal',
-        'distanceJour',
-        'gainJour',
-        'gainTotal',
-        'note'
-    ));
-}
+
+    $soldeDisponible = LivreurSolde::where('livreur_id', $livreur->id)
+                                    ->where('statut', 'DISPONIBLE')
+                                    ->sum('montant');
+
+    $soldeEnAttente = LivreurSolde::where('livreur_id', $livreur->id)
+                                    ->where('statut', 'EN_ATTENTE')
+                                    ->sum('montant');
+    $soldePaye = LivreurSolde::where('livreur_id', $livreur->id)
+                                ->where('statut', 'PAYE')
+                                ->sum('montant');
+    
+        return view('livreur.index', compact(
+                'commandesDisponibles', 'commandesEnCours',
+                'livraisonsJour', 'livraisonsTotal',
+                'distanceJour', 'gainJour', 'gainTotal', 'note',
+                'soldeDisponible', 'soldeEnAttente','soldePaye',
+            ));
+    }
 
 
     public function profil_livreur()
@@ -134,33 +146,91 @@ class LivreursController extends Controller
     ]);
 }
 
-    // public function livreur_commandes()
-    // {   
-        
-    //    $livreur = Auth::guard('livreur')->user();
- 
-    // $commandes = CommandeClient::with([
-    //         'client',
-    //         'fournisseur',
-    //         'quartier',
-    //         'livraison',
-    //         'detailCommandeClients',
-            
-    //     ])
-    //     ->whereHas('livraison', function ($q) use ($livreur) {
-    //         $q->where('livreur_id', $livreur->id);
-    //     })
-    //     ->orderBy('created_at', 'desc')
-    //     ->paginate(20);
- 
-    // // Ajoute le statut de livraison comme attribut accessible dans la vue
-    // $commandes->each(function ($cmd) {
-    //     $cmd->statut_livraison = $cmd->livraison?->statut ?? 'AFFECTEE';
-    // });
-    //     return view('livreur.commande_livreur', [
-    //         'commandes' => $commandes,
-    //     ]);
-    // }
+    public function demande_retrait_livreur(Request $request)
+    {  
+        $livreur = Auth::guard('livreur')->user();
+        $query = DemandeRetrait::where('beneficiaire_type', Livreur::class)
+                ->where('beneficiaire_id', $livreur->id)
+                ->latest();
+        //  $query = $livreur->demandesRetraits()->latest();
+        // Si le livreur a utilisé le filtre "Date"
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        // Si le livreur a utilisé le filtre "Statut"
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+        // On exécute la requête
+        $demandes = $query->get();
+        $demandes = $query->paginate(10)->withQueryString();
+
+        return view('livreur.demande_retrait',compact('demandes','livreur'));
+    }
+    public function nouvelle_demande_retrait_livreur(Request $request)
+    {  
+    
+        $livreur = Auth::guard('livreur')->user();
+        // 1. Validation stricte des données envoyées par le Modal
+        $request->validate([
+            'montant' => 'required|numeric|min:1000|max:' . $livreur->compte,
+            'mode_paiement' => 'required|string',
+            'numero_paiement' => 'required|string',
+        ]);
+        // 2. Sécurité Ultime : on vérifie que le livreur ne "triche" pas en modifiant le HTML
+        if ($livreur->compte < $request->montant) {
+            return back()->with('error', 'Fonds insuffisants sur votre compte.');
+        }
+        // 3. Création automatique grâce à la relation polymorphique !
+        DemandeRetrait::create([
+            'beneficiaire_type' => Livreur::class,
+            'beneficiaire_id'   => $livreur->id,
+            'montant' => $request->montant,
+            'mode_paiement' => $request->mode_paiement,
+            'numero_paiement' => $request->numero_paiement,
+            'statut' => 'EN_ATTENTE',
+        ]);
+        /* 
+        NOTE : Si vous voulez déduire l'argent du solde TOUT DE SUITE 
+        avant même que l'admin ne valide, décommentez ces lignes :
+        $livreur->compte -= $request->montant;
+        $livreur->save();
+        */
+        return back()->with('success', 'Votre demande de retrait a été soumise avec succès.');
+    
+    }
+
+    public function update_demande_retrait_livreur(Request $request)
+    {
+        $livreur = Auth::guard('livreur')->user();
+        $request->validate([
+            'demande_id' => 'required|exists:demande_retraits,id',
+            'montant' => 'required|numeric|min:1000',
+            'mode_paiement' => 'required|string|in:wave,mobile,espece',
+            'numero_paiement' => 'required|string',
+        ]);
+
+        $demande = DemandeRetrait::where('beneficiaire_type', Livreur::class)
+                                    ->where('beneficiaire_id', $livreur->id)
+                                    ->findOrFail($request->demande_id);
+
+        // $demande = $livreur->demandesRetraits()->findOrFail($request->demande_id);
+        // 2. Sécurité : Interdire la modification si la demande est déjà payée ou rejetée
+        if ($demande->statut !== 'EN_ATTENTE') {
+            return back()->with('error', 'Modification impossible : cette demande est déjà en cours de traitement ou terminée.');
+        }
+        // 3. Sécurité : Vérifier à nouveau le plafond du solde
+        if ($livreur->compte < $request->montant) {
+            return back()->with('error', 'Fonds insuffisants pour ce nouveau montant.');
+        }
+        // 4. On met à jour
+        $demande->update([
+            'montant' => $request->montant,
+            'mode_paiement' => $request->mode_paiement,
+            'numero_paiement' => $request->numero_paiement,
+        ]);
+        return back()->with('success', 'Votre demande de retrait a été mise à jour.');
+    }
 
     public function livreur_commandes(Request $request)
 {   
@@ -283,14 +353,14 @@ class LivreursController extends Controller
             'commandes' => $this->getCommandesDisponibles(),
         ]);
     }
-    //   public function livreur_commandes_disponibles($lat, $lon)
-    // {
-    //      $latLivreur = request('lat');
-    //     $lngLivreur = request('lng');
-    //      return response()->json([
-    //         'commandes' => $this->getCommandesDisponibles(),
-    //     ]);
-    // }
+      public function alerte_livreur()
+    {
+        $commande = $this->getCommandesDisponibles();
+        $comandedispos = count($commande);
+         return response()->json([
+            'comandedispos' => $comandedispos,
+        ]);
+    }
 
   public function Livreur_accepter_commande(Request $request, int $id)
 {
@@ -302,8 +372,8 @@ class LivreursController extends Controller
             // 1. Verrouillage : On cherche la commande sans préciser 'livreur_id' 
             // car elle n'appartient encore à personne (ou elle est diffusée)
             $commandeLivreur = CommandeLivreur::where('id', $id)
-                ->lockForUpdate()
-                ->firstOrFail();
+                                            ->lockForUpdate()
+                                            ->firstOrFail();
 
             // 2. ANTI-COLLISION CRITIQUE : Vérifie si un autre l'a déjà prise
             if ($commandeLivreur->statut !== 'EN_ATTENTE') {
@@ -318,11 +388,11 @@ class LivreursController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // 4. Mises à jour : On affecte officiellement la commande à CE livreur
+         
             $commandeLivreur->update([
-                'statut' => 'AFFECTEE', // Ou 'ACCEPTEE' selon le terme que vous utilisez
+                'statut' => 'AFFECTEE', 
                 'livreur_id' => $livreur->id,
-                // 'date_acceptation' => now(), // (Optionnel si vous avez cette colonne)
+                'date_affectation' => now(), 
             ]);
             
             $commande->update([
@@ -330,7 +400,7 @@ class LivreursController extends Controller
                 'livreur_id' => $livreur->id,
             ]);
 
-            // 5. Historique
+            
             StatutCommande::create([
                 'statut' => 'AFFECTEE',
                 'commande_client_id' => $commande->id,
@@ -338,29 +408,32 @@ class LivreursController extends Controller
                 'typeId' => $livreur->id,
             ]);
 
+    
             return ['success' => true, 'message' => 'Commande acceptée avec succès !'];
         });
-
-        // 6. Retours propres
+ 
         if ($request->wantsJson() || $request->ajax()) {
-            if (!$resultat['success']) {
-                return response()->json($resultat, 400); // 400 Bad Request
-            }
-            return response()->json($resultat);
+            return response()->json($resultat, $resultat['success'] ? 200 : 400);
         }
-
-        if (!$resultat['success']) {
-            return redirect()->back()->with('error', $resultat['message']);
-        }
-        return redirect()->back()->with('success', $resultat['message']);
-
+ 
+        return $resultat['success']
+            ? redirect()->back()->with('success', $resultat['message'])
+            : redirect()->back()->with('error', $resultat['message']);
+ 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['success' => false, 'message' => 'Commande introuvable.'], 404);
         }
         return redirect()->back()->with('error', 'Commande introuvable.');
-        
+ 
     } catch (\Exception $e) {
+        // Log systématique — sans ça, un bug de production est invisible
+        Log::error('Erreur acceptation commande livreur', [
+            'livreur_id'  => $livreur->id,
+            'commande_id' => $id,
+            'exception'   => $e->getMessage(),
+        ]);
+ 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['success' => false, 'message' => 'Erreur système lors de l\'acceptation.'], 500);
         }
@@ -368,22 +441,20 @@ class LivreursController extends Controller
     }
 }
 
-
-
     
  public function demarre_livraison(Request $request, int $id)
 {
     $livreur = Auth::guard('livreur')->user();
-
+            //dd( $livreur);
     try {
         $resultat = DB::transaction(function () use ($id, $livreur) {
             
             // 1. Verrouillage & Sécurité : On force 'livreur_id' pour être sûr 
             // qu'un livreur ne démarre pas la commande de quelqu'un d'autre !
             $commandeLivreur = CommandeLivreur::where('commande_client_id', $id)
-                ->where('livreur_id', $livreur->id)
-                ->lockForUpdate()
-                ->firstOrFail();
+                                            ->where('livreur_id', $livreur->id)
+                                            ->lockForUpdate()
+                                            ->firstOrFail();
 
             // 2. ANTI DOUBLE-CLIC : Si le livreur a déjà cliqué
             if ($commandeLivreur->statut === 'RECUPEREE') {
@@ -401,14 +472,14 @@ class LivreursController extends Controller
             */
 
             // 3. Verrouillage de la commande client
-            $commande = CommandeClient::where('id', $commandeLivreur->commande_client_id)
-                ->lockForUpdate()
-                ->firstOrFail();
+            $commande = CommandeClient::where('id', $id)
+                                        ->lockForUpdate()
+                                        ->firstOrFail();
 
             // 4. Mise à jour de la table CommandeLivreur
             $commandeLivreur->update([
                 'statut' => 'RECUPEREE',
-                'date_depart' => now(), // Ici, "date_depart" est parfaitement logique (il quitte le fournisseur)
+                'date_recuperation' => now(), 
             ]);
             
             // 5. Mise à jour de la table CommandeClient
@@ -420,38 +491,39 @@ class LivreursController extends Controller
             // 6. Enregistrement de l'historique
             StatutCommande::create([
                 'statut' => 'RECUPEREE',
-                'commande_client_id' => $commande->id,
+                'commande_client_id' => $id,
                 'type' => 'LIVREUR',
-                'typeId' => $livreur->id, // Plus rapide que de rappeler Auth()
+                'typeId' => $livreur->id,
             ]);
 
             return ['success' => true, 'message' => 'Commande récupérée avec succès. En route !'];
         });
 
-        // 7. Retours propres
-        if ($request->wantsJson()) {
-            if (!$resultat['success']) {
-                return response()->json($resultat, 400); // 400 Bad Request
-            }
-            return response()->json($resultat);
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($resultat, $resultat['success'] ? 200 : 400);
         }
-
-        if (!$resultat['success']) {
-            return redirect()->back()->with('error', $resultat['message']);
-        }
-        return redirect()->back()->with('success', $resultat['message']);
-
+ 
+        return $resultat['success']
+            ? redirect()->back()->with('success', $resultat['message'])
+            : redirect()->back()->with('error', $resultat['message']);
+ 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        // La commande n'existe pas ou n'appartient pas à ce livreur
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Commande introuvable ou accès refusé.'], 404);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Commande introuvable.'], 404);
         }
         return redirect()->back()->with('error', 'Commande introuvable.');
-        
+ 
     } catch (\Exception $e) {
-        // En cas de gros plantage de la base de données
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Erreur système lors de la récupération.'], 500);
+        // Log systématique — sans ça, un bug de production est invisible
+        Log::error('Erreur recupeation commande livreur', [
+            'livreur_id'  => $livreur->id,
+            'commande_id' => $id,
+            'exception'   => $e->getMessage(),
+        ]);
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Erreur système lors de l\'acceptation.'], 500);
         }
         return redirect()->back()->with('error', 'Une erreur inattendue est survenue.');
     }
@@ -495,7 +567,7 @@ class LivreursController extends Controller
             // 4. Mise à jour de la table CommandeLivreur
             $commandeLivreur->update([
                 'statut' => 'EN_ROUTE',
-                'date_recuperation' => now(), // Date exacte de la prise en charge
+                'date_depart' => now(), 
             ]);
             
             // 5. Mise à jour de la table CommandeClient
@@ -516,28 +588,32 @@ class LivreursController extends Controller
             return ['success' => true, 'message' => 'Commande en route vers le client !'];
         });
 
-        // 7. Retours propres
-        if ($request->wantsJson()) {
-            if (!$resultat['success']) {
-                return response()->json($resultat, 400); // 400 Bad Request
-            }
-            return response()->json($resultat);
+  
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($resultat, $resultat['success'] ? 200 : 400);
         }
-
-        if (!$resultat['success']) {
-            return redirect()->back()->with('error', $resultat['message']);
-        }
-        return redirect()->back()->with('success', $resultat['message']);
-
+ 
+        return $resultat['success']
+            ? redirect()->back()->with('success', $resultat['message'])
+            : redirect()->back()->with('error', $resultat['message']);
+ 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Commande introuvable ou accès refusé.'], 404);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Commande introuvable.'], 404);
         }
         return redirect()->back()->with('error', 'Commande introuvable.');
-        
+ 
     } catch (\Exception $e) {
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Erreur système lors de la mise en route.'], 500);
+        // Log systématique — sans ça, un bug de production est invisible
+        Log::error('Erreur acceptation commande livreur', [
+            'livreur_id'  => $livreur->id,
+            'commande_id' => $id,
+            'exception'   => $e->getMessage(),
+        ]);
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Erreur système lors de l\'acceptation.'], 500);
         }
         return redirect()->back()->with('error', 'Une erreur inattendue est survenue.');
     }
@@ -604,47 +680,63 @@ class LivreursController extends Controller
                 ->where('type', 'SERVICE') 
                 ->sum('montant');
 
+            $tauxCommission = 0.05; // 5%, configurable
+            // $montant = $montant_livraison * (1 - $tauxCommission);
+            // $commission = $tauxCommission * $montant_livraison;
+            $commission = round($montant_livraison * $tauxCommission);
+            $montant = $montant_livraison - $commission;
+            
             LivreurSolde::create([
-                'statut' => 'EN_ATTENTE', // Correction de la virgule en flèche (=>)
-                'commande_livreur_id' => $commandeLivreur->id,
-                'montant' => $montant_livraison,
-                'livreur_id' => $livreur->id,
-            ]);
+                    'statut' => 'EN_ATTENTE', 
+                    'commande_livreur_id' => $commandeLivreur->id,
+                    'montant' => $montant,
+                    'livreur_id' => $livreur->id,
+                    'disponible_le' => now()->addHours(24),
+                ]);
+
+            GestionnaireSolde::create([
+                    'debiteur_type' => Livreur::class,
+                    'debiteur_id'   => $livreur->id,
+                    'statut' => 'EN_ATTENTE', 
+                    'commande_client_id' => $commandeLivreur->commande_client_id,
+                    'montant' => $commission,
+                    'disponible_le' => now()->addHours(24),
+                    'details' => 'Commission sur livraison commande (5%)',
+                ]);
             
             return ['success' => true, 'message' => 'Commande Livrée avec succès.'];
         });
 
-        // 8. Retourner la réponse proprement
-        if ($request->wantsJson()) {
-            // Si erreur logique (ex: déjà livrée)
-            if (!$resultat['success']) {
-                return response()->json($resultat, 400); // 400 Bad Request
-            }
-            return response()->json($resultat);
+        
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($resultat, $resultat['success'] ? 200 : 400);
         }
-
-        // Si ce n'est pas de l'AJAX
-        if (!$resultat['success']) {
-            return redirect()->back()->with('error', $resultat['message']);
-        }
-        return redirect()->back()->with('success', $resultat['message']);
-
+ 
+        return $resultat['success']
+            ? redirect()->back()->with('success', $resultat['message'])
+            : redirect()->back()->with('error', $resultat['message']);
+ 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        // Gère proprement le cas où firstOrFail() ne trouve rien
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Commande introuvable ou accès refusé.'], 404);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Commande introuvable.'], 404);
         }
         return redirect()->back()->with('error', 'Commande introuvable.');
-        
+ 
     } catch (\Exception $e) {
-        // Sécurité supplémentaire en cas de crash (base de données déconnectée, etc.)
-        if ($request->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Erreur système lors de la validation.'], 500);
+        // Log systématique — sans ça, un bug de production est invisible
+        Log::error('Erreur acceptation commande livreur', [
+            'livreur_id'  => $livreur->id,
+            'commande_id' => $id,
+            'exception'   => $e->getMessage(),
+        ]);
+ 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Erreur système lors de l\'acceptation.'], 500);
         }
         return redirect()->back()->with('error', 'Une erreur inattendue est survenue.');
     }
 }
-
     
 
 protected function getCommandesDisponibles(): array

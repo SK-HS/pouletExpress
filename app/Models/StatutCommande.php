@@ -21,4 +21,6 @@ class StatutCommande extends Model
     {
         return $this->belongsTo(\App\Models\CommandeClient::class, 'commande_client_id');
     }
+
+   
 }

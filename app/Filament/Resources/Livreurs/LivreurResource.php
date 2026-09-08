@@ -32,12 +32,16 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class LivreurResource extends Resource
 {
     protected static ?string $model = Livreur::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'GESTION LIVREURS';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'nom';
 

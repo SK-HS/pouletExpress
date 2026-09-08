@@ -20,18 +20,38 @@ class CartService
     /**
      * Ajoute un produit au panier (ou incrémente sa quantité)
      */
-    public function add(int $produitId, int $quantite = 1): void
+    // public function add(int $produitId, int $quantite = 1): void
+    // {
+    //     $qtemin=ProduitFournisseur::where('id',$produitId)->select('commande_mim');
+    //     $quantite= $qtemin?? $quantite;
+    //     $panier = $this->getRawItems();
+
+    //     if (isset($panier[$produitId])) {
+    //         $panier[$produitId] += $quantite;
+    //     } else {
+    //         $panier[$produitId] = $quantite;
+    //     }
+
+    //     session()->put($this->sessionKey, $panier);
+    // }
+
+        public function add(int $produitId, int $quantite = 1): void
     {
+        $commandeMin = ProduitFournisseur::where('id', $produitId)->value('commande_min');
+        
+        $commandeMin = $commandeMin ? (int) $commandeMin : 1;
+
         $panier = $this->getRawItems();
 
         if (isset($panier[$produitId])) {
             $panier[$produitId] += $quantite;
         } else {
-            $panier[$produitId] = $quantite;
+            $panier[$produitId] = max($quantite, $commandeMin);
         }
 
         session()->put($this->sessionKey, $panier);
     }
+
 
     /**
      * Met à jour la quantité exacte d'un produit

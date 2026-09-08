@@ -20,12 +20,16 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class CommuneResource extends Resource
 {
     protected static ?string $model = Commune::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'ADMINISTRATION';
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'nom_commune';
 

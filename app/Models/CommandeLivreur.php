@@ -57,6 +57,31 @@ class CommandeLivreur extends Model
             }
 
          });
+        //  static::saving(function ($model) {
+
+        //  if($model->commande_client_id && $model->livreur_id)
+        //     {
+
+        //   $commdclient = CommandeClient::lockForUpdate()->findOrFail($model->commande_client_id);
+
+        //             $commdclient->statut = "AFFECTEE";
+        //             $commdclient->livreur_id = $model->livreur_id;
+
+        //             $commdclient->save();
+
+        //             // StatutCommande::create([
+        //             //         'statut' => "AFFECTEE",
+        //             //         'commande_client_id'=>$model->commande_client_id,
+        //             //         'user_id'=>Auth::id(),]);
+        //             StatutCommande::create([
+        //                     'statut' => 'AFFECTEE',
+        //                     'commande_client_id' => $model->commande_client_id,
+        //                     'type' => 'LIVREUR',
+        //                     'typeId' => $model->livreur_id,
+        //                 ]);
+        //     }
+
+        //  });
 
     }
 }

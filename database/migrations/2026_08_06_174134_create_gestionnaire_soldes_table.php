@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('gestionnaire_soldes', function (Blueprint $table) {
             $table->id();
+            $table->morphs('debiteur');
             $table->foreignId('commande_client_id')->nullable()->constrained('commande_clients')->onDelete('Set Null');
             $table->decimal('montant', 12, 2);
             $table->enum('statut', ['EN_ATTENTE', 'DISPONIBLE', 'PAYE']);
             $table->timestamp('disponible_le')->nullable(); // date de déblocage
             $table->timestamp('paye_le')->nullable();
+            $table->text('details')->nullable();
             $table->timestamps();
         });
     }

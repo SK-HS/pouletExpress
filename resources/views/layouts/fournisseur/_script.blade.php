@@ -31,3 +31,71 @@
     }, 5000);
 </script>
 @endif
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    let anciennesCommandes = 0; 
+
+    // Fonction qui crée un véritable "BIP" électronique
+    function faireUnBip() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return; 
+        
+        const ctx = new AudioContext();
+        const oscillateur = ctx.createOscillator();
+        const volume = ctx.createGain();
+        
+        oscillateur.type = 'sine'; 
+        oscillateur.frequency.value = 800; 
+        volume.gain.value = 0.5; 
+        
+        oscillateur.connect(volume);
+        volume.connect(ctx.destination);
+        
+        oscillateur.start();
+        oscillateur.stop(ctx.currentTime + 0.3); 
+    }
+
+    // Fonction qui vérifie les commandes
+    function verifierNotifications() {
+        fetch('{{ route('Commande-Alert') }}')
+            .then(response => response.json())
+            .then(data => {
+                // On récupère les éléments HTML
+                const badge = document.getElementById('badge-notif');
+                const messageDiv = document.getElementById('notif-message');
+                
+                // On récupère le chiffre renvoyé par PHP
+                const nbActuel = data.nouvelleCommande;
+                
+                // 1. Déclenchement du BIP (si augmentation)
+                if (nbActuel > anciennesCommandes) {
+                    faireUnBip(); 
+                }
+                anciennesCommandes = nbActuel;
+                
+                // 2. Mise à jour de l'affichage (Badge + Texte du Menu)
+                if (nbActuel > 0) {
+                    // On affiche le petit point rouge
+                    badge.textContent = nbActuel;
+                    badge.classList.remove('hidden');
+                    
+                    // On affiche le beau texte rouge dans le menu
+                    messageDiv.innerHTML = `Vous avez <strong class="text-status-error">${nbActuel} nouvelle(s) commande(s)</strong> en attente.`;
+                } else {
+                    // On cache le point rouge et on met un texte normal
+                    badge.classList.add('hidden');
+                    messageDiv.innerHTML = "Vous n'avez aucune nouvelle commande.";
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+    }
+
+    // On lance une première vérification au chargement
+    verifierNotifications();
+    
+    // On vérifie ensuite toutes les 5 SECONDES (5000 millisecondes)
+    setInterval(verifierNotifications, 5000); 
+});
+</script>

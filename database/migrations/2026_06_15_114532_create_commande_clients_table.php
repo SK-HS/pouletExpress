@@ -37,7 +37,7 @@ return new class extends Migration
             $table->boolean('commande_recu')->default(0);
             $table->boolean('cmmd_livre_fournisseur')->default(0);
             $table->dateTime('date_commande');
-            $table->dateTime('date_commane_recu')->nullable();
+            $table->dateTime('date_commande_recu')->nullable();
             $table->string('groupe_commande_id')->nullable();
             $table->dateTime('date_cmmd_livre_fournisseur')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

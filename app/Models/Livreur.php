@@ -58,6 +58,16 @@ class Livreur extends Authenticatable
         return $this->hasMany(StatutLivreur::class, 'livreur_id');
     }
 
+    public function demandesRetraits()
+{
+    return $this->morphMany(DemandeRetrait::class, 'beneficiaire');
+}
+    public function gestionnaireSolde()
+{
+    return $this->morphMany(GestionnaireSolde::class, 'debiteur');
+}
+
+
     protected static function booted()
     {
 
@@ -86,13 +96,28 @@ class Livreur extends Authenticatable
         ]);
 
         // 3. Créer l'historique dans 'statut_livreurs'
-        \App\Models\StatutLivreur::create([
+        StatutLivreur::create([
             'livreur_id' => $this->id,
             'user_id'    => Auth::id(), // L'admin connecté
             'statut'     => $data['statut'],
             'motif'      => $data['motif'] ?? null,
             'montant'    => $data['montant'] ?? 0,
-        ]);
+                                ]);
+
+        if($data['montant'] > 0)
+            {
+        GestionnaireSolde::create([
+                    'debiteur_type' => Livreur::class,
+                    'debiteur_id'   => $this->id,
+                    'statut' => 'EN_ATTENTE', 
+                    // 'commande_client_id' => $commandeLivreur->commande_client_id,
+                    'montant' => $data['montant'] ?? 0,
+                    'disponible_le' => now()->addHours(24),
+                    'details' => "Statut : {$data['statut']} \n Motif : {$data['motif']}",
+
+                ]);
+            }
+
     }
 
 }

@@ -57,7 +57,7 @@
             </div>
             <h4 class="text-emerald-100 text-sm font-semibold mb-1 uppercase tracking-wider">Solde du Compte</h4>
             <div class="text-3xl font-extrabold mb-4">{{ number_format($livreur->compte, 0, ',', ' ') }} <span class="text-lg font-bold text-emerald-200">FCFA</span></div>
-            <a href="#" class="w-full py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white font-bold text-sm transition flex justify-center items-center gap-2">
+            <a href="{{route('Demande-Retrait-Livreur')}}" class="w-full py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white font-bold text-sm transition flex justify-center items-center gap-2">
               <span class="material-symbols-outlined text-sm">payments</span>
               Demander un retrait
             </a>

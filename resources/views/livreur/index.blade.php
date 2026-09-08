@@ -6,6 +6,7 @@
     $distanceJour         = $distanceJour ?? 0;
     $gainJour             = $gainJour ?? 0;
     $note                 = $note ?? '—'; 
+    $compteLivreur                 = $livreur->compte ?? 0; 
     $nbEnCours = isset($commandesEnCours) ? count($commandesEnCours) : 0;
     $coursePrioritaire = isset($commandesEnCours) ? $commandesEnCours->first() : null;
     $nbDispos  = count($commandesDisponibles ?? []) ?? 0;
@@ -108,6 +109,77 @@
                 <p class="text-xs font-semibold text-amber-500 mt-1">{{ $note !== '—' ? 'Note très positive' : 'Pas encore d\'avis' }}</p>
             </div>
         </div>
+    </div>
+   {{-- etat solde coures --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Mon Compte</span>
+                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ number_format($compteLivreur, 1) }} <span class="text-sm font-semibold text-slate-500">FCFA</span></h3>
+                <p class="text-xs font-medium text-slate-500 mt-1"></p>
+
+                 <a href="{{route('Demande-Retrait-Livreur')}}" class="w-full py-2.5 bg-orange-600 hover:bg-orange-500 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white font-bold text-sm transition flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined text-sm">payments</span>
+                Demander un retrait
+                </a>
+
+            </div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Solde Paye</span>
+                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ number_format($soldePaye, 0, ',', ' ') }} <span class="text-sm font-semibold text-slate-500">FCFA</span></h3>
+                
+            </div>
+        </div>
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Solde En Attente</span>
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ $soldeEnAttente }} <span class="text-sm font-semibold text-slate-500">FCFA</span></h3>
+                {{-- <p class="text-xs font-medium text-slate-500 mt-1">{{ $soldeEnAttente > 0 ? 'Excellent travail !' : 'Aucune livraison pour l\'instant' }}</p> --}}
+            </div>
+        </div>
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Solde Disponible</span>
+                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ number_format($soldeDisponible, 1) }} <span class="text-sm font-semibold text-slate-500">FCFA</span></h3>
+                <p class="text-xs font-medium text-slate-500 mt-1"></p>
+                
+            </div>
+        </div>
+        {{-- <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Satisfaction</span>
+                <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ $note }} @if($note !== '—')<span class="text-sm font-semibold text-slate-500">/ 5</span>@endif</h3>
+                <p class="text-xs font-semibold text-amber-500 mt-1">{{ $note !== '—' ? 'Note très positive' : 'Pas encore d\'avis' }}</p>
+            </div>
+        </div> --}}
     </div>
 
     {{-- NOUVELLES COMMANDES DISPONIBLES --}}
