@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -100,9 +101,9 @@ Route::middleware('auth:livreur')->prefix('livreur')->group(function () {
     Route::put('/livraison/terminer/{id}', [LivreursController::class, 'terminer_livraison'])->name('Livraison-Terminer');
     Route::post('/actualiser/position/gps', [LivreursController::class, 'actualiser_position_gps'])->middleware('throttle:20,1')->name('Actualiser-Position-gps');
     
-    Route::get('alert/livreur', [LivreursController::class, 'alerte_livreur'])->name('Livreur-Alert');
+   
     Route::get('demande/retrait/livreur', [LivreursController::class, 'demande_retrait_livreur'])->name('Demande-Retrait-Livreur');
-    Route::Post('nouvelle/demande/retrait/livreur', [LivreursController::class, 'nouvelle_demande_retrait_livreur'])->name('Nouvelle-Demande-Retrait-Livreur');
+    Route::Post('nouvelle/demande/retrait/livreur', [LivreursController::class, 'nouvelle_demande_retrait_livreur'])->middleware('throttle:5,60')->name('Nouvelle-Demande-Retrait-Livreur');
     Route::put('update/demande/retrait/livreur', [LivreursController::class, 'update_demande_retrait_livreur'])->name('Update-Demande-Retrait-Livreur');
 
     Route::get('/localisation/produit', [LivreursController::class, 'localisation_produit'])->name('Localisation-Produit-livreur');
@@ -162,12 +163,19 @@ Route::middleware('auth:fournisseur')->prefix('fournisseur')->group(function () 
     Route::put('update/campagne/fournisseur/{id}', [FournisseurController::class, 'update_campagne_fournisseur'])->name('Update-Campagne-Fournisseur');
     Route::delete('delete/campagne/fournisseur/{id}', [FournisseurController::class, 'supprimer_campagne_fournisseur'])->name('Delete-Campagne-Fournisseur');
     
-    Route::get('alert/commande', [FournisseurController::class, 'alerte_fournisseur'])->name('Commande-Alert');
 
     Route::get('demande/retrait/fournisseur', [FournisseurController::class, 'demande_retrait_fournisseur'])->name('Demande-Retrait-Fournisseur');
-    Route::Post('nouvelle/demande/retrait/fournisseur', [FournisseurController::class, 'nouvelle_demande_retrait_fournisseur'])->name('Nouvelle-Demande-Retrait-Fournisseur');
+    Route::Post('nouvelle/demande/retrait/fournisseur', [FournisseurController::class, 'nouvelle_demande_retrait_fournisseur'])->middleware('throttle:5,60')->name('Nouvelle-Demande-Retrait-Fournisseur');
     Route::put('update/demande/retrait/fournisseur', [FournisseurController::class, 'update_demande_retrait_fournisseur'])->name('Update-Demande-Retrait-Fournisseur');
+ 
+    });
 
-
-  });
+         //notification
+    Route::middleware(['auth:client,livreur,fournisseur,web'])->group(function () {
+    Route::get('/notifications/polling', [NotificationController::class, 'polling'])->middleware('throttle:60,1')->name('notifications.polling');
+ 
+    Route::post('/notifications/{id}/lue', [NotificationController::class, 'marquerLue'])->name('notifications.marquer-lue');
+ 
+    Route::post('/notifications/toutes-lues', [NotificationController::class, 'marquerToutesLues'])->name('notifications.marquer-toutes-lues');
+        });
 

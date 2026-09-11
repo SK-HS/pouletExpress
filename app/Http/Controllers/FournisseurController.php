@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class FournisseurController extends Controller
 {
@@ -280,19 +281,7 @@ class FournisseurController extends Controller
     ]);
 }
 
-    public function alerte_fournisseur()
-{
-    $fournisseurUser = Auth::guard('fournisseur')->user();
 
-    $nouvelleCommande = CommandeClient::where('statut', "NOUVEAU")
-                ->where('fournisseur_id', $fournisseurUser->id)
-                ->count();
-
-
-    return response()->json([
-        'nouvelleCommande' => $nouvelleCommande,
-    ]);
-}
 
     public function demande_retrait_fournisseur(Request $request)
     {  
@@ -318,12 +307,13 @@ class FournisseurController extends Controller
 
         return view('fournisseurs.demande_retrait',compact('demandes','fournisseur'));
     }
+
     public function nouvelle_demande_retrait_fournisseur(Request $request)
     {  
     
         $fournisseur = Auth::guard('fournisseur')->user();
         // 1. Validation stricte des données envoyées par le Modal
-        $request->validate([
+       $validated =  $request->validate([
             'montant' => 'required|numeric|min:1000|max:' . $fournisseur->compte,
             'mode_paiement' => 'required|string',
             'numero_paiement' => 'required|string',
@@ -332,55 +322,86 @@ class FournisseurController extends Controller
         if ($fournisseur->compte < $request->montant) {
             return back()->with('error', 'Fonds insuffisants sur votre compte.');
         }
+         try {
+            $demande = DB::transaction(function () use ($validated, $fournisseur, ) {
         // 3. Création automatique grâce à la relation polymorphique !
         DemandeRetrait::create([
             'beneficiaire_type' => Fournisseur::class,
             'beneficiaire_id'   => $fournisseur->id,
-            'montant' => $request->montant,
-            'mode_paiement' => $request->mode_paiement,
-            'numero_paiement' => $request->numero_paiement,
+            'montant' => $validated['montant'],
+            'mode_paiement' => $validated['mode_paiement'],
+            'numero_paiement' => $validated['numero_paiement'],
             'statut' => 'EN_ATTENTE',
         ]);
-        /* 
-        NOTE : Si vous voulez déduire l'argent du solde TOUT DE SUITE 
-        avant même que l'admin ne valide, décommentez ces lignes :
-        $livreur->compte -= $request->montant;
-        $livreur->save();
-        */
-        return back()->with('success', 'Votre demande de retrait a été soumise avec succès.');
+      
+        // $livreur->compte -= $request->montant;
+        // $livreur->save();
+         });
+        // return back()->with('success', 'Votre demande de retrait a été soumise avec succès.');
+
+          return redirect()->back()->with('success', 'Votre demande de retrait a bien été enregistrée.');
+ 
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erreur demande de retrait', [
+                'beneficiaire_type' => $fournisseur,
+                'beneficiaire_id'   => $fournisseur->id,
+                'exception'         => $e->getMessage(),
+            ]);
+            return redirect()->back()->with('error', 'Une erreur est survenue. Réessayez.');
+        }
     
     }
 
     public function update_demande_retrait_fournisseur(Request $request)
     {
         $fournisseur = Auth::guard('fournisseur')->user();
-        $request->validate([
+        $validated = $request->validate([
             'demande_id' => 'required|exists:demande_retraits,id',
             'montant' => 'required|numeric|min:1000',
             'mode_paiement' => 'required|string|in:wave,mobile,espece',
             'numero_paiement' => 'required|string',
         ]);
-
+         try {
+            $demandemodif = DB::transaction(function () use ($validated, $fournisseur, ) {
+                
         $demande = DemandeRetrait::where('beneficiaire_type', Fournisseur::class)
                                     ->where('beneficiaire_id', $fournisseur->id)
-                                    ->findOrFail($request->demande_id);
+                                    ->lockForUpdate()
+                                    ->findOrFail($validated['demande_id']);
 
-        // $demande = $fournisseur->demandesRetraits()->findOrFail($request->demande_id);
+        // $demande = $fournisseur->demandesRetraits()->findOrFail($validated ['demande_id']);
         // 2. Sécurité : Interdire la modification si la demande est déjà payée ou rejetée
         if ($demande->statut !== 'EN_ATTENTE') {
             return back()->with('error', 'Modification impossible : cette demande est déjà en cours de traitement ou terminée.');
         }
         // 3. Sécurité : Vérifier à nouveau le plafond du solde
-        if ($fournisseur->compte < $request->montant) {
+        if ($fournisseur->compte < $validated['montant']) {
             return back()->with('error', 'Fonds insuffisants pour ce nouveau montant.');
         }
         // 4. On met à jour
+          
         $demande->update([
-            'montant' => $request->montant,
-            'mode_paiement' => $request->mode_paiement,
-            'numero_paiement' => $request->numero_paiement,
+            'montant' => $validated['montant'],
+            'mode_paiement' => $validated['mode_paiement'],
+            'numero_paiement' => $validated['numero_paiement'],
         ]);
+
+          });
         return back()->with('success', 'Votre demande de retrait a été mise à jour.');
+
+         } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erreur demande de retrait', [
+                'beneficiaire_type' => $fournisseur,
+                'beneficiaire_id'   => $fournisseur->id,
+                'exception'         => $e->getMessage(),
+            ]);
+            return redirect()->back()->with('error', 'Une erreur est survenue. Réessayez.');
+        }
+
     }
 
         //valider la recuperation de la commande par le livreur
@@ -391,6 +412,7 @@ class FournisseurController extends Controller
 
         $commande = CommandeClient::where('id', $id)
                                 ->where('fournisseur_id', $fournisseur->id)
+                                ->lockForUpdate()
                                 ->firstOrFail();
         if ($commande->cmmd_livre_fournisseur !=0) {
                return back()->with("success : Cette commande a déjà été marquée comme livrée par le fournisseur.");
@@ -523,6 +545,7 @@ public function save_edite_produit_fournisseur(Request $request,int $id)
     // 2. Récupérer le produit (et s'assurer par sécurité qu'il appartient bien à ce fournisseur)
     $produit = ProduitFournisseur::where('id', $id)
                                  ->where('fournisseur_id', $fournisseur->id)
+                                 ->lockForUpdate()
                                  ->firstOrFail();
     // 3. Validation des données
     $validatedData = $request->validate([

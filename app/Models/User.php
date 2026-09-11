@@ -10,8 +10,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// use Filament\Models\Contracts\FilamentUser;
+// use Filament\Panel;
+
 #[Fillable(['name', 'email', 'password','contact','statuts'])]
 #[Hidden(['password', 'remember_token'])]
+// class User extends Authenticatable implements FilamentUser
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -29,4 +33,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+//     public function canAccessPanel(Panel $panel): bool
+// {
+//     return true; // Test temporaire
+// }
+
 }

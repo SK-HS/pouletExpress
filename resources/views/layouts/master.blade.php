@@ -24,6 +24,7 @@
     @stack('scripts')
     @include('layouts._menu')
     @include('layouts._script_additionnel')
+    @include('layouts._script_notification')
   <!--script end-->
 </body>
 

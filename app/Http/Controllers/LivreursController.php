@@ -172,7 +172,7 @@ class LivreursController extends Controller
     
         $livreur = Auth::guard('livreur')->user();
         // 1. Validation stricte des données envoyées par le Modal
-        $request->validate([
+       $validated =  $request->validate([
             'montant' => 'required|numeric|min:1000|max:' . $livreur->compte,
             'mode_paiement' => 'required|string',
             'numero_paiement' => 'required|string',
@@ -181,38 +181,55 @@ class LivreursController extends Controller
         if ($livreur->compte < $request->montant) {
             return back()->with('error', 'Fonds insuffisants sur votre compte.');
         }
+         try {
+            $demande = DB::transaction(function () use ($validated, $livreur, ) {
+                
         // 3. Création automatique grâce à la relation polymorphique !
         DemandeRetrait::create([
             'beneficiaire_type' => Livreur::class,
             'beneficiaire_id'   => $livreur->id,
-            'montant' => $request->montant,
-            'mode_paiement' => $request->mode_paiement,
-            'numero_paiement' => $request->numero_paiement,
+            'montant' => $validated['montant'],
+            'mode_paiement' => $validated['mode_paiement'],
+            'numero_paiement' => $validated['numero_paiement'],
             'statut' => 'EN_ATTENTE',
         ]);
+
         /* 
         NOTE : Si vous voulez déduire l'argent du solde TOUT DE SUITE 
         avant même que l'admin ne valide, décommentez ces lignes :
         $livreur->compte -= $request->montant;
         $livreur->save();
         */
+         });
         return back()->with('success', 'Votre demande de retrait a été soumise avec succès.');
-    
+             } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erreur demande de retrait', [
+                'beneficiaire_type' => $livreur,
+                'beneficiaire_id'   => $livreur->id,
+                'exception'         => $e->getMessage(),
+            ]);
+            return redirect()->back()->with('error', 'Une erreur est survenue. Réessayez.');
+        }
     }
 
     public function update_demande_retrait_livreur(Request $request)
     {
         $livreur = Auth::guard('livreur')->user();
-        $request->validate([
+        $validated =$request->validate([
             'demande_id' => 'required|exists:demande_retraits,id',
             'montant' => 'required|numeric|min:1000',
             'mode_paiement' => 'required|string|in:wave,mobile,espece',
             'numero_paiement' => 'required|string',
         ]);
-
+            try {
+            $demandemodif = DB::transaction(function () use ($validated, $livreur) {
+                
         $demande = DemandeRetrait::where('beneficiaire_type', Livreur::class)
                                     ->where('beneficiaire_id', $livreur->id)
-                                    ->findOrFail($request->demande_id);
+                                    ->lockForUpdate()
+                                    ->findOrFail($validated['demande_id']);
 
         // $demande = $livreur->demandesRetraits()->findOrFail($request->demande_id);
         // 2. Sécurité : Interdire la modification si la demande est déjà payée ou rejetée
@@ -220,16 +237,29 @@ class LivreursController extends Controller
             return back()->with('error', 'Modification impossible : cette demande est déjà en cours de traitement ou terminée.');
         }
         // 3. Sécurité : Vérifier à nouveau le plafond du solde
-        if ($livreur->compte < $request->montant) {
+        if ($livreur->compte < $validated['montant']) {
             return back()->with('error', 'Fonds insuffisants pour ce nouveau montant.');
         }
+        
         // 4. On met à jour
         $demande->update([
-            'montant' => $request->montant,
-            'mode_paiement' => $request->mode_paiement,
-            'numero_paiement' => $request->numero_paiement,
+            'montant' => $validated['montant'],
+            'mode_paiement' => $validated['mode_paiement'],
+            'numero_paiement' => $validated['numero_paiement'],
         ]);
+         });
         return back()->with('success', 'Votre demande de retrait a été mise à jour.');
+         } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Erreur demande de retrait', [
+                'beneficiaire_type' => $livreur,
+                'beneficiaire_id'   => $livreur->id,
+                'exception'         => $e->getMessage(),
+            ]);
+            return redirect()->back()->with('error', 'Une erreur est survenue. Réessayez.');
+        }
+
     }
 
     public function livreur_commandes(Request $request)
@@ -353,14 +383,7 @@ class LivreursController extends Controller
             'commandes' => $this->getCommandesDisponibles(),
         ]);
     }
-      public function alerte_livreur()
-    {
-        $commande = $this->getCommandesDisponibles();
-        $comandedispos = count($commande);
-         return response()->json([
-            'comandedispos' => $comandedispos,
-        ]);
-    }
+     
 
   public function Livreur_accepter_commande(Request $request, int $id)
 {
@@ -408,7 +431,7 @@ class LivreursController extends Controller
                 'typeId' => $livreur->id,
             ]);
 
-    
+            $commande->client->notify(new \App\Notifications\LivreurAffecteNotification($commande));
             return ['success' => true, 'message' => 'Commande acceptée avec succès !'];
         });
  
@@ -703,7 +726,9 @@ class LivreursController extends Controller
                     'disponible_le' => now()->addHours(24),
                     'details' => 'Commission sur livraison commande (5%)',
                 ]);
-            
+                
+            $commande->client->notify(new \App\Notifications\CommandeLivreeNotification($commande));
+
             return ['success' => true, 'message' => 'Commande Livrée avec succès.'];
         });
 

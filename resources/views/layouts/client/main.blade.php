@@ -22,6 +22,7 @@
             @include('layouts.client._menu')
             @include('layouts.client._script')
 
+            @include('layouts._script_notification')
             @stack('scripts')
    
    

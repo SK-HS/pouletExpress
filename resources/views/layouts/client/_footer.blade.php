@@ -29,8 +29,8 @@
 
             <div>
                 <h4 class="font-bold text-slate-900 dark:text-white uppercase mb-3">Support & Assistance</h4>
-                <p class="mb-2">📍 Abidjan, Côte d'Ivoire</p>
-                <p>📞 +225 27 20 00 00 00</p>
+                <p class="mb-2"> Abidjan, Côte d'Ivoire</p>
+                <p> +225 27 20 00 00 00</p>
             </div>
         </div>
     </footer>

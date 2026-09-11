@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Notifications\Notifiable;
 
 class CommandeClient extends Model
 {
+      use Notifiable;
      protected $fillable = [
         'reference',
         'client_id',
@@ -41,6 +43,7 @@ class CommandeClient extends Model
         'cmmd_livre_fournisseur',
         'date_cmmd_livre_fournisseur',
         'groupe_commande_id',
+        'commande_recuperee',
     ];
 
         public function user()
@@ -108,18 +111,20 @@ class CommandeClient extends Model
                 //             'type'=>$model->type,
                 //             'typeId'=>Auth::id(),]);
 
-                            if($model->type_commande == "Avec Livraison")
+                if($model->type_commande == "Avec Livraison")
                                 {
 
-                            CommandeLivreur::create([
-                                        'statut' => "EN_ATTENTE",
-                                        'commande_client_id'=>$model->id,
-                                        'quartier_id'=>$model->quartier_id,
-                                        'user_id'=>Auth::id(),]);
-                                }
+                        $commandeLivreur =  CommandeLivreur::create([
+                                    'statut' => "EN_ATTENTE",
+                                    'commande_client_id'=>$model->id,
+                                    'quartier_id'=>$model->quartier_id,
+                                    'user_id'=>Auth::guard('client')->id()?? Auth::id(),]);
 
-
-               
+                        DB::afterCommit(function () use ($commandeLivreur) {
+                                app(\App\Services\LivreurNotificationService::class)
+                                    ->notifierLivreursProches($commandeLivreur);
+                            });
+                            }
 
             });
 

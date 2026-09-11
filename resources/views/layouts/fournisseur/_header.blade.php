@@ -20,39 +20,37 @@
                 <span class="material-symbols-outlined text-on-surface-variant text-xl md:text-2xl">notifications</span>
             </button> --}}
 
-           <!-- On englobe le bouton et le menu dans un div "relative" -->
-            <div class="relative inline-block">
-                
-                <!-- Le Bouton (avec onclick pour ouvrir/fermer le menu) -->
-                <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden')" class="relative w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-on-surface-variant text-xl md:text-2xl">notifications</span>
-                    
-                    <!-- La pastille rouge (Badge) -->
-                    <span id="badge-notif" class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 md:w-5 md:h-5 text-[10px] font-bold text-white bg-red-500 rounded-full hidden">
+    
+
+            {{-- menu notification --}}
+            <div class="relative" id="notif-bell-wrapper">
+                <button type="button" id="notif-bell-btn"
+                        class="relative flex items-center justify-center w-11 h-11 rounded-full bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-white hover:bg-surface-container transition-all">
+                    <span class="material-symbols-outlined text-2xl">notifications</span>
+                    <span id="notif-badge"
+                        class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                         0
                     </span>
                 </button>
 
-                <!-- Le Menu Déroulant (Caché par défaut avec "hidden") -->
-                <div id="notif-dropdown" class="absolute right-0 mt-2 w-64 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant hidden z-50 overflow-hidden">
-                    
-                    <div class="p-3 border-b border-outline-variant/50 bg-surface-container-low">
-                        <h3 class="font-bold text-sm text-primary">Notifications</h3>
+                {{-- Dropdown --}}
+                <div id="notif-dropdown"
+                    class="hidden absolute right-0 mt-2 w-80 sm:w-96 max-h-[70vh] overflow-y-auto bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50">
+
+                    <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Notifications</h3>
+                        <button type="button" id="notif-tout-lire" class="text-xs text-emerald-600 font-bold hover:underline">
+                            Tout marquer comme lu
+                        </button>
                     </div>
-                    
-                    <div class="p-4 text-center">
-                        <!-- C'est ici que le texte changera dynamiquement ! -->
-                        <p id="notif-message" class="text-sm text-on-surface-variant">
-                            Vous n'avez aucune nouvelle commande.
-                        </p>
+
+                    <div id="notif-list" class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <div class="p-8 text-center text-slate-400 text-sm">
+                            <span class="material-symbols-outlined text-3xl mb-2 block">notifications_off</span>
+                            Aucune notification pour le moment.
+                        </div>
                     </div>
-                    
-                    <!-- Optionnel : Un bouton pour aller sur la page des commandes -->
-                    <a href="{{route('Fournisseur-Commande')}}" class="block w-full text-center p-3 text-sm font-bold text-primary hover:bg-primary/10 transition-colors">
-                        Voir mes commandes
-                    </a>
                 </div>
-                
             </div>
 
 

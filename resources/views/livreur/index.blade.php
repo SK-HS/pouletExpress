@@ -10,6 +10,12 @@
     $nbEnCours = isset($commandesEnCours) ? count($commandesEnCours) : 0;
     $coursePrioritaire = isset($commandesEnCours) ? $commandesEnCours->first() : null;
     $nbDispos  = count($commandesDisponibles ?? []) ?? 0;
+
+     $estRecuperee = ($coursePrioritaire->commande_recuperee == 1);
+    // La destination prioritaire du moment
+    $lat = $estRecuperee ? $coursePrioritaire->latitude : ($coursePrioritaire->fournisseur?->latitude ?? $coursePrioritaire->latitude);
+    $lng = $estRecuperee ? $coursePrioritaire->longitude : ($coursePrioritaire->fournisseur?->longitude ?? $coursePrioritaire->longitude);
+
 @endphp
 
 <main class="md:ml-64 w-full md:w-[calc(100%-16rem)] overflow-x-hidden pb-20 md:pb-8 p-4 md:p-8 mx-auto space-y-6 animate-in fade-in duration-500">
@@ -291,8 +297,8 @@
                 <span class="text-xs text-slate-400 font-medium">Montant :</span>
                 <span class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{{ number_format($coursePrioritaire->montant_ttc, 0, ',', ' ') }} FCFA</span>
             </div>
-            @if($coursePrioritaire->latitude && $coursePrioritaire->longitude)
-                <a href="https://www.google.com/maps?q={{ $coursePrioritaire->latitude }},{{ $coursePrioritaire->longitude }}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow transition flex items-center justify-center gap-2">
+            @if($lng && $lat)
+                <a href="https://www.google.com/maps?q={{ $lat }},{{ $lng }}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow transition flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined shrink-0">navigation</span>
                     <span>Carte de Trajet</span>
                 </a>

@@ -16,6 +16,8 @@
   <!-- ==================== MOBILE BOTTOM NAVIGATION BAR ==================== -->
  
 @include('layouts.livreur._script')
+
+@include('layouts._script_notification')
  
 </body>
 </html>

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\DemandeRetraitTraiteeNotification;
 
 class DemandeRetrait extends Model
 {
@@ -35,11 +36,15 @@ public function valider_demande_retrait(array $data = [])
     //dd($this->id);
     DB::transaction(function () {
 
-        $demande = DemandeRetrait::where('id', $this->id)
-                                    ->lockForUpdate()
-                                    ->first();
-        $beneficiaire = $demande->beneficiaire()->lockForUpdate()->first();
+        $demande = static::where('id', $this->id)
+                            ->lockForUpdate()
+                            ->first();
+        // $demande = DemandeRetrait::where('id', $this->id)
+        //                             ->lockForUpdate()
+        //                             ->first();
 
+        $beneficiaire = $demande->beneficiaire()->lockForUpdate()->first();
+       //$demande->beneficiaire->notify(new DemandeRetraitTraiteeNotification($demande));
         if (!$demande) {
             throw new Exception("Cette demande n'existe pas.");
         }
@@ -68,6 +73,8 @@ public function valider_demande_retrait(array $data = [])
                 'date_traitee' => now(),
                 'user_id' =>Auth::id(),
             ]);
+
+            $demande->beneficiaire->notify(new \App\Notifications\DemandeRetraitTraiteeNotification($demande));
         
         
     }); 

@@ -23,6 +23,8 @@
            
             @include('layouts.fournisseur._script')
 
+            @include('layouts._script_notification')
+            
             @stack('scripts')
    
    

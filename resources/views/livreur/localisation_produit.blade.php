@@ -62,17 +62,33 @@
                 <h3 class="font-extrabold text-base text-slate-900 dark:text-white">
                     Course #{{ $commande->reference }}
                 </h3>
-                {{-- On encode les coordonnées en data-* pour éviter tout bug Blade/JS --}}
-                <button
-                    class="btn-focus-map text-emerald-700 dark:text-emerald-400 font-bold text-xs
-                           flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30
-                           px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"
-                    data-lat="{{ $commande->latitude ?? '' }}"
-                    data-lng="{{ $commande->longitude ?? '' }}"
-                    data-ref="{{ $commande->reference }}">
-                    <span class="material-symbols-outlined text-sm">map</span>
-                    Sur la carte
-                </button>
+           
+
+                @php
+    // Si pas encore récupéré -> cap sur le fournisseur, sinon cap sur le client
+                $estRecuperee = ($commande->commande_recuperee == 1);
+                
+                $cibleLat = $estRecuperee ? $commande->latitude : ($commande->fournisseur?->latitude ?? $commande->latitude);
+                $cibleLng = $estRecuperee ? $commande->longitude : ($commande->fournisseur?->longitude ?? $commande->longitude);
+                $cibleNom = $estRecuperee ? ($commande->client?->nom ?? 'Client') : ($commande->fournisseur?->nom ?? 'Fournisseur');
+                $typeCible = $estRecuperee ? 'Client' : 'Fournisseur (Collecte)';
+            @endphp
+
+            <button
+                class="btn-focus-map text-emerald-700 dark:text-emerald-400 font-bold text-xs
+                    flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30
+                    px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"
+                data-lat="{{ $cibleLat }}"
+                data-lng="{{ $cibleLng }}"
+                data-ref="{{ $commande->reference }}"
+                data-type="{{ $typeCible }}"
+                data-nom="{{ $cibleNom }}">
+                <span class="material-symbols-outlined text-sm">
+                    {{ $estRecuperee ? 'person_pin' : 'storefront' }}
+                </span>
+                {{ $estRecuperee ? 'Itinéraire Client' : 'Itinéraire Fournisseur' }}
+            </button>
+
             </div>
 
             {{-- Infos commande --}}
@@ -82,10 +98,12 @@
                     <div class="flex items-start gap-2.5">
                         <span class="material-symbols-outlined text-emerald-700 text-base">storefront</span>
                         <div>
+                            <span class="text-slate-500">Collecte à effectuer /  {{ $commande->fournisseur?->nom_ferme ?? 'Fournisseur non renseigné' }}</span>
                             <strong class="text-slate-900 dark:text-white block font-bold">
-                                {{ $commande->fournisseur?->nom_ferme ?? 'Fournisseur non renseigné' }}
+                               Nom: {{ $commande->fournisseur?->nom ?? '—' }}
                             </strong>
-                            <span class="text-slate-500">Collecte à effectuer</span>
+                            <span class="text-slate-500"> Tel: {{ $commande->fournisseur?->telephone ?? '—' }}</span> <br>
+                            <span class="text-slate-500">Adresse: {{ $commande->fournisseur?->adresse ?? '—' }}</span>
                         </div>
                     </div>
                     <div class="text-right shrink-0">
@@ -100,12 +118,15 @@
                     <div class="flex items-start gap-2.5">
                         <span class="material-symbols-outlined text-orange-600 text-base">person_pin</span>
                         <div>
+                            <span class="text-slate-500">Livraison à effectuer / {{ $commande->client?->type ?? 'Client inconnu' }}</span>
                             <strong class="text-slate-900 dark:text-white block font-bold">
-                                {{ $commande->client?->nom ?? 'Client inconnu' }}
+                                Nom: {{ $commande->client?->nom ?? 'Client inconnu' }}
                             </strong>
                             <span class="text-slate-500">
-                                {{ $commande->quartier?->nom_quartier ?? '—' }}
-                                — {{ $commande->telephone_livraison }}
+                                Tel: {{ $commande->telephone_livraison ?? $commande->telephone }}
+                            </span> <br>
+                            <span class="text-slate-500">
+                                Quartier: {{ $commande->quartier?->nom_quartier ?? '—' }}
                             </span>
                         </div>
                     </div>
@@ -193,18 +214,30 @@
    <div class="h-20 md:hidden w-full"></div>
     </div>
     {{-- Remplacement sans closure, compatible Blade --}}
+
+
 @php
     $destinations = [];
     foreach ($commandes as $c) {
+        $estRecuperee = ($c->commande_recuperee == 1);
+
+        // La destination prioritaire du moment
+        $lat = $estRecuperee ? $c->latitude : ($c->fournisseur?->latitude ?? $c->latitude);
+        $lng = $estRecuperee ? $c->longitude : ($c->fournisseur?->longitude ?? $c->longitude);
+
         $destinations[] = [
             'ref'      => $c->reference,
-            'lat'      => $c->latitude  ? (float) $c->latitude  : null,
-            'lng'      => $c->longitude ? (float) $c->longitude : null,
-            'client'   => optional($c->client)->nom ?? 'Client',
-            'quartier' => optional($c->quartier)->nom_quartier ?? '',
+            'lat'      => $lat ? (float) $lat : null,
+            'lng'      => $lng ? (float) $lng : null,
+            'nom'      => $estRecuperee ? ($c->client?->nom ?? 'Client') : ($c->fournisseur?->nom ?? 'Fournisseur'),
+            'type'     => $estRecuperee ? 'Livraison Client' : 'Collecte Fournisseur',
+            'quartier' => $estRecuperee ? ($c->quartier?->nom_quartier ?? '') : ($c->fournisseur?->adresse ?? ''),
+            'icone'    => $estRecuperee ? 'home' : 'storefront',
+            'couleur'  => $estRecuperee ? '#dc2626' : '#0284c7', // Rouge pour client, Bleu pour fournisseur
         ];
     }
 @endphp
+
 
 {{-- Plus loin dans le JS --}}
 
@@ -282,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Place le marqueur du livreur
                 livreurMarker = L.marker([lat, lng], { icon: livreurIcon })
                     .addTo(map)
-                    .bindPopup('📦 Votre position')
+                    .bindPopup('Votre position')
                     .openPopup();
 
                 map.setView([lat, lng], 14);
@@ -307,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Affiche une alerte non bloquante sur la carte
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'absolute bottom-3 left-3 right-3 z-10 bg-amber-50 border border-amber-300 text-amber-700 text-xs font-bold p-3 rounded-xl shadow';
-                alertDiv.textContent = '⚠️ ' + msg;
+                alertDiv.textContent = ' ' + msg;
                 document.querySelector('.relative.w-full.shrink-0').appendChild(alertDiv);
 
                 // Affiche quand même les destinations sans route
@@ -322,43 +355,63 @@ document.addEventListener('DOMContentLoaded', function () {
 const destinations = @json($destinations);
     // const destinations = @json($destinations);
 
-    function afficherToutesDestinations() {
-        const bounds = [];
+function afficherToutesDestinations() {
+    const bounds = [];
 
-        destinations.forEach(function (dest) {
-            if (!dest.lat || !dest.lng) return;
+    destinations.forEach(function (dest) {
+        if (!dest.lat || !dest.lng) return;
 
-            L.marker([dest.lat, dest.lng], { icon: destinationIcon })
-                .addTo(map)
-                .bindPopup(`
-                    <div class="text-xs">
-                        <strong> ${dest.client}</strong><br>
-                        ${dest.quartier}<br>
-                        Réf: ${dest.ref}
-                    </div>
-                `);
-
-            bounds.push([dest.lat, dest.lng]);
+        // 1. Créer une icône dynamique selon que ce soit le Fournisseur ou le Client
+        const marqueurIcon = L.divIcon({
+            className: '',
+            html: `<div style="
+                width:38px; height:38px; border-radius:50%;
+                background:${dest.couleur || '#dc2626'}; color:#fff;
+                display:flex; align-items:center; justify-content:center;
+                border:3px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,0.35);
+                font-family:'Material Symbols Outlined'; font-size:20px;
+            ">${dest.icone || 'place'}</div>`,
+            iconSize: [38, 38],
+            iconAnchor: [19, 19],
         });
 
-        // Si plusieurs destinations, ajuste le zoom pour tout voir
-        if (bounds.length > 1) {
-            map.fitBounds(bounds, { padding: [40, 40] });
-        } else if (bounds.length === 1 && !livreurPosition) {
-            map.setView(bounds[0], 15);
-        }
+        // 2. Afficher le marqueur avec le bon texte dans la popup
+        L.marker([dest.lat, dest.lng], { icon: marqueurIcon })
+            .addTo(map)
+            .bindPopup(`
+                <div class="text-xs space-y-1 p-1">
+                    <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold text-white" 
+                          style="background:${dest.couleur};">
+                        ${dest.type}
+                    </span>
+                    <p class="text-slate-500">${dest.nom}</p>
+                    <p class="text-slate-500">${dest.quartier || 'Adresse non précisée'}</p>
+                    <p class="text-[10px] text-slate-500 font-mono">Réf: ${dest.ref}</p>
+                </div>
+            `);
+
+        bounds.push([dest.lat, dest.lng]);
+    });
+
+    // Si plusieurs destinations, ajuste le zoom pour tout voir
+    if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+    } else if (bounds.length === 1 && !livreurPosition) {
+        map.setView(bounds[0], 15);
     }
+}
+
 
     // ── Tracer la route vers une destination précise ─────────────
     window.focusOnCommande = function (destLat, destLng, ref) {
         // Cas : pas de coordonnées GPS pour cette commande
         if (!destLat || !destLng) {
-            showToast('⚠️ Pas de position GPS pour cette commande. Utilisez le quartier comme repère.', 'warning');
+            showToast("Pas de position GPS pour cette commande. Utilisez le quartier comme repère.", 'warning');
             return;
         }
 
         if (!livreurPosition) {
-            showToast('⚠️ Votre position GPS n\'est pas encore disponible. Patientez...', 'warning');
+            showToast(" Votre position GPS n'est pas encore disponible. Patientez...", 'warning');
             return;
         }
 
@@ -389,7 +442,7 @@ const destinations = @json($destinations);
             [destLat, destLng],
         ], { padding: [60, 60] });
 
-        showToast('🗺️ Itinéraire tracé vers la commande ' + ref, 'success');
+        showToast('Itinéraire tracé vers la commande ' + ref, 'success');
     };
 
     // ── Recentrer sur la position du livreur 
@@ -397,7 +450,7 @@ const destinations = @json($destinations);
         if (livreurPosition) {
             map.setView([livreurPosition.lat, livreurPosition.lng], 15);
         } else {
-            showToast('⚠️ Position GPS non disponible.', 'warning');
+            showToast('Position GPS non disponible.', 'warning');
         }
     };
 

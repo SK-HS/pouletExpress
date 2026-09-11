@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CommandeClient;
+use App\Models\CommandeLivreur;
 use App\Models\DetailCommandeClient;
 use App\Models\ProduitFournisseur;
 use App\Models\Quartier;
@@ -351,6 +352,9 @@ class CartController extends Controller
                 //     'quartier_id'        => $commande->quartier_id,
                 //     'statut'             => 'EN_ATTENTE',
                 // ]);
+
+        $commande->fournisseur->notify(new \App\Notifications\NouvelleCommandeFournisseurNotification($commande));
+        
             }
  
             return $sessionGroupId;
@@ -368,145 +372,10 @@ class CartController extends Controller
  
     // $references = collect($commandesCreees)->pluck('reference')->implode(',');
     // return redirect()->route('Confirmation-Commande', ['references' => $sessionGroupId]);
+    
+
     return redirect()->route('Confirmation-Commande', $sessionGroupId);
 }
-
-
-//     public function valider_commande(Request $request)
-// {
-//     $items = $this->cart->getItemsWithDetails();
-    
-//     if (empty($items)) {
-//         return redirect()->route('Panier-Produit')
-//             ->with('error', 'Votre panier est vide.');
-//     }
-
-//     $validated = $request->validate([
-//         'longitude' => 'nullable|string|max:192',
-//         'latitude' => 'nullable|string|max:192',
-//         'telephone_livraison' => 'required|string|max:20',
-//         'quartier_id' => 'nullable|exists:quartiers,id',
-//         'creneau' => 'required|in:matin,apres_midi',
-//         'mode_paiement' => 'required|in:ESPECE,WAVE,ORANGE-MONEY,MTN-MONEY,MOOV-MONEY',
-//         'lieu_livraison' => 'nullable|string',
-//     ]);
-
-//     // Récupération du service de livraison
-//     $fraisLivraison = 0;
-//     $service = null;
-//     if (!empty($validated['quartier_id'])) {
-//         $quartier = Quartier::with('service')->find($validated['quartier_id']);
-//         $fraisLivraison = $quartier->service->prix ?? 0;
-//         $service = Service::where('quartier_id', $validated['quartier_id'])->first();
-//     }
-
-//     $type_commande = $service ? "Avec Livraison" : "Sans Livraison";
-    
-//     // Identifiant unique pour regrouper visuellement les commandes de cette session (Optionnel mais utile)
-//     // $sessionGroupId = time() . '-' . Auth::guard('client')->id();
-//     $sessionGroupId = 'GRP-' . date('Ymd-Hi') . '-' . Auth::guard('client')->id();
-
-//     // Utilisation de la transaction pour garantir que soit TOUTES les commandes passent, soit AUCUNE.
-//     $commandes = DB::transaction(function () use ($type_commande, $validated, $items, $fraisLivraison, $service, $sessionGroupId) {
-        
-//         $commandesCreees = [];
-        
-//         // 1. Grouper les articles par fournisseur
-//         // Assurez-vous que $item['produit'] a bien une propriété fournisseur_id
-//         $itemsParFournisseur = collect($items)->groupBy(function ($item) {
-//             return $item['produit']->fournisseur_id; 
-//         });
-
-//         $isFirstOrder = true; // Permet de savoir où imputer les frais de livraison
-
-//         // 2. Boucler et créer une commande par fournisseur
-//         foreach ($itemsParFournisseur as $fournisseur_id => $articlesFournisseur) {
-            
-//             // Calcul du sous-total pour les articles de CE fournisseur
-//             $sousTotalFournisseur = $articlesFournisseur->sum('sous_total');
-            
-//             // On ajoute les frais de livraison uniquement sur la première commande pour ne pas les facturer en double au client
-//             // $fraisAppliques = $isFirstOrder ? $fraisLivraison : 0;
-//              $fraisAppliques = $fraisLivraison;
-//             $totalFournisseur = $sousTotalFournisseur + $fraisAppliques;
-
-//             // Création de la commande spécifique
-//             $commande = CommandeClient::create([
-//                 'client_id' => Auth::guard('client')->id(),
-//                 'fournisseur_id' => $fournisseur_id, // TRÈS IMPORTANT : Ajoutez cette colonne dans votre table CommandeClient !
-//                 'quartier_id' => $validated['quartier_id'] ?? null,
-//                 'creneau' => $validated['creneau'],
-//                 'longitude' => $validated['longitude'] ?? null,
-//                 'latitude' => $validated['latitude'] ?? null,
-//                 'telephone_livraison' => $validated['telephone_livraison'],
-//                 'lieu_livraison' => $validated['lieu_livraison'] ?? null,
-                
-//                 'montant_brut' => $sousTotalFournisseur,
-//                 'montant_hors_taxe' => $totalFournisseur,
-//                 'montant_ttc' => $totalFournisseur,
-//                 // 'avance' => $totalFournisseur,
-//                 // 'solde' => $totalFournisseur,
-                
-//                 'type_commande' => $type_commande,
-//                 'date_commande' => date('Y-m-d H:i:s'),
-//                 'statut' => 'NOUVEAU',
-//                 'groupe_commande_id' => $sessionGroupId       ///pour savoir que ces commandes ont été payées ensemble
-//             ]);
-
-//             $commandesCreees[] = $commande;
-
-//             // Enregistrement des produits pour cette commande
-//             foreach ($articlesFournisseur as $item) {
-//                 DetailCommandeClient::create([
-//                     'commande_client_id' => $commande->id,
-//                     'produit_fournisseur_id' => $item['produit']->id,
-//                     'quantite' => $item['quantite'],
-//                     'prix_unitaire' => $item['produit']->prix,
-//                     'montant' => $item['sous_total'],
-//                     'type' => "PRODUIT",
-//                 ]);
-//             }
-
-//             // Enregistrement du service (livraison) SEULEMENT sur la première commande
-//             // if ($service && $isFirstOrder) {
-//             if ($service) {
-//                 DetailCommandeClient::create([
-//                     'commande_client_id' => $commande->id,
-//                     'service_id' => $service->id,
-//                     'quantite' => 1,
-//                     'prix_unitaire' => $service->prix,
-//                     'montant' => $service->prix,
-//                     'type' => "SERVICE",
-//                 ]);
-//             }
-
-//             // Enregistrement du versement (paiement partagé par commande)
-//             Versement::create([
-//                 'commande_client_id' => $commande->id,
-//                 'mode_paiement' => $validated['mode_paiement'],
-//                 'date_paiement' => date('Y-m-d H:i:s'),
-//                 'montant' => $totalFournisseur
-//             ]);
-
-//             // Enregistrement du statut initial
-//             StatutCommande::create([
-//                 'statut' => "NOUVEAU",
-//                 'commande_client_id' => $commande->id,
-//                 'type' => "CLIENT",
-//                 'typeId' => Auth::guard('client')->id(),
-//             ]);
-
-//             //$isFirstOrder = false; // Les prochaines commandes n'auront plus les frais de livraison
-//         }
-
-//         // On vide le panier une fois que tout est enregistré avec succès
-//         $this->cart->clear();
-
-//         return  $sessionGroupId; // Retourne un tableau des commandes créées
-//     });
-
-//     return redirect()->route('Confirmation-Commande', $sessionGroupId);
-// }
 
 
      public function confirmation_commande(string $reference)
