@@ -52,23 +52,33 @@ class Livreur extends Authenticatable
         return $this->belongsTo(Quartier::class);
     }
 
+     public function commandeClents()
+    {
+        return $this->hasMany(CommandeClient::class, 'livreur_id');
+    }
      public function commandesLivrees()
     {
         return $this->hasMany(CommandeLivreur::class, 'livreur_id');
     }
+
+     public function livreurSolde()
+    {
+        return $this->hasMany(LivreurSolde::class, 'livreur_id');
+    }
+
      public function statutLivreurs()
     {
         return $this->hasMany(StatutLivreur::class, 'livreur_id');
     }
 
-    public function demandesRetraits()
-{
-    return $this->morphMany(DemandeRetrait::class, 'beneficiaire');
-}
-    public function gestionnaireSolde()
-{
-    return $this->morphMany(GestionnaireSolde::class, 'debiteur');
-}
+        public function demandesRetraits()
+    {
+        return $this->morphMany(DemandeRetrait::class, 'beneficiaire');
+    }
+        public function gestionnaireSolde()
+    {
+        return $this->morphMany(GestionnaireSolde::class, 'debiteur');
+    }
 
 
     protected static function booted()

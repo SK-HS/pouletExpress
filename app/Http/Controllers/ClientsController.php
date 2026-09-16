@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\CommandeClient;
 use App\Models\CommandeLivreur;
+use App\Models\Entreprise;
 use App\Models\Fournisseur;
 use App\Models\FournisseurSolde;
 use App\Models\GestionnaireSolde;
@@ -15,6 +16,7 @@ use App\Models\StatutCommande;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientsController extends Controller
 {
@@ -374,6 +376,7 @@ public function espace_client(Request $request)
                 'commande_recu' => 1,
                 'date_commane_recu' => now(), // (Attention à la faute de frappe d'origine dans votre BDD)
             ]);
+            
 
             // 4. Historique du statut
             StatutCommande::create([
@@ -388,7 +391,8 @@ public function espace_client(Request $request)
             // ============================================================
 
         if ($commande->montant_brut > 0) {
-            $tauxCommissionF = 0.10; // 10%, configurable
+            //$tauxCommissionF = 0.10; // 10%, configurable
+            $tauxCommissionF = Entreprise::select('taux_commission_fournisseur')->first()->taux_commission_fournisseur; // 5%, configurable
             $commissionF = round($commande->montant_brut * $tauxCommissionF);
             $montantF = $commande->montant_brut - $commissionF;
 
@@ -408,7 +412,7 @@ public function espace_client(Request $request)
                     'commande_client_id' => $id,
                     'montant' => $commissionF,
                     'disponible_le' => now()->addHours(24),
-                    'details' => 'Commission sur commande fournisseur (10%)',
+                    'details' => 'Commission sur commande fournisseur (' . round($tauxCommissionF * 100) . '%)',
                 ]);
             }
 
@@ -426,7 +430,8 @@ public function espace_client(Request $request)
 
         if ($commandeLivreur && $montant_livraison > 0){
             
-            $tauxCommissionL = 0.05; // 5%, configurable
+            //$tauxCommissionL = 0.05; // 5%, configurable
+            $tauxCommissionL = Entreprise::select('taux_commission_livreur')->first()->taux_commission_livreur; // 5%, configurable
             $commissionL = round($montant_livraison * $tauxCommissionL);
             $montantL = $montant_livraison - $commissionL;
 
@@ -445,17 +450,22 @@ public function espace_client(Request $request)
                     'commande_client_id' => $id,
                     'montant' => $commissionL,
                     'disponible_le' => now()->addHours(24),
-                    'details' => 'Commission sur livraison commande (5%)',
+                    'details' => 'Commission sur livraison commande (' . round($tauxCommissionL * 100) . '%)',
                 ]);
 
             }
-                
-            $commande->fournisseur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
-            $commande->livreur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande)
+            DB::afterCommit(function () use ($commande) {
             
-            );
+                $commande->fournisseur?->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
+            
+                if ($commande->livreur) {
+                $commande->livreur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
+            
+            }
             return ['success' => true, 'message' => 'Commande reçue et validée avec succès. Merci !'];
-        });
+            });
+
+         });
 
         // 7. Retours propres
         if ($request->wantsJson()) {
@@ -478,6 +488,11 @@ public function espace_client(Request $request)
         
     } catch (\Exception $e) {
         // Enregistrement optionnel de l'erreur dans les logs Laravel : Log::error($e->getMessage());
+        Log::error('Erreur validation réception commande', [
+            'commande_id' => $id,
+            'client_id'   => $client->id,
+            'exception'   => $e->getMessage(),
+        ]);
         if ($request->wantsJson()) {
             return response()->json(['success' => false, 'message' => 'Erreur système lors de la validation.'], 500);
         }

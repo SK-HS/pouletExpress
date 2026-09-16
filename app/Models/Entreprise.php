@@ -19,6 +19,8 @@ class Entreprise extends Model
         'user_id',
         'ville',
         'compte',
+        'taux_commission_livreur',
+        'taux_commission_fournisseur',
     ];
 
     public function user()

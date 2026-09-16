@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Fournisseurs\Pages;
 
 use App\Filament\Resources\Fournisseurs\FournisseurResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageFournisseurs extends ManageRecords
+class ListFournisseurs extends ListRecords
 {
     protected static string $resource = FournisseurResource::class;
 
@@ -16,6 +16,4 @@ class ManageFournisseurs extends ManageRecords
             CreateAction::make(),
         ];
     }
-
-    
 }

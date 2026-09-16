@@ -17,15 +17,11 @@ use Illuminate\Support\Facades\Storage;
 // });
 
 
-Route::get('/storage/{path}', function ($path) {
-    $file = Storage::disk('public')->path($path);
+// Route::get('/run-storage-link', function () {
+//     \Artisan::call('storage:link');
+//     return 'Lien symbolique créé avec succès !';
+// });
 
-    if (!file_exists($file)) {
-        abort(404);
-    }
-
-    return Response::file($file);
-})->where('path', '.*');
 
 
 

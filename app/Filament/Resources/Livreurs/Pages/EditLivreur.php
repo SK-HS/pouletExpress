@@ -3,17 +3,19 @@
 namespace App\Filament\Resources\Livreurs\Pages;
 
 use App\Filament\Resources\Livreurs\LivreurResource;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Resources\Pages\EditRecord;
 
-class ManageLivreurs extends ManageRecords
+class EditLivreur extends EditRecord
 {
     protected static string $resource = LivreurResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\LivreurSoldes;
 
 use App\Filament\Resources\LivreurSoldes\Pages\ManageLivreurSoldes;
+use App\Models\Livreur;
 use App\Models\LivreurSolde;
 use BackedEnum;
 use Filament\Actions\BulkAction;
@@ -11,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,7 +23,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use UnitEnum;
 
@@ -138,7 +143,42 @@ class LivreurSoldeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                 SelectFilter::make('statut')
+                    ->label('STATUT SOLDE')
+                    ->options([
+                       'EN_ATTENTE' => 'EN ATTENTE',
+                        'DISPONIBLE' => 'DISPONIBLE',
+                        'PAYE' => 'PAYE',
+                        // 'REFUSE' => 'REFUSE',
+                    ])
+                    ->multiple()
+                    ->preload(),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')->label('Debut'),
+                        DatePicker::make('created_until')->label('Fin'),
+                                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                return $query
+                                    ->when(
+                                        $data['created_from'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                    )
+                                    ->when(
+                                        $data['created_until'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                    );
+                                    }),
+                SelectFilter::make('livreur_id')
+                    ->options(function () {
+                        return Livreur::orderBy('nom')
+                            ->get()
+                            ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom} - {$e->type} - {$e->quartier?->nom_quartier} - {$e->adresse} - ({$e->telephone})"])
+                            ->toArray();
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->label('LIVREURS'),
             ])
             ->recordActions([
                 ViewAction::make(),

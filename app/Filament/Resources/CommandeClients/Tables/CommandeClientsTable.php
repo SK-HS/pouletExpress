@@ -2,16 +2,23 @@
 
 namespace App\Filament\Resources\CommandeClients\Tables;
 
+use App\Models\Client;
+use App\Models\Fournisseur;
+use App\Models\Livreur;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class CommandeClientsTable
@@ -72,7 +79,67 @@ class CommandeClientsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('statut')
+                    ->label('STATUT COMMANDE')
+                    ->options([
+                        'NOUVEAU' => 'NOUVEAU',
+                        'AFFECTEE' => 'AFFECTEE',
+                        'RECUPEREE' => 'RECUPEREE',
+                        'RECEPTIONNEE' => 'RECEPTIONNEE',
+                        'LIVREE' => 'LIVREE',
+                        'COMMANDE RECU' => 'COMMANDE RECU',
+                    ])
+                    ->multiple()
+                    ->preload(),
+
+
+                Filter::make('date_commande')
+                        ->schema([
+                            DatePicker::make('created_from')->label('Debut'),
+                            DatePicker::make('created_until')->label('Fin'),
+                                            ])
+                                ->query(function (Builder $query, array $data): Builder {
+                                    return $query
+                                        ->when(
+                                            $data['created_from'],
+                                            fn (Builder $query, $date): Builder => $query->whereDate('date_commande', '>=', $date),
+                                        )
+                                        ->when(
+                                            $data['created_until'],
+                                            fn (Builder $query, $date): Builder => $query->whereDate('date_commande', '<=', $date),
+                                        );
+                                     }),
+                            SelectFilter::make('fournisseur_id')
+                                ->options(function () {
+                                    return Fournisseur::orderBy('nom')
+                                        ->get()
+                                        ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom} - {$e->type} - {$e->quartier?->nom_quartier} - {$e->adresse} - ({$e->telephone})"])
+                                        ->toArray();
+                                })
+                                ->multiple()
+                                ->searchable()
+                                ->label('FOURNISSEURS'),
+
+                            SelectFilter::make('client_id')
+                                ->options(function () {
+                                    return Client::orderBy('nom')
+                                        ->get()
+                                        ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom} - {$e->type} - {$e->quartier?->nom_quartier} - {$e->adresse} - ({$e->telephone})"])
+                                        ->toArray();
+                                })
+                                ->multiple()
+                                ->searchable()
+                                ->label('CLIENTS'),
+                            SelectFilter::make('livreur_id')
+                                ->options(function () {
+                                    return Livreur::orderBy('nom')
+                                        ->get()
+                                        ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom} - {$e->type} - {$e->quartier?->nom_quartier} - {$e->adresse} - ({$e->telephone})"])
+                                        ->toArray();
+                                })
+                                ->multiple()
+                                ->searchable()
+                                ->label('LIVREURS'),
             ])
             ->recordActions([
                 ViewAction::make(),

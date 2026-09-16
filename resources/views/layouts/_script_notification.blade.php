@@ -83,32 +83,46 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ── Polling 
-     let ancienCount = 0;
-    function polling() {
-        fetch('{{ route("notifications.polling") }}', { headers: { 'Accept': 'application/json' } })
-            .then(res => res.json())
-            .then(data => {
+let ancienCount = 0;
+let premierPolling = true; //permet de distinguer "chargement initial" de "nouvelle arrivée"
+const audioNotif = new Audio('/storage/notif/notif.mp3'); //créé une seule fois, pas à chaque poll
 
-                if (data.count > ancienCount) {
-                    const audio = new Audio('/storage/notif/notif.mp3');
-                    audio.play().catch(() => {});
-                }
-                ancienCount = data.count;
+function polling() {
+    fetch('{{ route("notifications.polling") }}', { headers: { 'Accept': 'application/json' } })
+        .then(res => res.json())
+        .then(data => {
 
-                if (data.count > 0) {
-                    badge.textContent = data.count > 99 ? '99+' : data.count;
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
-                afficherNotifications(data.notifications);
-            })
-            .catch(() => {}); // silencieux si offline
-    }
+            // Le son ne joue QUE si le compteur augmente APRÈS le premier chargement
+            if (!premierPolling && data.count > ancienCount) {
+                audioNotif.currentTime = 0; // permet de rejouer même si le précédent son n'est pas terminé
+                audioNotif.play().catch(() => {});
+            }
 
-    polling();
-    setInterval(polling, 20000); // toutes les 20 secondes
+            premierPolling = false;
+            ancienCount = data.count;
 
-    
+            if (data.count > 0) {
+                badge.textContent = data.count > 99 ? '99+' : data.count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            afficherNotifications(data.notifications);
+        })
+        .catch(() => {});
+}
+
+polling();
+setInterval(polling, 20000);
+
+// Débloque l'audio dès le premier clic n'importe où sur la page
+document.addEventListener('click', function débloquerAudio() {
+    audioNotif.play().then(() => {
+        audioNotif.pause();
+        audioNotif.currentTime = 0;
+    }).catch(() => {});
+    document.removeEventListener('click', débloquerAudio);
+}, { once: true });
+
 });
 </script>

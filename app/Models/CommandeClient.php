@@ -71,17 +71,17 @@ class CommandeClient extends Model
     {
         return $this->hasMany(Versement::class);
     }
-    // public function commandeLivreur()
-    // {
-    //     return $this->hasMany(commandeLivreur::class);
-    // }
+    public function commandeLivreur()
+    {
+        return $this->hasMany(commandeLivreur::class);
+    }
      public function livraison()
     {
         return $this->hasOne(CommandeLivreur::class, 'commande_client_id');
     }
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class, 'client_id');
     }
     public function livreur()
     {
@@ -193,6 +193,9 @@ class CommandeClient extends Model
                 'type'               => 'ADMINISTRATEUR',
                 'typeId'             => Auth::id(),
             ]);
+
+            $commande = $this;
+            $commande->client->notify(new \App\Notifications\LivreurAffecteNotification($commande));
             
         }); 
     }
@@ -338,7 +341,8 @@ class CommandeClient extends Model
             //         'details' => 'Commission sur livraison commande (5%)',
             //     ]);
             // }
-            
+            $commande = $this;
+            $commande->client->notify(new \App\Notifications\CommandeLivreeNotification($commande));
         }); 
     }
     public function marquer_commande_livree_fournisseur(array $data)
@@ -431,10 +435,13 @@ class CommandeClient extends Model
             $montant_livraison = $this->detailCommandeClients()
                                     ->where('type', 'SERVICE')
                                     ->sum('montant');
+            
+            $commande = $this;
 
             //On ne crédite que s'il y a un livreur ET un montant de service
             if ($commandeLivreur && $montant_livraison > 0) {
-                $commission_livreur = round($montant_livraison * 0.05);
+                $tauxCommissionL = Entreprise::select('taux_commission_livreur')->first()->taux_commission_livreur; // 5%, configurable
+                $commission_livreur = round($montant_livraison * $tauxCommissionL);
                 $montant_net_livreur = $montant_livraison - $commission_livreur;
 
                 LivreurSolde::create([
@@ -454,6 +461,8 @@ class CommandeClient extends Model
                     'disponible_le'      => now()->addHours(24),
                     'details'            => 'Commission sur livraison commande (5%)',
                 ]);
+
+                 $commande->livreur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
             }
 
             // ============================================================
@@ -461,7 +470,8 @@ class CommandeClient extends Model
             // ============================================================
         
             if ($this->montant_brut > 0) {
-                $commission_fournisseur = round($this->montant_brut * 0.10);
+                $tauxCommissionF = Entreprise::select('taux_commission_fournisseur')->first()->taux_commission_fournisseur; // 10%, configurable
+                $commission_fournisseur = round($this->montant_brut * $tauxCommissionF);
                 $montant_net_fournisseur = $this->montant_brut - $commission_fournisseur;
 
             FournisseurSolde::create([
@@ -482,6 +492,9 @@ class CommandeClient extends Model
                     'details'            => 'Commission sur commande fournisseur (10%)',
                 ]);
             }
+
+             $commande->fournisseur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
+           
 
         }); 
 

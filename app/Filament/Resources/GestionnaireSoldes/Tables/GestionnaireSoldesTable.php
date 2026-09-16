@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources\GestionnaireSoldes\Tables;
 
+use App\Models\Fournisseur;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class GestionnaireSoldesTable
@@ -55,7 +60,40 @@ class GestionnaireSoldesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                 SelectFilter::make('statut')
+                    ->label('STATUT COMMANDE')
+                    ->options([
+                       'EN_ATTENTE' => 'EN ATTENTE',
+                        'DISPONIBLE' => 'DISPONIBLE',
+                        'PAYE' => 'PAYE',
+                        // 'REFUSE' => 'REFUSE',
+                    ])
+                    ->multiple()
+                    ->preload(),
+                 SelectFilter::make('debiteur_type')
+                    ->label('DEBITEUR')
+                    ->options([
+                        \App\Models\Livreur::class => 'Uniquement les Livreurs',
+                        \App\Models\Fournisseur::class => 'Uniquement les Fournisseurs',
+                    ]),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')->label('Debut'),
+                        DatePicker::make('created_until')->label('Fin'),
+                                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                return $query
+                                    ->when(
+                                        $data['created_from'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                    )
+                                    ->when(
+                                        $data['created_until'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                    );
+                                    }),
+
+               
             ])
             ->recordActions([
                 ViewAction::make(),

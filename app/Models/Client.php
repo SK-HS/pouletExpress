@@ -40,7 +40,7 @@ class Client extends Authenticatable
 
     public function commandeClients()
     {
-        return $this->hasMany(CommandeClient::class);
+        return $this->hasMany(CommandeClient::class, 'client_id');
     }
 
     public function user()

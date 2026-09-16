@@ -105,6 +105,7 @@ class CommandeClientInfolist
                         TextEntry::make('statut')
                          ->badge() 
                         ->color(fn ($state) => match($state) {
+                            'NOUVEAU'  => 'primary',
                             'RECEPTIONNEE'  => 'success',
                             'LIVREE_PAR_FOURNISSEUR'    => 'success',
                             'EN_ROUTE'      => 'info',

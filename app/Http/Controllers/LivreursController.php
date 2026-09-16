@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CommandeClient;
 use App\Models\CommandeLivreur;
 use App\Models\DemandeRetrait;
+use App\Models\Entreprise;
 use App\Models\GestionnaireSolde;
 use App\Models\Livreur;
 use App\Models\LivreurSolde;
@@ -431,7 +432,10 @@ class LivreursController extends Controller
                 'typeId' => $livreur->id,
             ]);
 
+        DB::afterCommit(function () use ($commande) {
             $commande->client->notify(new \App\Notifications\LivreurAffecteNotification($commande));
+                 });
+
             return ['success' => true, 'message' => 'Commande acceptée avec succès !'];
         });
  
@@ -703,32 +707,33 @@ class LivreursController extends Controller
                 ->where('type', 'SERVICE') 
                 ->sum('montant');
 
-            $tauxCommission = 0.05; // 5%, configurable
-            // $montant = $montant_livraison * (1 - $tauxCommission);
-            // $commission = $tauxCommission * $montant_livraison;
-            $commission = round($montant_livraison * $tauxCommission);
-            $montant = $montant_livraison - $commission;
+
+            // $tauxCommission = Entreprise::select('taux_commission_livreur')->first()->taux_commission_livreur; // 5%, configurable
+            // // $montant = $montant_livraison * (1 - $tauxCommission);
+            // // $commission = $tauxCommission * $montant_livraison;
+            // $commission = round($montant_livraison * $tauxCommission);
+            // $montant = $montant_livraison - $commission;
             
-            LivreurSolde::create([
-                    'statut' => 'EN_ATTENTE', 
-                    'commande_livreur_id' => $commandeLivreur->id,
-                    'montant' => $montant,
-                    'livreur_id' => $livreur->id,
-                    'disponible_le' => now()->addHours(24),
-                ]);
+            // LivreurSolde::create([
+            //         'statut' => 'EN_ATTENTE', 
+            //         'commande_livreur_id' => $commandeLivreur->id,
+            //         'montant' => $montant,
+            //         'livreur_id' => $livreur->id,
+            //         'disponible_le' => now()->addHours(24),
+            //     ]);
 
-            GestionnaireSolde::create([
-                    'debiteur_type' => Livreur::class,
-                    'debiteur_id'   => $livreur->id,
-                    'statut' => 'EN_ATTENTE', 
-                    'commande_client_id' => $commandeLivreur->commande_client_id,
-                    'montant' => $commission,
-                    'disponible_le' => now()->addHours(24),
-                    'details' => 'Commission sur livraison commande (5%)',
-                ]);
-                
+            // GestionnaireSolde::create([
+            //         'debiteur_type' => Livreur::class,
+            //         'debiteur_id'   => $livreur->id,
+            //         'statut' => 'EN_ATTENTE', 
+            //         'commande_client_id' => $commandeLivreur->commande_client_id,
+            //         'montant' => $commission,
+            //         'disponible_le' => now()->addHours(24),
+            //         'details' => 'Commission sur livraison commande (5%)',
+            //     ]);
+                 DB::afterCommit(function () use ($commande) {
             $commande->client->notify(new \App\Notifications\CommandeLivreeNotification($commande));
-
+                 });
             return ['success' => true, 'message' => 'Commande Livrée avec succès.'];
         });
 

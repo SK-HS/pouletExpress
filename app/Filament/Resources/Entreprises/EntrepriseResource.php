@@ -61,6 +61,14 @@ class EntrepriseResource extends Resource
                 TextInput::make('email')
                     ->label('Email address')
                     ->email(),
+                TextInput::make('taux_commission_fournisseur')
+                    ->label('Taux de commission fournisseur')
+                    ->numeric()
+                    ->step(0.01),
+                TextInput::make('taux_commission_livreur')
+                    ->label('Taux de commission livreur')
+                    ->numeric()
+                    ->step(0.01),
                 TextInput::make('site_web'),
                 FileUpload::make('logo')
                     ->label('Logo')
@@ -102,6 +110,10 @@ class EntrepriseResource extends Resource
                     ->label('Site Web'),
                 TextEntry::make('compte')
                     ->label('Compte'),
+                TextEntry::make('taux_commission_fournisseur')
+                    ->label('Taux de commission fournisseur'),
+                TextEntry::make('taux_commission_livreur')
+                    ->label('Taux de commission livreur'),
                 ImageEntry::make('logo')
                     ->disk('public')
                     ->imageWidth(200)
@@ -149,6 +161,12 @@ class EntrepriseResource extends Resource
                     ->label('Email address')
                     ->searchable(),
                 TextColumn::make('compte')
+                    ->searchable(),
+                TextColumn::make('taux_commission_fournisseur')
+                    ->label('Commission Fournisseur')
+                    ->searchable(),
+                TextColumn::make('taux_commission_livreur')
+                    ->label('Commission Livreur')
                     ->searchable(),
                 IconColumn::make('status')
                     ->boolean(),

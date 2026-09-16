@@ -70,6 +70,18 @@ class Fournisseur extends Authenticatable
     {
         return $this->hasMany(StatutFournisseur::class);
     }
+     public function promoFournisseur()
+    {
+        return $this->hasMany(CampagnePromotion::class, 'fournisseur_id');
+    }
+     public function commandeClents()
+    {
+        return $this->hasMany(CommandeClient::class, 'fournisseur_id');
+    }
+     public function fournisseurSolde()
+    {
+        return $this->hasMany(FournisseurSolde::class, 'fournisseur_id');
+    }
 
         public function demandesRetraits()
     {

@@ -23,7 +23,9 @@ return new class extends Migration
             $table->text('logo')->nullable();
             $table->text('pied_page')->nullable();
             $table->boolean('status')->default(1);
-            $table->float('compte')->default(0);
+            $table->float('compte', 10, 2)->default(0);
+            $table->float('taux_commission_livreur')->default(0);
+            $table->float('taux_commission_fournisseur')->default(0);
             $table->foreignId('user_id')->constrained('users')->onDelete('set null');
             $table->timestamps();
         });

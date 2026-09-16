@@ -4,12 +4,15 @@ namespace App\Filament\Resources\CommandeLivreurs;
 
 use App\Filament\Resources\CommandeLivreurs\Pages\ManageCommandeLivreurs;
 use App\Models\CommandeLivreur;
+use App\Models\Livreur;
+use App\Models\Quartier;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -19,7 +22,10 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
@@ -164,7 +170,53 @@ class CommandeLivreurResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                 SelectFilter::make('statut')
+                    ->label('STATUT COMMANDE')
+                    ->options([
+                        "EN_ATTENTE"=>"En attente d'un Livreur",
+                        "AFFECTEE"=>"Livreur assigné",
+                        "RECUPEREE"=>"Commande recuperée",
+                        "EN_ROUTE"=>"Livreur en route pour livrer",
+                        "LIVREE"=>"Commande livrée au client",
+                    ])
+                    ->multiple()
+                    ->preload(),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')->label('Debut'),
+                        DatePicker::make('created_until')->label('Fin'),
+                                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                return $query
+                                    ->when(
+                                        $data['created_from'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                    )
+                                    ->when(
+                                        $data['created_until'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                    );
+                                    }),
+                SelectFilter::make('livreur_id')
+                    ->options(function () {
+                        return Livreur::orderBy('nom')
+                            ->get()
+                            ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom} - {$e->type} - {$e->quartier?->nom_quartier} - {$e->adresse} - ({$e->telephone})"])
+                            ->toArray();
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->label('LIVREURS'),
+                SelectFilter::make('quartier_id')
+                    ->options(function () {
+                        return Quartier::orderBy('nom_quartier')
+                            ->get()
+                            ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom_quartier} - {$e->commune?->nom_commune} - {$e->commune?->ville?->nom_ville}"])
+                            ->toArray();
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->label('QUARTIERS'),
             ])
             ->recordActions([
                 ViewAction::make(),

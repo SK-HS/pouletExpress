@@ -4,12 +4,14 @@ namespace App\Filament\Resources\Communes;
 
 use App\Filament\Resources\Communes\Pages\ManageCommunes;
 use App\Models\Commune;
+use App\Models\Ville;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -18,7 +20,10 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
@@ -93,7 +98,34 @@ class CommuneResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                 SelectFilter::make('ville_id')
+                    ->options(function () {
+                        return Ville::orderBy('nom_ville')
+                            ->get()
+                            ->mapWithKeys(fn ($e) => [$e->id => "{$e->nom_ville}"])
+                            ->toArray();
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->label('VILLES'),
+
+                Filter::make('created_at')
+                    ->label('PERIODE DE CREATION')
+                    ->schema([
+                        DatePicker::make('created_from')->label('Debut'),
+                        DatePicker::make('created_until')->label('Fin'),
+                                            ])
+                            ->query(function (Builder $query, array $data): Builder {
+                                return $query
+                                    ->when(
+                                        $data['created_from'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                    )
+                                    ->when(
+                                        $data['created_until'],
+                                        fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                    );
+                                    }),
             ])
             ->recordActions([
                 ViewAction::make(),
