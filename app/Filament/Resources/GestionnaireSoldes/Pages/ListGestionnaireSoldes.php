@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\GestionnaireSoldes\Pages;
 
+use App\Filament\Resources\GestionnaireSoldes\Widgets\GestionnaireSoldeWidget;
 use App\Filament\Resources\GestionnaireSoldes\GestionnaireSoldeResource;
-use App\Filament\Widgets\GestionnaireSoldeWidget;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Dashboard\Actions\FilterAction;

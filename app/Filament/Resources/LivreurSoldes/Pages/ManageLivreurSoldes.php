@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\LivreurSoldes\Pages;
 
+use App\Filament\Resources\LivreurSolde\Widgets\LivreurSoldeWidget;
 use App\Filament\Resources\LivreurSoldes\LivreurSoldeResource;
-use App\Filament\Widgets\LivreurSoldeWidget;
 use App\Models\Livreur;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;

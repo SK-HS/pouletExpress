@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Versement extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'reference',
         'commande_client_id',
@@ -182,4 +186,13 @@ class Versement extends Model
     });
 
         }
+
+         public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
 }

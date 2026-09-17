@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class FournisseurSolde extends Model
 {
+    use LogsActivity;
+    
       protected $fillable = [
         'commande_client_id',
         'fournisseur_id',
@@ -68,5 +72,15 @@ class FournisseurSolde extends Model
         
     }); 
 }
+
+   
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
 
 }

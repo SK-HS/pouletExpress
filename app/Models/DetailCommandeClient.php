@@ -6,9 +6,13 @@ use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class DetailCommandeClient extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'commande_client_id',
         'produit_fournisseur_id',
@@ -186,4 +190,14 @@ static::creating(function ($detail) {
 
 
         }
+
+           
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
 }

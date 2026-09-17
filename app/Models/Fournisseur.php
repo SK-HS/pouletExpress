@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable; 
 use Illuminate\Notifications\Notifiable; 
 use Illuminate\Support\Facades\Auth;
-
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Fournisseur extends Authenticatable
 {
-      use HasFactory, Notifiable; // Laissez vos traits actuels s'il y en a
+      use HasFactory, Notifiable; use LogsActivity;// Laissez vos traits actuels s'il y en a
 
     protected $casts = [
     'type_produit' => 'array',
@@ -143,5 +144,15 @@ class Fournisseur extends Authenticatable
 
                 ]);
             }
+    }
+
+       
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
     }
 }

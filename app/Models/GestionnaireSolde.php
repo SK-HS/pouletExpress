@@ -6,9 +6,12 @@ use App\Models\Entreprise;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class GestionnaireSolde extends Model
 {
+    use LogsActivity;
       protected $fillable = [
         'debiteur_type',
         'debiteur_id',
@@ -70,6 +73,17 @@ class GestionnaireSolde extends Model
         
     }); 
 }
+
+   
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
+    
 
    
 }

@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\DemandeRetraitTraiteeNotification;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class DemandeRetrait extends Model
 {
+    use LogsActivity;
+    
      protected $fillable = [
         'beneficiaire_type',
         'beneficiaire_id',
@@ -79,5 +83,15 @@ public function valider_demande_retrait(array $data = [])
         
     }); 
 }
+
+   
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
 
 }

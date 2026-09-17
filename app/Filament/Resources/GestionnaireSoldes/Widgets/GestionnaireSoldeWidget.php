@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Resources\GestionnaireSoldes\Widgets;
 
 use App\Models\GestionnaireSolde;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;

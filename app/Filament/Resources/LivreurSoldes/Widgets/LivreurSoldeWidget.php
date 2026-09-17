@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Resources\LivreurSoldes\Widgets;
 
 use App\Models\LivreurSolde;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;

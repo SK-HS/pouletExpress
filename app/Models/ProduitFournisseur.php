@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ProduitFournisseur extends Model
 {
+    use LogsActivity;
+
      protected $fillable = [
         'quantite',
         'prix',
@@ -50,6 +54,7 @@ class ProduitFournisseur extends Model
     {
         return $this->belongsToMany(CampagnePromotion::class, 'campagne_produits');
     }
+
 
 
 
@@ -161,7 +166,14 @@ public function calculerPrixFinal(int $quantite_commandee)
 }
     
    
-
+ public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
+    }
 
 
 

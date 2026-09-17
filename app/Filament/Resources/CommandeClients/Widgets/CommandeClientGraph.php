@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CommandeClientChart\Widgets;
+namespace App\Filament\Resources\CommandeClients\Widgets;
 
 use App\Models\CommandeClient;
 use Filament\Widgets\ChartWidget;
@@ -8,7 +8,7 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 
-class CommandeClientChart extends ChartWidget
+class CommandeClientGraph extends ChartWidget
 {
     protected ?string $heading = 'Gaphe des Commande Client par Mois';
     protected int | string | array $columnSpan = 'full';

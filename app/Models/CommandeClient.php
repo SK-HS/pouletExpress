@@ -8,10 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class CommandeClient extends Model
 {
       use Notifiable;
+      use LogsActivity;
+
      protected $fillable = [
         'reference',
         'client_id',
@@ -504,6 +508,16 @@ class CommandeClient extends Model
         //     ->where('updated_at', '<=', now()->subHours(24))
         //     ->each(fn($commande) => $commande->marquer_commande_recu_client([]));
 
+    }
+
+       
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
     }
 
 

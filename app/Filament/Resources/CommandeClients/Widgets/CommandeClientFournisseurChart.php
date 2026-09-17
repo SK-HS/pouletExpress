@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CommandeClientFournisseurChart\Widgets;
+namespace App\Filament\Resources\CommandeClients\Widgets;
 
 use App\Models\CommandeClient;
 use Filament\Widgets\ChartWidget;

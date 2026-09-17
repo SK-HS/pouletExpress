@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Client extends Authenticatable
 {
      use Notifiable;
+     use LogsActivity;
 
     protected $table = 'clients';
     
@@ -62,6 +65,16 @@ class Client extends Authenticatable
         // Générer le code avec padding
         $model->code_client = "C".str_pad($nextId, 4, '0', STR_PAD_LEFT);
     });
+    }
+
+       
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll() // Enregistre tous les champs modifiés
+            ->logOnlyDirty() // N'enregistre QUE ce qui a réellement changé
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => "Commande client {$eventName}");
     }
     
 }

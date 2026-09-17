@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Resources\FournisseurSoldes\Widgets;
 
 use App\Models\FournisseurSolde;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -10,7 +10,7 @@ use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
 
-class FournisseurSoldeWidget extends StatsOverviewWidget
+class CommissionFournisseurWidgets extends StatsOverviewWidget
 {
     use InteractsWithPageFilters;
 

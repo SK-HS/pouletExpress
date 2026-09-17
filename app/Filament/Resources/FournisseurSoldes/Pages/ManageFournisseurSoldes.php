@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\FournisseurSoldes\Pages;
 
+use App\Filament\Resources\FournisseurSoldes\Widgets\CommissionFournisseurWidgets;
 use App\Filament\Resources\FournisseurSoldes\FournisseurSoldeResource;
-use App\Filament\Widgets\FournisseurSoldeWidget;
 use App\Models\Fournisseur;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
@@ -37,7 +37,7 @@ class ManageFournisseurSoldes extends ManageRecords
       protected function getHeaderWidgets(): array
             {
                 return [
-                    FournisseurSoldeWidget::class,
+                    CommissionFournisseurWidgets::class,
                 ];
             }
 }

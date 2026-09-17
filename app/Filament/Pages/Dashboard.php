@@ -2,16 +2,20 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\CommandeClientChart\Widgets\CommandeClientChart;
-use App\Filament\Resources\CommandeClientFournisseurChart\Widgets\CommandeClientFournisseurChart;
+
+
+use App\Filament\Resources\CommandeClients\Widgets\CommandeClientFournisseurChart;
+use App\Filament\Resources\CommandeClients\Widgets\CommandeClientGraph;
 use App\Filament\Resources\CommandeClients\Widgets\CommandeClientPie;
 use App\Filament\Resources\CommandeClients\Widgets\CommandeClientWidget;
+use App\Filament\Resources\CommandeClients\Widgets\RepartitionCommandeClientChart;
 use App\Filament\Resources\CommandeLivreurs\Widgets\EtatCommandeWidget;
 use App\Filament\Resources\DemandeRetraits\Widgets\DemandeRetraitWidget;
-use App\Filament\Resources\RepartitionCommandeClientChart\Widgets\RepartitionCommandeClientChart;
-use App\Filament\Widgets\FournisseurSoldeWidget;
-use App\Filament\Widgets\GestionnaireSoldeWidget;
-use App\Filament\Widgets\LivreurSoldeWidget;
+use App\Filament\Resources\FournisseurSoldes\Widgets\CommissionFournisseurWidgets;
+use App\Filament\Resources\GestionnaireSoldes\Widgets\GestionnaireSoldeWidget;
+use App\Filament\Resources\LivreurSoldes\Widgets\LivreurSoldeWidget;
+
+
 use App\Models\Fournisseur;
 use App\Models\Livreur;
 use Filament\Actions\Action;
@@ -90,11 +94,11 @@ class Dashboard extends Page
                 return [
                     EtatCommandeWidget::class,
                     CommandeClientWidget::class,
-                    FournisseurSoldeWidget::class,
+                    CommissionFournisseurWidgets::class,
                     LivreurSoldeWidget::class,
                     GestionnaireSoldeWidget::class,
                     DemandeRetraitWidget::class,
-                    CommandeClientChart::class,
+                    CommandeClientGraph::class,
                     CommandeClientPie::class,
                     CommandeClientFournisseurChart::class,
                     RepartitionCommandeClientChart::class,

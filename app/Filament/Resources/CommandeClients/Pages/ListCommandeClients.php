@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\CommandeClients\Pages;
 
-use App\Filament\Resources\CommandeClientChart\Widgets\CommandeClientChart;
-use App\Filament\Resources\CommandeClientFournisseurChart\Widgets\CommandeClientFournisseurChart;
+
 use App\Filament\Resources\CommandeClients\CommandeClientResource;
+use App\Filament\Resources\CommandeClients\Widgets\CommandeClientFournisseurChart;
+use App\Filament\Resources\CommandeClients\Widgets\CommandeClientGraph;
 use App\Filament\Resources\CommandeClients\Widgets\CommandeClientPie;
 use App\Filament\Resources\CommandeClients\Widgets\CommandeClientWidget;
-use App\Filament\Resources\RepartitionCommandeClientChart\Widgets\RepartitionCommandeClientChart;
+use App\Filament\Resources\CommandeClients\Widgets\RepartitionCommandeClientChart;
 use App\Models\Fournisseur;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
@@ -44,7 +45,7 @@ class ListCommandeClients extends ListRecords
             {
                 return [
                     CommandeClientWidget::class,
-                    CommandeClientChart::class,
+                    CommandeClientGraph::class,
                     CommandeClientPie::class,
                     CommandeClientFournisseurChart::class,
                     RepartitionCommandeClientChart::class,
