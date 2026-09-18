@@ -462,8 +462,9 @@ public function espace_client(Request $request)
                 $commande->livreur->notify(new \App\Notifications\ReceptionCommandeClientNotification($commande));
             
             }
-            return ['success' => true, 'message' => 'Commande reçue et validée avec succès. Merci !'];
             });
+            
+            return ['success' => true, 'message' => 'Commande reçue et validée avec succès. Merci !'];
 
          });
 

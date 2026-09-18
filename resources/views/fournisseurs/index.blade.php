@@ -157,7 +157,7 @@
                     <tbody class="divide-y divide-outline-variant">
                         @forelse($commandesRecentes as $cmd)
                         @php
-                            $statutLiv = $cmd->commandeLivreur?->statut ?? 'EN_ATTENTE';
+                            $statutLiv = $cmd->livraison?->statut ?? 'EN_ATTENTE';
                             $badgeConfig = match($statutLiv) {
                                 'EN_ATTENTE' => ['bg' => 'bg-secondary-container text-on-secondary-container', 'label' => 'Attente'],
                                 'AFFECTEE'   => ['bg' => 'bg-blue-100 text-blue-700', 'label' => 'Affectée'],

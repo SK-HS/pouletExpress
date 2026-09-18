@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\LivreurSoldes\Pages;
 
-use App\Filament\Resources\LivreurSolde\Widgets\LivreurSoldeWidget;
+use App\Filament\Resources\LivreurSoldes\Widgets\LivreurSoldeWidget;
 use App\Filament\Resources\LivreurSoldes\LivreurSoldeResource;
 use App\Models\Livreur;
 use Filament\Actions\CreateAction;

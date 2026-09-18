@@ -59,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
              ->plugins([
-            ActivitylogPlugin::make(),
+          //  ActivitylogPlugin::make(),
         ]);
     }
 
